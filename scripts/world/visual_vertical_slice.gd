@@ -92,8 +92,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		capture_in_engine_screenshot()
 
 func capture_in_engine_screenshot() -> String:
-	var img = get_viewport().get_texture().get_image()
-	var save_path = "C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/in_engine_vertical_slice.png"
+	if DisplayServer.get_name() == "headless":
+		return ""
+	var viewport = get_viewport()
+	if viewport == null or viewport.get_texture() == null:
+		return ""
+	var img = viewport.get_texture().get_image()
+	if img == null:
+		return ""
+	var save_path = "C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/stylized_2d_in_engine_vertical_slice.png"
 	var err = img.save_png(save_path)
-	print("[Screenshot] In-engine screenshot saved to: ", save_path, " (Result: ", err == OK, ")")
+	# Also update in_engine_vertical_slice.png
+	img.save_png("C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/in_engine_vertical_slice.png")
+	print("[Screenshot] Stylized 2D vertical slice screenshot saved to: ", save_path, " (Result: ", err == OK, ")")
 	return save_path

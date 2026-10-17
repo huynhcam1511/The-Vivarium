@@ -37,6 +37,8 @@ var outworld_ant_path: Array[Vector2] = [
 ]
 
 var _work_timer: float = 0.0
+var _frame_count: int = 0
+var _screenshot_taken: bool = false
 
 func _ready() -> void:
 	_init_subterranean_grid()
@@ -51,10 +53,31 @@ func _init_subterranean_grid() -> void:
 	add_child(subterranean_grid)
 
 func _process(delta: float) -> void:
+	if not _screenshot_taken:
+		_frame_count += 1
+		if _frame_count >= 60:
+			_screenshot_taken = true
+			capture_in_engine_screenshot()
+
 	_work_timer += delta
 	if _work_timer >= 2.0:
 		_work_timer = 0.0
 		_process_ant_construction_tasks()
+
+func capture_in_engine_screenshot() -> String:
+	if DisplayServer.get_name() == "headless":
+		return ""
+	var viewport = get_viewport()
+	if viewport == null or viewport.get_texture() == null:
+		return ""
+	var img = viewport.get_texture().get_image()
+	if img == null:
+		return ""
+	var save_path = "C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/stylized_2d_in_engine_main_gameplay.png"
+	var err = img.save_png(save_path)
+	img.save_png("C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/in_engine_main_gameplay.png")
+	print("[Screenshot] Stylized 2D gameplay screenshot saved: ", err == OK, " at ", save_path)
+	return save_path
 
 func _process_ant_construction_tasks() -> void:
 	if subterranean_grid == null:

@@ -26,7 +26,7 @@ const GRID_WIDTH: int = 60   # 60 * 32 = 1920px wide (16:9 Landscape)
 const GRID_HEIGHT: int = 26  # 26 * 32 = 832px depth (from y=880 to y=1712)
 const OFFSET_Y: int = 880
 
-const SOIL_TEX = preload("res://assets/sprites/realistic_soil_texture.png")
+const SOIL_TEX = preload("res://assets/sprites/stylized_handpainted_soil.png")
 
 var grid_data: Dictionary = {} # Vector2i -> TileState
 var chamber_data: Dictionary = {} # Vector2i -> ChamberType
