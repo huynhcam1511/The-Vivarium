@@ -1,11 +1,12 @@
 extends Node
 
-# The Living Colony - Real-Life Ecological Simulation Manager
+# The Vivarium - Real-Life Ecological Simulation Manager
 signal resources_updated
 signal climate_updated
 signal weather_changed(new_weather: String)
 signal colony_event(message: String)
 signal pheromone_priority_updated
+signal mode_changed(new_mode: String)
 
 # --- PHYSICAL NATURAL RESOURCES (100% Thu gom & Tự tiết ra) ---
 var clay_mud: int = 45           # Viên bùn đất kiến gom ngoài tự nhiên để xây vách
@@ -64,19 +65,39 @@ var current_biome: String = "微风原野 (Breeze Meadow)"
 var current_season: String = "Autumn"
 var season_week: int = 3
 
-# --- INTERACTIVE TOOLS ---
+# --- GAMEPLAY MODES & TIME SCALING ---
+var game_mode: String = "LIVING" # "LIVING" (Peaceful Sandbox) or "SURVIVAL" (Harsh Challenge)
 var current_tool: String = "NONE" # "NONE", "DIG", "FILL", "DELETE"
 
 var _cycle_timer: float = 0.0
 
 func _ready() -> void:
-	print("[The Living Colony] Ecological Simulation Engine Active.")
+	print("[The Vivarium] Ecological Simulation Engine Active. Mode: %s" % game_mode)
 
 func _process(delta: float) -> void:
 	_cycle_timer += delta
 	if _cycle_timer >= 1.5:
 		_cycle_timer = 0.0
 		_simulate_ecological_tick()
+
+func set_game_mode(new_mode: String) -> void:
+	game_mode = new_mode
+	emit_signal("mode_changed", game_mode)
+	if game_mode == "LIVING":
+		emit_signal("colony_event", "🌱 Chế Độ Thảnh Thơi (Living Sandbox): Môi trường an toàn, không có đói lả bầy đàn.")
+	else:
+		emit_signal("colony_event", "⚔️ Chế Độ Sinh Tồn (Survival Sandbox): Tiêu hao tài nguyên thực tế, bão lũ và giá rét đe dọa đàn!")
+
+func set_time_scale(scale: float) -> void:
+	Engine.time_scale = scale
+	if scale == 0.0:
+		emit_signal("colony_event", "⏸️ Đã tạm dừng thời gian thế giới.")
+	elif scale == 1.0:
+		emit_signal("colony_event", "▶️ Tốc độ thời gian: 1x (Thời gian thực).")
+	elif scale == 2.0:
+		emit_signal("colony_event", "⏩ Tốc độ thời gian: 2x (Tăng tốc quan sát).")
+	elif scale == 5.0:
+		emit_signal("colony_event", "⏩⏩ Tốc độ thời gian: 5x (Tua nhanh chu kỳ sinh học).")
 
 func _simulate_ecological_tick() -> void:
 	match weather_state:
@@ -132,7 +153,11 @@ func _process_rainstorm_weather() -> void:
 	if clay_mud >= 2:
 		clay_mud -= 2
 	else:
-		emit_signal("colony_event", "⚠️ Nước mưa rò rỉ vào cửa hầm! Đàn kiến khẩn cấp gom thêm bùn đất đắp đê!")
+		if game_mode == "SURVIVAL" and ant_eggs > 5:
+			ant_eggs -= 1
+			emit_signal("colony_event", "🌧️ [Bão Lũ] Nước mưa tràn vào buồng ấp trứng! (-1 Trứng kiến)")
+		else:
+			emit_signal("colony_event", "⚠️ Nước mưa rò rỉ vào cửa hầm! Đàn kiến khẩn cấp gom thêm bùn đất đắp đê!")
 
 func _process_heatwave_weather() -> void:
 	temperature = min(38.5, temperature + 0.5)
@@ -143,7 +168,11 @@ func _process_heatwave_weather() -> void:
 		water_units -= 1.2
 		temperature = max(28.0, temperature - 0.4)
 	else:
-		emit_signal("colony_event", "⚠️ Nhiệt độ tăng cao! Tổ ong cần cấp thêm nước để quạt mát tránh chảy sáp!")
+		if game_mode == "SURVIVAL" and beeswax > 2.0:
+			beeswax -= 0.2
+			emit_signal("colony_event", "🔥 [Nắng Nóng] Nhiệt độ cao làm chảy một phần vách sáp ong! (-0.2g Sáp)")
+		else:
+			emit_signal("colony_event", "⚠️ Nhiệt độ tăng cao! Tổ ong cần cấp thêm nước để quạt mát tránh chảy sáp!")
 
 func _process_winter_weather() -> void:
 	temperature = max(14.0, temperature - 0.4)
@@ -151,6 +180,9 @@ func _process_winter_weather() -> void:
 	if get_total_honey() > (MIN_RESERVE_HONEY if keep_honey_for_bees else 0.0):
 		honey_acacia = max(0.0, honey_acacia - 0.25)
 		honey_wildflower = max(0.0, honey_wildflower - 0.20)
+	elif game_mode == "SURVIVAL" and forager_bees > 3:
+		forager_bees -= 1
+		emit_signal("colony_event", "❄️ [Giá Rét] Cạn kiệt mật ong! Một chú ong già đã ngã xuống vì lạnh.")
 
 func _process_swarm_homeostasis() -> void:
 	# Kiến Chúa đẻ trứng tự nhiên khi có đủ protein
@@ -189,7 +221,7 @@ func set_pheromone_priority(building: float, brood: float, excavation: float, fo
 	priority_foraging = foraging
 	priority_mode = mode
 	emit_signal("pheromone_priority_updated")
-	emit_signal("colony_event", "Đã điều tiết nồng độ Pheromone ưu tiên (%s): Xây dựng %.0f%% | Ấu trùng %.0f%% | Đào hầm %.0f%% | Kiếm ăn %.0f%%" % [
+	emit_signal("colony_event", "Đã điều tiết Pheromone (%s): Xây %.0f%% | Ấu trùng %.0f%% | Đào %.0f%% | Kiếm ăn %.0f%%" % [
 		mode, building * 100, brood * 100, excavation * 100, foraging * 100
 	])
 

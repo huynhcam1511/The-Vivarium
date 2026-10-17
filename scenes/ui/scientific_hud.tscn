@@ -5,277 +5,279 @@
 [node name="ScientificHUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="TopMargin" type="MarginContainer" parent="."]
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = 56.0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = -14.0
+offset_bottom = 54.0
 grow_horizontal = 2
+
+[node name="HBox" type="HBoxContainer" parent="TopMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AtmospherePill" type="PanelContainer" parent="TopMargin/HBox"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="TopMargin/HBox/AtmospherePill"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="TopMargin/HBox/AtmospherePill/Margin"]
+layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TelemetryPill" type="PanelContainer" parent="TopBar"]
+[node name="TelemetryLabel" type="Label" parent="TopMargin/HBox/AtmospherePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "🌡️ 26.5°C | 💧 68% RH | 💨 480 ppm CO2"
+
+[node name="VSep" type="VSeparator" parent="TopMargin/HBox/AtmospherePill/Margin/HBox"]
+layout_mode = 2
+
+[node name="BiomeLabel" type="Label" parent="TopMargin/HBox/AtmospherePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "🌾 Breeze Meadow"
+
+[node name="WeatherLabel" type="Label" parent="TopMargin/HBox/AtmospherePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "☀️ Nắng Ấm"
+
+[node name="ResourcePill" type="PanelContainer" parent="TopMargin/HBox"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="TopMargin/HBox/ResourcePill"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="TopMargin/HBox/ResourcePill/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ClayLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🧱 45"
+
+[node name="WaxLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🕯️ 28.5g"
+
+[node name="HoneyLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🍯 365.0g"
+
+[node name="ProteinLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🦗 65.0g"
+
+[node name="SeedLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🌾 128"
+
+[node name="AntLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🐜 31"
+
+[node name="BeeLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🐝 23"
+
+[node name="Spacer" type="Control" parent="TopMargin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="TopBar/TelemetryPill"]
+[node name="TopActions" type="HBoxContainer" parent="TopMargin/HBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "🌡️ 34.8°C | 💧 63% RH | 💨 679 ppm CO2"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BiomePill" type="PanelContainer" parent="TopBar"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="TopBar/BiomePill"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "🌲 Temperate Forest"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="WeatherPill" type="PanelContainer" parent="TopBar"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="TopBar/WeatherPill"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "☀️ Nắng Ấm"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ResourcePanel" type="PanelContainer" parent="."]
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 16.0
-offset_top = 64.0
-offset_right = -16.0
-offset_bottom = 124.0
-grow_horizontal = 2
-
-[node name="VBox" type="VBoxContainer" parent="ResourcePanel"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Row1" type="HBoxContainer" parent="ResourcePanel/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="ClayBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/ClayBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🧱 Bùn Đất:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/ClayBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "45 viên"
-
-[node name="WaxBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/WaxBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🕯️ Sáp Ong:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/WaxBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "28.5g"
-
-[node name="PropolisBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/PropolisBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🌲 Keo Propolis:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/PropolisBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "14.0g"
-
-[node name="ProteinBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/ProteinBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🦗 Đạm Dế:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/ProteinBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "65.0g"
-
-[node name="Row2" type="HBoxContainer" parent="ResourcePanel/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="HoneyBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/HoneyBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🍯 Mật Chín:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/HoneyBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "345.0g"
-
-[node name="SeedBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/SeedBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🌾 Hạt Cỏ:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/SeedBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "128 hạt"
-
-[node name="AntBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/AntBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🐜 Đàn Kiến:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/AntBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "31 con"
-
-[node name="BeeBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/BeeBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "🐝 Đàn Ong:"
-
-[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/BeeBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "23 con"
-
-[node name="WeatherBar" type="HBoxContainer" parent="."]
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 16.0
-offset_top = 132.0
-offset_right = -16.0
-offset_bottom = 168.0
-grow_horizontal = 2
 theme_override_constants/separation = 8
-alignment = 1
 
-[node name="BtnSunny" type="Button" parent="WeatherBar"]
+[node name="BtnSave" type="Button" parent="TopMargin/HBox/TopActions"]
 layout_mode = 2
-text = "☀️ Nắng Ấm"
+text = "💾 Lưu Game"
 
-[node name="BtnRain" type="Button" parent="WeatherBar"]
+[node name="BtnMode" type="Button" parent="TopMargin/HBox/TopActions"]
 layout_mode = 2
-text = "🌧️ Mưa Bão (Thử thách)"
+text = "🌱 Chế Độ: Thảnh Thơi"
 
-[node name="BtnHeat" type="Button" parent="WeatherBar"]
+[node name="BottomLeftNav" type="MarginContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -58.0
+offset_right = 326.0
+offset_bottom = -14.0
+grow_vertical = 0
+
+[node name="Panel" type="PanelContainer" parent="BottomLeftNav"]
 layout_mode = 2
-text = "🔥 Nắng Gắt (Thử thách)"
 
-[node name="BtnWinter" type="Button" parent="WeatherBar"]
+[node name="Margin" type="MarginContainer" parent="BottomLeftNav/Panel"]
 layout_mode = 2
-text = "❄️ Mùa Đông (Ngủ đông)"
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
 
-[node name="QuickNav" type="HBoxContainer" parent="."]
+[node name="HBox" type="HBoxContainer" parent="BottomLeftNav/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnNavCanopy" type="Button" parent="BottomLeftNav/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🌳 Tán Cây (1)"
+
+[node name="BtnNavSurface" type="Button" parent="BottomLeftNav/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🌿 Mặt Đất (2)"
+
+[node name="BtnNavNest" type="Button" parent="BottomLeftNav/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🐜 Tổ Ngầm (3)"
+
+[node name="BottomCenterToolbar" type="MarginContainer" parent="."]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -190.0
-offset_top = -106.0
-offset_right = 190.0
-offset_bottom = -68.0
+offset_left = -340.0
+offset_top = -60.0
+offset_right = 340.0
+offset_bottom = -14.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/separation = 14
-alignment = 1
 
-[node name="BtnGotoSky" type="Button" parent="QuickNav"]
+[node name="Panel" type="PanelContainer" parent="BottomCenterToolbar"]
 layout_mode = 2
-text = "🌿 Tầng Cạn (Outworld & Hoa)"
 
-[node name="BtnGotoNest" type="Button" parent="QuickNav"]
+[node name="Margin" type="MarginContainer" parent="BottomCenterToolbar/Panel"]
 layout_mode = 2
-text = "🐜 Tổ Ngầm (Formicarium)"
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
 
-[node name="BottomActions" type="HBoxContainer" parent="."]
-anchors_preset = 12
+[node name="HBox" type="HBoxContainer" parent="BottomCenterToolbar/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnDig" type="Button" parent="BottomCenterToolbar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "⛏️ Đào (Dig)"
+
+[node name="BtnFill" type="Button" parent="BottomCenterToolbar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🧱 Lấp (Fill)"
+
+[node name="BtnCancel" type="Button" parent="BottomCenterToolbar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🧼 Hủy (Cancel)"
+
+[node name="VSep" type="VSeparator" parent="BottomCenterToolbar/Panel/Margin/HBox"]
+layout_mode = 2
+
+[node name="BtnPheromone" type="Button" parent="BottomCenterToolbar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "👑 Pheromone (%)"
+
+[node name="BtnHoneys" type="Button" parent="BottomCenterToolbar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🍯 4 Dòng Mật"
+
+[node name="BtnJournal" type="Button" parent="BottomCenterToolbar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "📜 Biên Niên Sử"
+
+[node name="BottomRightTime" type="MarginContainer" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -60.0
+offset_left = -230.0
+offset_top = -58.0
 offset_right = -16.0
-offset_bottom = -16.0
-grow_horizontal = 2
+offset_bottom = -14.0
+grow_horizontal = 0
 grow_vertical = 0
-theme_override_constants/separation = 10
-alignment = 1
 
-[node name="BtnBuildChamber" type="Button" parent="BottomActions"]
+[node name="Panel" type="PanelContainer" parent="BottomRightTime"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "🛠️ Đắp Hầm Kiến (20 Đất)"
 
-[node name="BtnBuildComb" type="Button" parent="BottomActions"]
+[node name="Margin" type="MarginContainer" parent="BottomRightTime/Panel"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "🐝 Đắp Ô Sáp (6g Sáp+2g Keo)"
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
 
-[node name="BtnJournal" type="Button" parent="BottomActions"]
+[node name="HBox" type="HBoxContainer" parent="BottomRightTime/Panel/Margin"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "📜 Biên Niên Sử Tự Nhiên"
+theme_override_constants/separation = 6
 
-[node name="ToastNotification" type="PanelContainer" parent="."]
-anchors_preset = 8
+[node name="BtnPause" type="Button" parent="BottomRightTime/Panel/Margin/HBox"]
+layout_mode = 2
+text = "⏸️"
+
+[node name="Btn1x" type="Button" parent="BottomRightTime/Panel/Margin/HBox"]
+layout_mode = 2
+text = "▶️ 1x"
+
+[node name="Btn2x" type="Button" parent="BottomRightTime/Panel/Margin/HBox"]
+layout_mode = 2
+text = "⏩ 2x"
+
+[node name="Btn5x" type="Button" parent="BottomRightTime/Panel/Margin/HBox"]
+layout_mode = 2
+text = "⏩⏩ 5x"
+
+[node name="ToastContainer" type="MarginContainer" parent="."]
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -240.0
-offset_top = -200.0
-offset_right = 240.0
-offset_bottom = -145.0
+offset_left = -280.0
+offset_top = 62.0
+offset_right = 280.0
+offset_bottom = 100.0
 grow_horizontal = 2
-grow_vertical = 2
 
-[node name="Label" type="Label" parent="ToastNotification"]
+[node name="Panel" type="PanelContainer" parent="ToastContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Thông báo sinh thái tự nhiên"
+
+[node name="Margin" type="MarginContainer" parent="ToastContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
+
+[node name="ToastLabel" type="Label" parent="ToastContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Thông báo sinh cảnh The Vivarium"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="JournalDialog" type="Window" parent="."]
-title = "Biên Niên Sử Bể Sinh Thái Chân Thực"
-position = Vector2i(100, 200)
-size = Vector2i(520, 600)
+title = "Biên Niên Sử Bể Vivarium Tự Nhiên"
+position = Vector2i(340, 140)
+size = Vector2i(600, 440)
 visible = false
 
 [node name="Margin" type="MarginContainer" parent="JournalDialog"]
@@ -296,14 +298,121 @@ layout_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Nội dung nhật ký"
+text = "Nội dung biên niên sử"
 
-[connection signal="pressed" from="WeatherBar/BtnSunny" to="." method="_on_btn_weather_sunny_pressed"]
-[connection signal="pressed" from="WeatherBar/BtnRain" to="." method="_on_btn_weather_rain_pressed"]
-[connection signal="pressed" from="WeatherBar/BtnHeat" to="." method="_on_btn_weather_heat_pressed"]
-[connection signal="pressed" from="WeatherBar/BtnWinter" to="." method="_on_btn_weather_winter_pressed"]
-[connection signal="pressed" from="QuickNav/BtnGotoSky" to="." method="_on_btn_goto_sky_pressed"]
-[connection signal="pressed" from="QuickNav/BtnGotoNest" to="." method="_on_btn_goto_nest_pressed"]
-[connection signal="pressed" from="BottomActions/BtnBuildChamber" to="." method="_on_btn_build_chamber_pressed"]
-[connection signal="pressed" from="BottomActions/BtnBuildComb" to="." method="_on_btn_build_comb_pressed"]
-[connection signal="pressed" from="BottomActions/BtnJournal" to="." method="_on_btn_journal_pressed"]
+[node name="PriorityDialog" type="Window" parent="."]
+title = "Bảng Điều Tiết Pheromone Nữ Hoàng (Macro Swarm AI)"
+position = Vector2i(360, 150)
+size = Vector2i(560, 420)
+visible = false
+
+[node name="Margin" type="MarginContainer" parent="PriorityDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="PriorityDialog/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="Label" parent="PriorityDialog/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "👑 ĐIỀU TIẾT PHÂN CÔNG LAO ĐỘNG BẰNG PHEROMONE"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="PriorityDialog/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Chọn cấu hình phân bổ năng lực cho toàn thể kiến thợ và ong thợ:"
+autowrap_mode = 2
+
+[node name="BtnPresetBalanced" type="Button" parent="PriorityDialog/Margin/VBox"]
+layout_mode = 2
+text = "⚖️ Cân Bằng Chuẩn (40% Xây | 30% Ấu trùng | 20% Đào | 10% Kiếm ăn)"
+
+[node name="BtnPresetDig" type="Button" parent="PriorityDialog/Margin/VBox"]
+layout_mode = 2
+text = "⛏️ Đại Khai Phá Hầm Ngầm (60% Đào | 20% Xây | 10% Ấu trùng | 10% Kiếm ăn)"
+
+[node name="BtnPresetBrood" type="Button" parent="PriorityDialog/Margin/VBox"]
+layout_mode = 2
+text = "🥚 Bùng Nổ Dân Số (50% Nuôi Ấu trùng | 30% Kiếm ăn | 10% Xây | 10% Đào)"
+
+[node name="BtnPresetForage" type="Button" parent="PriorityDialog/Margin/VBox"]
+layout_mode = 2
+text = "🌸 Mùa Thu Hoạch Mật Hoa (60% Kiếm ăn | 20% Xây | 20% Ấu trùng)"
+
+[node name="HoneyDialog" type="Window" parent="."]
+title = "Kho 4 Dòng Mật Ong Đơn Hoa (Monofloral Honeys)"
+position = Vector2i(380, 160)
+size = Vector2i(520, 340)
+visible = false
+
+[node name="Margin" type="MarginContainer" parent="HoneyDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="HoneyDialog/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HoneyTitle" type="Label" parent="HoneyDialog/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "🍯 PHÂN LOẠI 4 DÒNG MẬT ONG SINH HỌC"
+horizontal_alignment = 1
+
+[node name="HoneyDetail" type="Label" parent="HoneyDialog/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Đang nạp dữ liệu..."
+autowrap_mode = 2
+
+[node name="ModeDialog" type="Window" parent="."]
+title = "Cài Đặt Chế Độ Chơi (Sandbox Modes)"
+position = Vector2i(400, 180)
+size = Vector2i(480, 240)
+visible = false
+
+[node name="Margin" type="MarginContainer" parent="ModeDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="ModeDialog/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ModeTitle" type="Label" parent="ModeDialog/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "⚙️ CHỌN TRẢI NGHIỆM VIVARIUM"
+horizontal_alignment = 1
+
+[node name="BtnModeLiving" type="Button" parent="ModeDialog/Margin/VBox"]
+layout_mode = 2
+text = "🌱 Chế Độ Thảnh Thơi (Living Sandbox) — Quan sát êm đềm, không đói lả"
+
+[node name="BtnModeSurvival" type="Button" parent="ModeDialog/Margin/VBox"]
+layout_mode = 2
+text = "⚔️ Chế Độ Sinh Tồn (Survival Sandbox) — Khắc nghiệt, thử thách thời tiết"

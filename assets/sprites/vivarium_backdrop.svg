@@ -1,40 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1800" width="1920" height="1800">
   <defs>
     <!-- Sky & Canopy Ambient Glow -->
     <linearGradient id="canopySkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#2D3B26"/>
-      <stop offset="30%" stop-color="#4B633C"/>
-      <stop offset="65%" stop-color="#8DAA6E"/>
-      <stop offset="100%" stop-color="#CADBB0"/>
+      <stop offset="0%" stop-color="#1E2819"/>
+      <stop offset="25%" stop-color="#3A4D2E"/>
+      <stop offset="60%" stop-color="#6F8B52"/>
+      <stop offset="100%" stop-color="#BFD4A3"/>
     </linearGradient>
 
     <!-- Outworld Sand Substrate -->
     <linearGradient id="sandSubstrate" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#E8D5AD"/>
-      <stop offset="50%" stop-color="#CEB684"/>
-      <stop offset="100%" stop-color="#A88B57"/>
+      <stop offset="0%" stop-color="#EEDBB7"/>
+      <stop offset="45%" stop-color="#D4BC8E"/>
+      <stop offset="100%" stop-color="#AA8D5B"/>
     </linearGradient>
 
-    <!-- Subterranean Soil / Acrylic Matrix -->
+    <!-- Subterranean Soil Matrix -->
     <linearGradient id="subSoilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#1E140E"/>
-      <stop offset="40%" stop-color="#281A12"/>
-      <stop offset="100%" stop-color="#140B07"/>
+      <stop offset="35%" stop-color="#281A12"/>
+      <stop offset="70%" stop-color="#1B100B"/>
+      <stop offset="100%" stop-color="#110A06"/>
     </linearGradient>
 
-    <!-- Red Observation Glow for Chambers (Ánh sáng đỏ quan sát) -->
-    <radialGradient id="redChamberGlow" cx="50%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#D94B34" stop-opacity="0.95"/>
-      <stop offset="45%" stop-color="#8F2519" stop-opacity="0.85"/>
-      <stop offset="85%" stop-color="#4D120B" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#240704" stop-opacity="0.2"/>
+    <!-- Red Observation Glow for Chambers (Professional Antkeeping Red Filter) -->
+    <radialGradient id="redChamberGlow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#E04E36" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#8F2519" stop-opacity="0.82"/>
+      <stop offset="85%" stop-color="#4B120A" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#200603" stop-opacity="0.15"/>
     </radialGradient>
 
     <!-- Moss Texture Gradient -->
     <radialGradient id="mossGrad" cx="45%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#82AF43"/>
-      <stop offset="65%" stop-color="#4C7820"/>
-      <stop offset="100%" stop-color="#2B4E0F"/>
+      <stop offset="0%" stop-color="#8BB845"/>
+      <stop offset="60%" stop-color="#517E22"/>
+      <stop offset="100%" stop-color="#2E4F10"/>
     </radialGradient>
 
     <!-- Glass Rim Reflection -->
@@ -51,91 +52,112 @@
     </filter>
   </defs>
 
-  <!-- 1. UPPER OUTWORLD & CANOPY BACKGROUND (y: 0 to 880) -->
-  <rect x="0" y="0" width="1080" height="880" fill="url(#canopySkyGrad)"/>
+  <!-- ========================================== -->
+  <!-- 1. UPPER OUTWORLD & CANOPY (y: 0 to 880)  -->
+  <!-- ========================================== -->
+  <rect x="0" y="0" width="1920" height="880" fill="url(#canopySkyGrad)"/>
 
   <!-- Sunbeams through foliage -->
-  <polygon points="120,0 340,0 520,800 200,800" fill="rgba(255, 255, 220, 0.08)"/>
-  <polygon points="560,0 720,0 950,800 700,800" fill="rgba(255, 255, 220, 0.06)"/>
+  <polygon points="240,0 480,0 720,800 360,800" fill="rgba(255, 255, 220, 0.07)"/>
+  <polygon points="980,0 1200,0 1500,800 1150,800" fill="rgba(255, 255, 220, 0.06)"/>
+  <polygon points="1520,0 1740,0 1900,800 1620,800" fill="rgba(255, 255, 220, 0.05)"/>
 
-  <!-- Ancient Mossy Tree Trunk & Exposed Roots (Gốc cây cổ thụ & rễ lũa) -->
-  <path d="M 0,260 Q 240,320 380,480 Q 520,640 450,800 L 0,800 Z" fill="#3D291C"/>
-  <path d="M 1080,180 Q 840,280 720,440 Q 620,620 680,800 L 1080,800 Z" fill="#352317"/>
+  <!-- Ancient Mossy Oak Branches & Driftwood (Gốc cây cổ thụ & nhánh lũa) -->
+  <!-- Left Trunk & Branch -->
+  <path d="M 0,220 Q 280,280 440,420 Q 560,560 480,800 L 0,800 Z" fill="#382519"/>
+  <!-- Center Hanging Branch for Honeycomb -->
+  <path d="M 1200,100 Q 1420,200 1560,340 Q 1700,480 1600,680 L 1920,520 L 1920,80 Z" fill="#322015"/>
+  <!-- Right Branch Support -->
+  <path d="M 1920,240 Q 1720,340 1580,500 Q 1480,660 1520,800 L 1920,800 Z" fill="#2E1C12"/>
 
-  <!-- Lush Green Moss Patches (Thảm rêu nhung xanh mướt) -->
-  <ellipse cx="260" cy="540" rx="95" ry="42" fill="url(#mossGrad)"/>
-  <ellipse cx="340" cy="620" rx="110" ry="48" fill="url(#mossGrad)"/>
-  <ellipse cx="740" cy="560" rx="120" ry="45" fill="url(#mossGrad)"/>
-  <ellipse cx="640" cy="680" rx="90" ry="40" fill="url(#mossGrad)"/>
+  <!-- Lush Green Moss Patches -->
+  <ellipse cx="280" cy="460" rx="120" ry="50" fill="url(#mossGrad)"/>
+  <ellipse cx="400" cy="580" rx="140" ry="55" fill="url(#mossGrad)"/>
+  <ellipse cx="1480" cy="480" rx="150" ry="52" fill="url(#mossGrad)"/>
+  <ellipse cx="1640" cy="600" rx="130" ry="48" fill="url(#mossGrad)"/>
+  <ellipse cx="960" cy="740" rx="160" ry="40" fill="url(#mossGrad)"/>
 
   <!-- Sand & Soil Substrate Terrace -->
-  <path d="M 0,760 Q 280,740 540,770 Q 820,745 1080,760 L 1080,880 L 0,880 Z" fill="url(#sandSubstrate)"/>
+  <path d="M 0,760 Q 480,735 960,765 Q 1440,740 1920,760 L 1920,880 L 0,880 Z" fill="url(#sandSubstrate)"/>
 
-  <!-- Wildflowers (Hoa chuông và cúc dại trên mặt cạn) -->
-  <!-- Flower Stems & Blooms -->
+  <!-- Wildflower Meadows (Cúc trắng, cỏ ba lá, hoa chuông xanh) -->
   <g stroke="#3E611E" stroke-width="2.5" stroke-linecap="round">
-    <path d="M 440,760 Q 448,710 442,670"/>
-    <path d="M 470,765 Q 482,725 490,685"/>
-    <path d="M 580,768 Q 575,720 585,675"/>
-    <path d="M 610,764 Q 625,715 630,660"/>
+    <path d="M 380,760 Q 388,710 382,670"/>
+    <path d="M 420,765 Q 432,725 440,685"/>
+    <path d="M 680,768 Q 675,720 685,675"/>
+    <path d="M 720,764 Q 735,715 740,660"/>
+    <path d="M 1180,762 Q 1190,712 1184,668"/>
+    <path d="M 1220,766 Q 1230,720 1240,680"/>
+    <path d="M 1480,765 Q 1472,718 1482,670"/>
+    <path d="M 1520,762 Q 1535,714 1540,665"/>
   </g>
-  <!-- Daisies & Bluebells -->
-  <circle cx="442" cy="670" r="10" fill="#FFFFFF"/>
-  <circle cx="442" cy="670" r="4.5" fill="#F4BC2C"/>
-  <circle cx="490" cy="685" r="9" fill="#E6EEF8"/>
-  <circle cx="490" cy="685" r="4" fill="#E28E25"/>
-  <ellipse cx="585" cy="675" rx="9" ry="12" fill="#789AD8"/>
-  <ellipse cx="630" cy="660" rx="11" ry="14" fill="#90B2E8"/>
+  <!-- Daisies & Blossoms -->
+  <circle cx="382" cy="670" r="10" fill="#FFFFFF"/>
+  <circle cx="382" cy="670" r="4.5" fill="#F4BC2C"/>
+  <circle cx="440" cy="685" r="9" fill="#E6EEF8"/>
+  <circle cx="440" cy="685" r="4" fill="#E28E25"/>
+  <ellipse cx="685" cy="675" rx="9" ry="12" fill="#789AD8"/>
+  <ellipse cx="740" cy="660" rx="11" ry="14" fill="#90B2E8"/>
+  <circle cx="1184" cy="668" r="11" fill="#FFFFFF"/>
+  <circle cx="1184" cy="668" r="5" fill="#F4BC2C"/>
+  <circle cx="1240" cy="680" r="9" fill="#FFE8E8"/>
+  <circle cx="1240" cy="680" r="4" fill="#E28E25"/>
+  <ellipse cx="1482" cy="670" rx="10" ry="13" fill="#789AD8"/>
+  <ellipse cx="1540" cy="665" rx="11" ry="14" fill="#90B2E8"/>
 
-  <!-- 2. ACRYLIC DIVIDER GLASS RIM (y: 875 to 895) -->
-  <rect x="0" y="875" width="1080" height="18" fill="url(#glassRim)"/>
-  <line x1="0" y1="875" x2="1080" y2="875" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-  <line x1="0" y1="893" x2="1080" y2="893" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>
+  <!-- ========================================== -->
+  <!-- 2. ACRYLIC DIVIDER GLASS RIM (y: 875..895) -->
+  <!-- ========================================== -->
+  <rect x="0" y="875" width="1920" height="18" fill="url(#glassRim)"/>
+  <line x1="0" y1="875" x2="1920" y2="875" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+  <line x1="0" y1="893" x2="1920" y2="893" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>
 
-  <!-- 3. LOWER SUBTERRANEAN FORMICARIUM (y: 893 to 1920) -->
-  <rect x="0" y="893" width="1080" height="1027" fill="url(#subSoilGrad)"/>
+  <!-- ============================================== -->
+  <!-- 3. LOWER SUBTERRANEAN FORMICARIUM (893..1800) -->
+  <!-- ============================================== -->
+  <rect x="0" y="893" width="1920" height="907" fill="url(#subSoilGrad)"/>
 
   <!-- Natural Soil Grain & Stratum Lines -->
-  <path d="M 0,1180 Q 400,1160 1080,1190" stroke="rgba(90, 55, 30, 0.3)" stroke-width="3" fill="none"/>
-  <path d="M 0,1480 Q 600,1510 1080,1470" stroke="rgba(80, 48, 25, 0.3)" stroke-width="3" fill="none"/>
-  <path d="M 0,1750 Q 300,1730 1080,1760" stroke="rgba(70, 40, 20, 0.3)" stroke-width="3" fill="none"/>
+  <path d="M 0,1180 Q 700,1160 1920,1190" stroke="rgba(90, 55, 30, 0.3)" stroke-width="3" fill="none"/>
+  <path d="M 0,1460 Q 960,1490 1920,1450" stroke="rgba(80, 48, 25, 0.3)" stroke-width="3" fill="none"/>
+  <path d="M 0,1700 Q 600,1680 1920,1710" stroke="rgba(70, 40, 20, 0.3)" stroke-width="3" fill="none"/>
 
-  <!-- Carved Formicarium Chambers & Tunnels (Các khoang hầm rọi đèn đỏ) -->
-  <!-- Entrance Tunnel from Outworld to Nest -->
-  <path d="M 540,885 Q 540,940 540,990" stroke="#7A1D13" stroke-width="36" stroke-linecap="round" fill="none"/>
+  <!-- Subterranean Root Systems -->
+  <path d="M 280,885 Q 320,1050 290,1220 Q 270,1350 220,1500" stroke="#4A3322" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M 1640,885 Q 1600,1080 1630,1280 Q 1660,1420 1720,1560" stroke="#442D1C" stroke-width="9" stroke-linecap="round" fill="none"/>
 
-  <!-- Chamber 1: Royal Queen Chamber (Central Majestic Room) -->
-  <ellipse cx="540" cy="1120" rx="240" ry="110" fill="url(#redChamberGlow)"/>
-  <ellipse cx="540" cy="1120" rx="240" ry="110" stroke="#B83826" stroke-width="6" fill="none"/>
-  <!-- Red LED Lamp Unit at ceiling of chamber -->
-  <rect x="470" y="1015" width="140" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
+  <!-- Entrance Shaft from Outworld to Nest -->
+  <path d="M 960,885 Q 960,950 960,1010" stroke="#7A1D13" stroke-width="40" stroke-linecap="round" fill="none"/>
 
-  <!-- Tunnel Left -->
-  <path d="M 320,1140 Q 240,1180 180,1260" stroke="#7A1D13" stroke-width="34" stroke-linecap="round" fill="none"/>
+  <!-- Chamber 1: Central Royal Queen Chamber (Central Majestic Room x=960, y=1120) -->
+  <ellipse cx="960" cy="1120" rx="270" ry="115" fill="url(#redChamberGlow)"/>
+  <ellipse cx="960" cy="1120" rx="270" ry="115" stroke="#B83826" stroke-width="6" fill="none"/>
+  <rect x="880" y="1010" width="160" height="12" rx="6" fill="#FF8270" filter="url(#softGlow)"/>
+
+  <!-- Left Connecting Tunnel -->
+  <path d="M 700,1130 Q 580,1170 480,1250 Q 450,1300 460,1360" stroke="#7A1D13" stroke-width="36" stroke-linecap="round" fill="none"/>
   
-  <!-- Chamber 2: High Humidity Brood Nursery (Left Chamber) -->
-  <ellipse cx="190" cy="1380" rx="160" ry="95" fill="url(#redChamberGlow)"/>
-  <ellipse cx="190" cy="1380" rx="160" ry="95" stroke="#B83826" stroke-width="5" fill="none"/>
-  <rect x="140" y="1290" width="100" height="8" rx="4" fill="#FF8270" filter="url(#softGlow)"/>
+  <!-- Chamber 2: High Humidity Brood Nursery (Left Chamber x=460, y=1380) -->
+  <ellipse cx="460" cy="1380" rx="200" ry="105" fill="url(#redChamberGlow)"/>
+  <ellipse cx="460" cy="1380" rx="200" ry="105" stroke="#B83826" stroke-width="5" fill="none"/>
+  <rect x="400" y="1285" width="120" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
 
-  <!-- Tunnel Right -->
-  <path d="M 760,1140 Q 840,1180 900,1260" stroke="#7A1D13" stroke-width="34" stroke-linecap="round" fill="none"/>
+  <!-- Right Connecting Tunnel -->
+  <path d="M 1220,1130 Q 1340,1170 1440,1250 Q 1470,1300 1460,1360" stroke="#7A1D13" stroke-width="36" stroke-linecap="round" fill="none"/>
 
-  <!-- Chamber 3: Dry Granary Seed Vault (Right Chamber) -->
-  <ellipse cx="890" cy="1380" rx="160" ry="95" fill="url(#redChamberGlow)"/>
-  <ellipse cx="890" cy="1380" rx="160" ry="95" stroke="#B83826" stroke-width="5" fill="none"/>
-  <rect x="840" y="1290" width="100" height="8" rx="4" fill="#FF8270" filter="url(#softGlow)"/>
+  <!-- Chamber 3: Dry Granary Seed Vault (Right Chamber x=1460, y=1380) -->
+  <ellipse cx="1460" cy="1380" rx="200" ry="105" fill="url(#redChamberGlow)"/>
+  <ellipse cx="1460" cy="1380" rx="200" ry="105" stroke="#B83826" stroke-width="5" fill="none"/>
+  <rect x="1400" y="1285" width="120" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
 
-  <!-- Deep Tunnels Down to Deep Chambers -->
-  <path d="M 220,1460 Q 260,1540 360,1610" stroke="#7A1D13" stroke-width="32" stroke-linecap="round" fill="none"/>
-  <path d="M 860,1460 Q 820,1540 720,1610" stroke="#7A1D13" stroke-width="32" stroke-linecap="round" fill="none"/>
-  <path d="M 540,1225 Q 540,1420 540,1620" stroke="#7A1D13" stroke-width="34" stroke-linecap="round" fill="none"/>
+  <!-- Central Vertical Shaft Down to Chamber 4 -->
+  <path d="M 960,1235 Q 960,1400 960,1580" stroke="#7A1D13" stroke-width="36" stroke-linecap="round" fill="none"/>
 
-  <!-- Chamber 4: Lower Expansion / Hibernate Chamber (y: 1680) -->
-  <ellipse cx="540" cy="1700" rx="270" ry="105" fill="url(#redChamberGlow)"/>
-  <ellipse cx="540" cy="1700" rx="270" ry="105" stroke="#B83826" stroke-width="6" fill="none"/>
-  <rect x="460" y="1600" width="160" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
+  <!-- Chamber 4: Lower Expansion / Hibernate Chamber (x=960, y=1660) -->
+  <ellipse cx="960" cy="1660" rx="290" ry="105" fill="url(#redChamberGlow)"/>
+  <ellipse cx="960" cy="1660" rx="290" ry="105" stroke="#B83826" stroke-width="6" fill="none"/>
+  <rect x="880" y="1560" width="160" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
 
   <!-- Outer Glass Frame Border (Khung viền kính bể Vivarium sang trọng) -->
-  <rect x="6" y="6" width="1068" height="1908" rx="16" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="12"/>
+  <rect x="6" y="6" width="1908" height="1788" rx="18" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="12"/>
 </svg>

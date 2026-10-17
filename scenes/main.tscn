@@ -16,54 +16,54 @@
 script = ExtResource("1_world")
 
 [node name="VivariumBackdrop" type="Sprite2D" parent="."]
-position = Vector2(540, 960)
+position = Vector2(960, 900)
 texture = ExtResource("2_backdrop")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(540, 750)
+position = Vector2(960, 720)
 script = ExtResource("3_cam")
 
 [node name="NaturalCombCluster" type="Sprite2D" parent="."]
-position = Vector2(800, 360)
-scale = Vector2(0.85, 0.85)
+position = Vector2(1500, 360)
+scale = Vector2(0.9, 0.9)
 texture = ExtResource("4_comb")
 
 [node name="StaticDecor" type="Node2D" parent="."]
 
 [node name="LarvaeRoyal" type="Sprite2D" parent="StaticDecor"]
-position = Vector2(540, 1160)
-scale = Vector2(0.8, 0.8)
+position = Vector2(960, 1160)
+scale = Vector2(0.85, 0.85)
 texture = ExtResource("6_larvae")
 
 [node name="LarvaeNursery" type="Sprite2D" parent="StaticDecor"]
-position = Vector2(190, 1390)
+position = Vector2(460, 1390)
 scale = Vector2(1.1, 1.1)
 texture = ExtResource("6_larvae")
 
 [node name="GranarySeeds" type="Sprite2D" parent="StaticDecor"]
-position = Vector2(890, 1390)
+position = Vector2(1460, 1390)
 scale = Vector2(1.2, 1.2)
 texture = ExtResource("7_seeds")
 
 [node name="OutworldPrey" type="Sprite2D" parent="StaticDecor"]
-position = Vector2(340, 755)
+position = Vector2(650, 755)
 scale = Vector2(0.85, 0.85)
 texture = ExtResource("8_prey")
 
 [node name="MudPelletPile" type="Sprite2D" parent="StaticDecor"]
-position = Vector2(510, 895)
+position = Vector2(920, 895)
 scale = Vector2(0.7, 0.7)
 texture = ExtResource("9_mud")
 
 [node name="MajorSoldierAnt" type="Sprite2D" parent="StaticDecor"]
-position = Vector2(830, 1360)
+position = Vector2(1400, 1360)
 scale = Vector2(0.9, 0.9)
 texture = ExtResource("10_major")
 
 [node name="Entities" type="Node2D" parent="."]
 
 [node name="RealisticQueenAnt" parent="Entities" instance=ExtResource("5_queen")]
-position = Vector2(540, 1115)
+position = Vector2(960, 1115)
 scale = Vector2(1.15, 1.15)
 
 [node name="ScientificHUD" parent="." instance=ExtResource("11_hud")]

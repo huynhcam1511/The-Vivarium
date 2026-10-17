@@ -1,7 +1,7 @@
 extends Node2D
 class_name SubterraneanGrid
 
-# The Living Colony - Dynamic 2D Subterranean Grid (Dig / Fill / Room Zoning)
+# The Vivarium - Dynamic 2D Subterranean Grid (Dig / Fill / Room Zoning)
 signal tile_dug(grid_pos: Vector2i, world_pos: Vector2)
 signal tile_filled(grid_pos: Vector2i, world_pos: Vector2)
 signal grid_updated
@@ -22,9 +22,9 @@ enum ChamberType {
 }
 
 const CELL_SIZE: int = 32
-const GRID_WIDTH: int = 34   # 34 * 32 = 1088px width
-const GRID_HEIGHT: int = 18  # 18 * 32 = 576px depth (from y=900 to y=1476)
-const OFFSET_Y: int = 900
+const GRID_WIDTH: int = 60   # 60 * 32 = 1920px wide (16:9 Landscape)
+const GRID_HEIGHT: int = 26  # 26 * 32 = 832px depth (from y=880 to y=1712)
+const OFFSET_Y: int = 880
 
 var grid_data: Dictionary = {} # Vector2i -> TileState
 var chamber_data: Dictionary = {} # Vector2i -> ChamberType
@@ -41,46 +41,55 @@ func _init_grid() -> void:
 	pending_dig_queue.clear()
 	pending_fill_queue.clear()
 	
-	# Khởi tạo đất nguyên bản
+	# Khởi tạo đất mùn nguyên bản trên toàn bộ lưới 1920px
 	for x in range(GRID_WIDTH):
 		for y in range(GRID_HEIGHT):
 			var pos = Vector2i(x, y)
 			grid_data[pos] = TileState.SOLID
 			chamber_data[pos] = ChamberType.NONE
 			
-	# Mở sẵn lối vào từ mặt đất và các buồng ban đầu
-	# Trục đứng thông gió chính (Vertical entrance shaft x=16, 17)
-	for y in range(0, 10):
-		_set_tile_tunnel(Vector2i(16, y))
-		_set_tile_tunnel(Vector2i(17, y))
+	# 1. Trục thông gió chính từ mặt cạn x=29, 30 (Center shaft y=0..8)
+	for y in range(0, 9):
+		_set_tile_tunnel(Vector2i(29, y))
+		_set_tile_tunnel(Vector2i(30, y))
 		
-	# Buồng Hoàng Gia ở trung tâm (Queen chamber x=14..19, y=6..8)
-	for x in range(13, 21):
-		for y in range(6, 9):
+	# 2. Buồng Hoàng Gia ở trung tâm (Queen chamber x=24..35, y=6..9)
+	for x in range(24, 36):
+		for y in range(6, 10):
 			_set_tile_tunnel(Vector2i(x, y))
 			chamber_data[Vector2i(x, y)] = ChamberType.QUEEN_NURSERY
-			
-	# Kho hạt bên phải (Granary x=24..28, y=12..15)
-	for x in range(24, 29):
-		for y in range(12, 16):
-			_set_tile_tunnel(Vector2i(x, y))
-			chamber_data[Vector2i(x, y)] = ChamberType.GRANARY
-	# Đường hầm nối buồng hoàng gia sang kho hạt
-	for x in range(19, 25):
-		_set_tile_tunnel(Vector2i(x, 8))
-	for y in range(8, 13):
-		_set_tile_tunnel(Vector2i(24, y))
 
-	# Khoang ấu trùng bên trái (Nursery x=5..9, y=12..15)
-	for x in range(5, 10):
-		for y in range(12, 16):
+	# 3. Khoang Ấu trùng ấm cúng bên trái (Nursery x=11..19, y=13..17)
+	for x in range(11, 20):
+		for y in range(13, 18):
 			_set_tile_tunnel(Vector2i(x, y))
 			chamber_data[Vector2i(x, y)] = ChamberType.QUEEN_NURSERY
 	# Đường hầm nối buồng hoàng gia sang ấu trùng
-	for x in range(9, 15):
+	for x in range(18, 25):
 		_set_tile_tunnel(Vector2i(x, 8))
-	for y in range(8, 13):
-		_set_tile_tunnel(Vector2i(9, y))
+	for y in range(8, 14):
+		_set_tile_tunnel(Vector2i(18, y))
+
+	# 4. Kho Hạt ngũ cốc khô ráo bên phải (Granary x=41..49, y=13..17)
+	for x in range(41, 50):
+		for y in range(13, 18):
+			_set_tile_tunnel(Vector2i(x, y))
+			chamber_data[Vector2i(x, y)] = ChamberType.GRANARY
+	# Đường hầm nối buồng hoàng gia sang kho hạt
+	for x in range(34, 42):
+		_set_tile_tunnel(Vector2i(x, 8))
+	for y in range(8, 14):
+		_set_tile_tunnel(Vector2i(41, y))
+
+	# 5. Khoang mở rộng ngủ đông sâu bên dưới (Deep chamber x=25..34, y=21..25)
+	for x in range(25, 35):
+		for y in range(21, 26):
+			_set_tile_tunnel(Vector2i(x, y))
+			chamber_data[Vector2i(x, y)] = ChamberType.BARRACKS
+	# Trục đứng dẫn xuống tầng sâu
+	for y in range(9, 22):
+		_set_tile_tunnel(Vector2i(29, y))
+		_set_tile_tunnel(Vector2i(30, y))
 
 func _set_tile_tunnel(pos: Vector2i) -> void:
 	if grid_data.has(pos):
@@ -169,7 +178,7 @@ func is_tile_walkable(grid_pos: Vector2i) -> bool:
 	return grid_data[grid_pos] == TileState.TUNNEL or grid_data[grid_pos] == TileState.PENDING_FILL
 
 func _draw() -> void:
-	# Vẽ cấu trúc vách và lớp đất chân thực
+	# Vẽ cấu trúc vách và lớp đất chân thực 16:9
 	for x in range(GRID_WIDTH):
 		for y in range(GRID_HEIGHT):
 			var pos = Vector2i(x, y)
@@ -178,32 +187,33 @@ func _draw() -> void:
 			
 			match state:
 				TileState.SOLID:
-					# Lớp đất mùn hữu cơ tự nhiên
+					# Lớp đất mùn hữu cơ tự nhiên với độ sâu
 					var depth_factor = float(y) / float(GRID_HEIGHT)
-					var soil_color = Color(0.18, 0.12, 0.08, 0.88).lerp(Color(0.11, 0.08, 0.06, 0.95), depth_factor)
+					var soil_color = Color(0.18, 0.12, 0.08, 0.90).lerp(Color(0.10, 0.07, 0.05, 0.96), depth_factor)
 					draw_rect(rect, soil_color, true)
-					draw_rect(rect, Color(0.24, 0.16, 0.11, 0.3), false, 1.0)
+					draw_rect(rect, Color(0.24, 0.16, 0.11, 0.25), false, 1.0)
 				TileState.TUNNEL:
 					# Đường hầm rỗng thoáng khí, viền vách đất sét nhẵn
 					var chamber = chamber_data.get(pos, ChamberType.NONE)
-					var chamber_bg = Color(0.14, 0.09, 0.06, 0.15) # Mờ nhẹ trong suốt để thấy background
+					var chamber_bg = Color(0.14, 0.09, 0.06, 0.12)
 					if chamber == ChamberType.QUEEN_NURSERY:
-						chamber_bg = Color(0.55, 0.35, 0.15, 0.22) # Ánh vàng mật
+						chamber_bg = Color(0.60, 0.35, 0.18, 0.20)
 					elif chamber == ChamberType.GRANARY:
-						chamber_bg = Color(0.40, 0.32, 0.18, 0.20)
+						chamber_bg = Color(0.42, 0.34, 0.18, 0.18)
+					elif chamber == ChamberType.BARRACKS:
+						chamber_bg = Color(0.35, 0.20, 0.15, 0.18)
 					draw_rect(rect, chamber_bg, true)
-					draw_rect(rect, Color(0.42, 0.28, 0.18, 0.25), false, 1.0)
+					draw_rect(rect, Color(0.44, 0.28, 0.18, 0.20), false, 1.0)
 				TileState.PENDING_DIG:
-					# Ô đang xếp hàng đào: Ký hiệu viền nét đứt màu tím tím / vàng đất
-					draw_rect(rect, Color(0.45, 0.25, 0.55, 0.45), true)
-					draw_rect(rect, Color(0.85, 0.45, 0.95, 0.8), false, 2.0)
-					# Vẽ biểu tượng xẻng nhỏ tâm ô
+					# Ô đang xếp hàng đào: Ký hiệu viền nét đứt tím & biểu tượng xẻng
+					draw_rect(rect, Color(0.48, 0.22, 0.58, 0.45), true)
+					draw_rect(rect, Color(0.88, 0.48, 0.98, 0.85), false, 2.0)
 					var center = rect.get_center()
 					draw_line(center + Vector2(-5, -5), center + Vector2(5, 5), Color.WHITE, 2.0)
 					draw_circle(center + Vector2(5, 5), 3.0, Color.GOLD)
 				TileState.PENDING_FILL:
 					# Ô đang xếp hàng lấp bùn: Màu nâu đắp đê
-					draw_rect(rect, Color(0.65, 0.42, 0.25, 0.55), true)
+					draw_rect(rect, Color(0.68, 0.42, 0.24, 0.55), true)
 					draw_rect(rect, Color(0.95, 0.65, 0.35, 0.9), false, 2.0)
 					var center = rect.get_center()
 					draw_circle(center, 4.0, Color(0.6, 0.38, 0.22))

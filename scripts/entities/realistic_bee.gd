@@ -1,16 +1,20 @@
 extends Node2D
 
 # Realistic Honeybee Controller (Apis mellifera)
-@export var home_pos: Vector2 = Vector2(280, 420)
+@export var home_pos: Vector2 = Vector2(1500, 360)
 @export var flower_targets: Array[Vector2] = [
-	Vector2(442, 665),
-	Vector2(490, 680),
-	Vector2(585, 670),
-	Vector2(630, 655)
+	Vector2(382, 670),
+	Vector2(440, 685),
+	Vector2(685, 675),
+	Vector2(740, 660),
+	Vector2(1184, 668),
+	Vector2(1240, 680),
+	Vector2(1482, 670),
+	Vector2(1540, 665)
 ]
 
-var target_pos: Vector2 = Vector2(442, 665)
-var flight_speed: float = 65.0
+var target_pos: Vector2 = Vector2(1184, 668)
+var flight_speed: float = 75.0
 var hover_phase: float = 0.0
 var state: String = "hovering" # "flying", "foraging", "returning"
 var state_timer: float = 0.0
@@ -50,5 +54,5 @@ func _process(delta: float) -> void:
 			state = "flying"
 			state_timer = 0.0
 			
-	# High-frequency wing buzz animation (subtle squish)
+	# High-frequency wing buzz animation
 	sprite.scale.x = 1.0 + sin(hover_phase * 2.0) * 0.08

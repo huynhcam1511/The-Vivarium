@@ -1,178 +1,119 @@
 extends CanvasLayer
 
-# The Living Colony - Scientific Ecological HUD Controller
+# The Vivarium - Modern 16:9 Landscape Ecological HUD Controller
+# Frosted-glass top bar, floating contextual toolbar, time dilation controls, and camera navigation
 
-@onready var telemetry_label: Label = $TopBar/TelemetryPill/Label
-@onready var biome_label: Label = $TopBar/BiomePill/Label
-@onready var weather_label: Label = $TopBar/WeatherPill/Label
+@onready var telemetry_label: Label = $TopMargin/HBox/AtmospherePill/Margin/HBox/TelemetryLabel
+@onready var biome_label: Label = $TopMargin/HBox/AtmospherePill/Margin/HBox/BiomeLabel
+@onready var weather_label: Label = $TopMargin/HBox/AtmospherePill/Margin/HBox/WeatherLabel
 
-@onready var clay_label: Label = $ResourcePanel/VBox/Row1/ClayBox/Count
-@onready var wax_label: Label = $ResourcePanel/VBox/Row1/WaxBox/Count
-@onready var propolis_label: Label = $ResourcePanel/VBox/Row1/PropolisBox/Count
-@onready var protein_label: Label = $ResourcePanel/VBox/Row1/ProteinBox/Count
+@onready var clay_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/ClayLabel
+@onready var wax_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/WaxLabel
+@onready var honey_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/HoneyLabel
+@onready var protein_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/ProteinLabel
+@onready var seed_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/SeedLabel
+@onready var ant_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/AntLabel
+@onready var bee_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/BeeLabel
 
-@onready var honey_label: Label = $ResourcePanel/VBox/Row2/HoneyBox/Count
-@onready var seeds_label: Label = $ResourcePanel/VBox/Row2/SeedBox/Count
-@onready var ants_label: Label = $ResourcePanel/VBox/Row2/AntBox/Count
-@onready var bees_label: Label = $ResourcePanel/VBox/Row2/BeeBox/Count
+@onready var btn_save: Button = $TopMargin/HBox/TopActions/BtnSave
+@onready var btn_mode: Button = $TopMargin/HBox/TopActions/BtnMode
 
-@onready var toast_panel: PanelContainer = $ToastNotification
-@onready var toast_label: Label = $ToastNotification/Label
+@onready var btn_nav_canopy: Button = $BottomLeftNav/Panel/Margin/HBox/BtnNavCanopy
+@onready var btn_nav_surface: Button = $BottomLeftNav/Panel/Margin/HBox/BtnNavSurface
+@onready var btn_nav_nest: Button = $BottomLeftNav/Panel/Margin/HBox/BtnNavNest
+
+@onready var btn_dig: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnDig
+@onready var btn_fill: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnFill
+@onready var btn_cancel: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnCancel
+@onready var btn_pheromone: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnPheromone
+@onready var btn_honeys: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnHoneys
+@onready var btn_journal: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnJournal
+
+@onready var btn_pause: Button = $BottomRightTime/Panel/Margin/HBox/BtnPause
+@onready var btn_1x: Button = $BottomRightTime/Panel/Margin/HBox/Btn1x
+@onready var btn_2x: Button = $BottomRightTime/Panel/Margin/HBox/Btn2x
+@onready var btn_5x: Button = $BottomRightTime/Panel/Margin/HBox/Btn5x
+
+@onready var toast_panel: MarginContainer = $ToastContainer
+@onready var toast_label: Label = $ToastContainer/Panel/Margin/ToastLabel
 
 @onready var journal_dialog: Window = $JournalDialog
-@onready var journal_text: RichTextLabel = $JournalDialog/Margin/VBox/Content
+@onready var journal_content: RichTextLabel = $JournalDialog/Margin/VBox/Content
+@onready var priority_dialog: Window = $PriorityDialog
+@onready var honey_dialog: Window = $HoneyDialog
+@onready var honey_detail: Label = $HoneyDialog/Margin/VBox/HoneyDetail
+@onready var mode_dialog: Window = $ModeDialog
 
 var toast_timer: float = 0.0
 
-# Dynamic UI elements for Phase 1 Master GDD
-var tool_bar: HBoxContainer
-var btn_tool_dig: Button
-var btn_tool_fill: Button
-var btn_tool_delete: Button
-var btn_tool_priority: Button
-var priority_dialog: Window
-var honey_breakdown_dialog: Window
-
 func _ready() -> void:
+	# 1. Connect simulation signals
 	GameManager.resources_updated.connect(_on_resources_updated)
 	GameManager.climate_updated.connect(_on_climate_updated)
 	GameManager.weather_changed.connect(_on_weather_changed)
 	GameManager.colony_event.connect(_show_toast)
 	GameManager.pheromone_priority_updated.connect(_on_pheromone_priority_updated)
-	
-	_create_subterranean_tool_bar()
-	_create_pheromone_priority_dialog()
-	_create_honey_breakdown_dialog()
-	
-	_update_all_labels()
-	toast_panel.visible = false
-	journal_dialog.visible = false
+	GameManager.mode_changed.connect(_on_mode_changed)
 
-func _create_subterranean_tool_bar() -> void:
-	tool_bar = HBoxContainer.new()
-	tool_bar.alignment = BoxContainer.ALIGNMENT_CENTER
-	tool_bar.add_theme_constant_override("separation", 10)
-	tool_bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	tool_bar.offset_top = -148.0
-	tool_bar.offset_bottom = -112.0
-	tool_bar.offset_left = 16.0
-	tool_bar.offset_right = -16.0
-	add_child(tool_bar)
-	
-	btn_tool_dig = Button.new()
-	btn_tool_dig.text = "⛏️ Đào Hầm (Dig)"
-	btn_tool_dig.pressed.connect(_on_tool_dig_pressed)
-	tool_bar.add_child(btn_tool_dig)
-	
-	btn_tool_fill = Button.new()
-	btn_tool_fill.text = "🧱 Lấp Bùn (Fill)"
-	btn_tool_fill.pressed.connect(_on_tool_fill_pressed)
-	tool_bar.add_child(btn_tool_fill)
-	
-	btn_tool_delete = Button.new()
-	btn_tool_delete.text = "🧼 Hủy Lệnh (Delete)"
-	btn_tool_delete.pressed.connect(_on_tool_delete_pressed)
-	tool_bar.add_child(btn_tool_delete)
-	
-	btn_tool_priority = Button.new()
-	btn_tool_priority.text = "👑 Pheromone Nữ Hoàng (%)"
-	btn_tool_priority.pressed.connect(_on_tool_priority_pressed)
-	tool_bar.add_child(btn_tool_priority)
-	
-	var btn_honey_info = Button.new()
-	btn_honey_info.text = "🍯 4 Dòng Mật Đơn Hoa"
-	btn_honey_info.pressed.connect(func(): honey_breakdown_dialog.popup_centered())
-	tool_bar.add_child(btn_honey_info)
+	# 2. Wire navigation buttons
+	btn_nav_canopy.pressed.connect(_on_nav_canopy_pressed)
+	btn_nav_surface.pressed.connect(_on_nav_surface_pressed)
+	btn_nav_nest.pressed.connect(_on_nav_nest_pressed)
 
-func _create_pheromone_priority_dialog() -> void:
-	priority_dialog = Window.new()
-	priority_dialog.title = "Bảng Điều Tiết Pheromone Nữ Hoàng (Workers Priority)"
-	priority_dialog.size = Vector2i(480, 380)
-	priority_dialog.visible = false
-	add_child(priority_dialog)
-	
-	var margin = MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
-	priority_dialog.add_child(margin)
-	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 12)
-	margin.add_child(vbox)
-	
-	var header = Label.new()
-	header.text = "Ý CHÍ PHEROMONE CỦA NỮ HOÀNG (Macro Swarm AI)"
-	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(header)
-	
-	var lbl_desc = Label.new()
-	lbl_desc.text = "Điều chỉnh tỷ lệ % phân công nhân lực tự động cho toàn bộ thuộc địa:"
-	lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
-	vbox.add_child(lbl_desc)
-	
-	# Presets
-	var btn_preset_balanced = Button.new()
-	btn_preset_balanced.text = "⚖️ Cân Bằng Chuẩn (40% Xây | 30% Ấu trùng | 20% Đào | 10% Kiếm ăn)"
-	btn_preset_balanced.pressed.connect(func():
+	# 3. Wire tools
+	btn_dig.pressed.connect(_on_tool_dig_pressed)
+	btn_fill.pressed.connect(_on_tool_fill_pressed)
+	btn_cancel.pressed.connect(_on_tool_cancel_pressed)
+	btn_pheromone.pressed.connect(func(): priority_dialog.popup_centered())
+	btn_honeys.pressed.connect(func(): _update_honey_dialog(); honey_dialog.popup_centered())
+	btn_journal.pressed.connect(_on_btn_journal_pressed)
+
+	# 4. Wire time controls
+	btn_pause.pressed.connect(func(): GameManager.set_time_scale(0.0))
+	btn_1x.pressed.connect(func(): GameManager.set_time_scale(1.0))
+	btn_2x.pressed.connect(func(): GameManager.set_time_scale(2.0))
+	btn_5x.pressed.connect(func(): GameManager.set_time_scale(5.0))
+
+	# 5. Wire top actions
+	btn_save.pressed.connect(func(): FirebaseSync.save_game_all("Thao tác người chơi"))
+	btn_mode.pressed.connect(func(): mode_dialog.popup_centered())
+
+	# 6. Wire priority dialog presets
+	$PriorityDialog/Margin/VBox/BtnPresetBalanced.pressed.connect(func():
 		GameManager.set_pheromone_priority(0.40, 0.30, 0.20, 0.10, "LINEAR")
 		priority_dialog.visible = false
 	)
-	vbox.add_child(btn_preset_balanced)
-	
-	var btn_preset_dig = Button.new()
-	btn_preset_dig.text = "⛏️ Đại Khai Phá Hầm Ngầm (60% Đào | 20% Xây | 10% Ấu trùng | 10% Kiếm ăn)"
-	btn_preset_dig.pressed.connect(func():
+	$PriorityDialog/Margin/VBox/BtnPresetDig.pressed.connect(func():
 		GameManager.set_pheromone_priority(0.20, 0.10, 0.60, 0.10, "EXPO")
 		priority_dialog.visible = false
 	)
-	vbox.add_child(btn_preset_dig)
-	
-	var btn_preset_brood = Button.new()
-	btn_preset_brood.text = "🥚 Bùng Nổ Dân Số (50% Nuôi Ấu trùng | 30% Kiếm ăn | 10% Xây | 10% Đào)"
-	btn_preset_brood.pressed.connect(func():
+	$PriorityDialog/Margin/VBox/BtnPresetBrood.pressed.connect(func():
 		GameManager.set_pheromone_priority(0.10, 0.50, 0.10, 0.30, "EXPO")
 		priority_dialog.visible = false
 	)
-	vbox.add_child(btn_preset_brood)
-	
-	var btn_preset_forage = Button.new()
-	btn_preset_forage.text = "🌸 Mùa Thu Hoạch Mật Hoa Rực Rỡ (60% Kiếm ăn | 20% Xây | 20% Ấu trùng)"
-	btn_preset_forage.pressed.connect(func():
+	$PriorityDialog/Margin/VBox/BtnPresetForage.pressed.connect(func():
 		GameManager.set_pheromone_priority(0.20, 0.20, 0.0, 0.60, "EXPO")
 		priority_dialog.visible = false
 	)
-	vbox.add_child(btn_preset_forage)
 
-func _create_honey_breakdown_dialog() -> void:
-	honey_breakdown_dialog = Window.new()
-	honey_breakdown_dialog.title = "Kho 4 Dòng Mật Ong Đơn Hoa (Monofloral Honeys)"
-	honey_breakdown_dialog.size = Vector2i(460, 320)
-	honey_breakdown_dialog.visible = false
-	add_child(honey_breakdown_dialog)
-	
-	var margin = MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
-	honey_breakdown_dialog.add_child(margin)
-	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-	
-	var lbl_info = Label.new()
-	lbl_info.text = "Phân loại 4 dòng mật ong theo nguồn hoa tự nhiên:"
-	vbox.add_child(lbl_info)
-	
-	var lbl_detail = Label.new()
-	lbl_detail.name = "HoneyDetail"
-	lbl_detail.text = "Đang cập nhật..."
-	vbox.add_child(lbl_detail)
+	# 7. Wire mode dialog presets
+	$ModeDialog/Margin/VBox/BtnModeLiving.pressed.connect(func():
+		GameManager.set_game_mode("LIVING")
+		mode_dialog.visible = false
+	)
+	$ModeDialog/Margin/VBox/BtnModeSurvival.pressed.connect(func():
+		GameManager.set_game_mode("SURVIVAL")
+		mode_dialog.visible = false
+	)
+
+	# 8. Initial state
+	_update_all_labels()
+	_update_tool_buttons()
+	toast_panel.visible = false
+	journal_dialog.visible = false
+	priority_dialog.visible = false
+	honey_dialog.visible = false
+	mode_dialog.visible = false
 
 func _process(delta: float) -> void:
 	if toast_timer > 0.0:
@@ -183,9 +124,10 @@ func _process(delta: float) -> void:
 func _update_all_labels() -> void:
 	_on_climate_updated()
 	_on_resources_updated()
+	_on_mode_changed(GameManager.game_mode)
 
 func _on_climate_updated() -> void:
-	telemetry_label.text = "🌡️ %.1f°C  |  💧 %.0f%% RH  |  💨 %.0f ppm CO2" % [
+	telemetry_label.text = "🌡️ %.1f°C | 💧 %.0f%% RH | 💨 %.0f ppm CO2" % [
 		GameManager.temperature,
 		GameManager.humidity,
 		GameManager.co2_level
@@ -200,30 +142,35 @@ func _on_weather_changed(new_weather: String) -> void:
 		"WINTER_CHILL": weather_label.text = "❄️ Mùa Đông"
 
 func _on_resources_updated() -> void:
-	clay_label.text = "%d viên" % GameManager.clay_mud
-	wax_label.text = "%.1fg" % GameManager.beeswax
-	propolis_label.text = "%.1fg" % GameManager.propolis
-	protein_label.text = "%.1fg (Chitin: %d)" % [GameManager.insect_protein, GameManager.chitin_stock]
-
-	honey_label.text = "%.1fg (4 Dòng)" % GameManager.get_total_honey()
-	seeds_label.text = "%d hạt" % GameManager.seeds_stock
+	clay_label.text = "🧱 %d" % GameManager.clay_mud
+	wax_label.text = "🕯️ %.1fg" % GameManager.beeswax
+	honey_label.text = "🍯 %.1fg" % GameManager.get_total_honey()
+	protein_label.text = "🦗 %.1fg" % GameManager.insect_protein
+	seed_label.text = "🌾 %d" % GameManager.seeds_stock
 	
 	var total_ants = GameManager.queen_ant_count + GameManager.minor_nurse_ants + GameManager.media_forager_ants + GameManager.major_soldier_ants
-	ants_label.text = "%d con (Lính: %d)" % [total_ants, GameManager.major_soldier_ants]
+	ant_label.text = "🐜 %d (%dL)" % [total_ants, GameManager.major_soldier_ants]
 	
 	var total_bees = GameManager.queen_bee_count + GameManager.nurse_bees + GameManager.builder_bees + GameManager.guard_fanner_bees + GameManager.forager_bees
-	bees_label.text = "%d con" % total_bees
-	
-	if honey_breakdown_dialog != null and honey_breakdown_dialog.visible:
-		var detail = honey_breakdown_dialog.find_child("HoneyDetail", true, false) as Label
-		if detail != null:
-			detail.text = "🌺 Wildflower Honey: %.1fg\n🌳 Acacia Honey: %.1fg\n🍀 Clover Honey: %.1fg\n🌸 Blossom Honey: %.1fg\n\n🛡️ Cơ chế bảo tồn đàn: %s (Luôn giữ lại ít nhất 25g mật)" % [
-				GameManager.honey_wildflower,
-				GameManager.honey_acacia,
-				GameManager.honey_clover,
-				GameManager.honey_blossom,
-				"BẬT" if GameManager.keep_honey_for_bees else "TẮT"
-			]
+	bee_label.text = "🐝 %d" % total_bees
+
+	if honey_dialog.visible:
+		_update_honey_dialog()
+
+func _update_honey_dialog() -> void:
+	honey_detail.text = "🌺 Wildflower Honey (Mật rừng dại): %.1fg\n🌳 Acacia Honey (Mật hoa keo): %.1fg\n🍀 Clover Honey (Mật cỏ ba lá): %.1fg\n🌸 Blossom Honey (Mật hoa mùa xuân): %.1fg\n\n🛡️ Cơ chế bảo tồn đàn: %s (Luôn giữ lại ít nhất 25g mật để bầy ong không bao giờ đói)" % [
+		GameManager.honey_wildflower,
+		GameManager.honey_acacia,
+		GameManager.honey_clover,
+		GameManager.honey_blossom,
+		"BẬT" if GameManager.keep_honey_for_bees else "TẮT"
+	]
+
+func _on_mode_changed(mode: String) -> void:
+	if mode == "LIVING":
+		btn_mode.text = "🌱 Chế Độ: Thảnh Thơi"
+	else:
+		btn_mode.text = "⚔️ Chế Độ: Sinh Tồn"
 
 func _on_pheromone_priority_updated() -> void:
 	_show_toast("Đã cập nhật Pheromone: %s Mode" % GameManager.priority_mode)
@@ -233,67 +180,55 @@ func _show_toast(msg: String) -> void:
 	toast_panel.visible = true
 	toast_timer = 3.5
 
-# --- TOOL BUTTONS ---
+# --- TOOL ACTIONS ---
 
 func _on_tool_dig_pressed() -> void:
-	GameManager.set_tool("DIG")
-	_show_toast("Chế độ ĐÀO HẦM (Dig): Nhấp chuột vào các ô đất ngầm để đánh dấu đào!")
+	if GameManager.current_tool == "DIG":
+		GameManager.set_tool("NONE")
+	else:
+		GameManager.set_tool("DIG")
+	_update_tool_buttons()
 
 func _on_tool_fill_pressed() -> void:
-	GameManager.set_tool("FILL")
-	_show_toast("Chế độ LẤP BÙN (Fill): Nhấp chuột vào các ô rỗng để đắp bùn chống ngập!")
-
-func _on_tool_delete_pressed() -> void:
-	GameManager.set_tool("DELETE")
-	_show_toast("Chế độ HỦY LỆNH (Delete): Nhấp chuột vào ô đang chờ thi công để hủy bỏ!")
-
-func _on_tool_priority_pressed() -> void:
-	priority_dialog.popup_centered()
-
-# --- CONSTRUCTION BUTTONS ---
-
-func _on_btn_build_chamber_pressed() -> void:
-	_on_tool_dig_pressed()
-
-func _on_btn_build_comb_pressed() -> void:
-	if GameManager.beeswax >= 6.0 and GameManager.propolis >= 2.0:
-		GameManager.beeswax -= 6.0
-		GameManager.propolis -= 2.0
-		GameManager.emit_signal("colony_event", "🐝 Ong thợ xây đã dùng sáp và keo propolis đắp xong một ô lục giác mới!")
-		GameManager.emit_signal("resources_updated")
+	if GameManager.current_tool == "FILL":
+		GameManager.set_tool("NONE")
 	else:
-		GameManager.emit_signal("colony_event", "⚠️ Chưa đủ sáp hoặc keo propolis! Ong cần ăn thêm mật để tiết sáp.")
+		GameManager.set_tool("FILL")
+	_update_tool_buttons()
 
-# --- WEATHER TESTING CONTROLS ---
+func _on_tool_cancel_pressed() -> void:
+	if GameManager.current_tool == "DELETE":
+		GameManager.set_tool("NONE")
+	else:
+		GameManager.set_tool("DELETE")
+	_update_tool_buttons()
 
-func _on_btn_weather_sunny_pressed() -> void:
-	GameManager.set_weather("SUNNY")
+func _update_tool_buttons() -> void:
+	btn_dig.text = "⛏️ [ĐÀO (BẬT)]" if GameManager.current_tool == "DIG" else "⛏️ Đào (Dig)"
+	btn_fill.text = "🧱 [LẤP (BẬT)]" if GameManager.current_tool == "FILL" else "🧱 Lấp (Fill)"
+	btn_cancel.text = "🧼 [HỦY (BẬT)]" if GameManager.current_tool == "DELETE" else "🧼 Hủy (Cancel)"
 
-func _on_btn_weather_rain_pressed() -> void:
-	GameManager.set_weather("RAINSTORM")
+# --- NAVIGATION ---
 
-func _on_btn_weather_heat_pressed() -> void:
-	GameManager.set_weather("HEATWAVE")
+func _on_nav_canopy_pressed() -> void:
+	var cam = get_tree().root.find_child("Camera2D", true, false)
+	if cam and cam.has_method("go_to_canopy"):
+		cam.go_to_canopy()
 
-func _on_btn_weather_winter_pressed() -> void:
-	GameManager.set_weather("WINTER_CHILL")
-
-# --- NAVIGATION & JOURNAL ---
-
-func _on_btn_goto_sky_pressed() -> void:
+func _on_nav_surface_pressed() -> void:
 	var cam = get_tree().root.find_child("Camera2D", true, false)
 	if cam and cam.has_method("go_to_outworld"):
 		cam.go_to_outworld()
 
-func _on_btn_goto_nest_pressed() -> void:
+func _on_nav_nest_pressed() -> void:
 	var cam = get_tree().root.find_child("Camera2D", true, false)
 	if cam and cam.has_method("go_to_formicarium"):
 		cam.go_to_formicarium()
 
 func _on_btn_journal_pressed() -> void:
-	var text = "[b][font_size=20]Biên Niên Sử Bể Vivarium Chân Thực[/font_size][/b]\n\n"
+	var text = "[b][font_size=18]Biên Niên Sử Bể Vivarium Tự Nhiên[/font_size][/b]\n\n"
 	for entry in StoryManager.get_unlocked_entries():
 		text += "[color=#B8653A][b]" + entry["title"] + "[/b][/color] - [i]" + entry["date"] + "[/i]\n"
 		text += entry["content"] + "\n\n"
-	journal_text.text = text
+	journal_content.text = text
 	journal_dialog.popup_centered()

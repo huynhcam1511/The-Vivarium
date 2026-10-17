@@ -1,6 +1,6 @@
 extends Node2D
 
-# The Living Colony - World Controller (Cross-Section Vivarium)
+# The Vivarium - World Controller (16:9 Landscape Ecosystem)
 const ANT_SCENE = preload("res://scenes/entities/realistic_ant.tscn")
 const BEE_SCENE = preload("res://scenes/entities/realistic_bee.tscn")
 const SUBTERRANEAN_GRID_SCRIPT = preload("res://scripts/world/subterranean_grid.gd")
@@ -8,31 +8,32 @@ const SUBTERRANEAN_GRID_SCRIPT = preload("res://scripts/world/subterranean_grid.
 @onready var entities_node: Node2D = $Entities
 var subterranean_grid: Node2D = null
 
-# Waypoint loops for realistic ant patrols inside formicarium
+# Waypoint loops for realistic ant patrols inside 1920x1800 formicarium
 var tunnel_path_royal_to_nursery: Array[Vector2] = [
-	Vector2(540, 1120), # Royal chamber
-	Vector2(320, 1140), # Left tunnel entrance
-	Vector2(240, 1180), # Mid tunnel
-	Vector2(190, 1380), # Brood Nursery
-	Vector2(220, 1340),
-	Vector2(320, 1140)
+	Vector2(960, 1120), # Royal chamber center
+	Vector2(700, 1130), # Left tunnel entrance
+	Vector2(580, 1170), # Mid left tunnel
+	Vector2(480, 1250),
+	Vector2(460, 1380), # Brood Nursery
+	Vector2(500, 1340),
+	Vector2(700, 1130)
 ]
 
 var tunnel_path_royal_to_granary: Array[Vector2] = [
-	Vector2(540, 1120), # Royal chamber
-	Vector2(760, 1140), # Right tunnel
-	Vector2(840, 1180),
-	Vector2(890, 1380), # Granary vault
-	Vector2(840, 1260),
-	Vector2(650, 1140)
+	Vector2(960, 1120), # Royal chamber center
+	Vector2(1220, 1130), # Right tunnel entrance
+	Vector2(1380, 1220), # Mid right tunnel
+	Vector2(1460, 1380), # Granary vault
+	Vector2(1400, 1260),
+	Vector2(1180, 1130)
 ]
 
 var outworld_ant_path: Array[Vector2] = [
-	Vector2(540, 880),  # Surface entrance
-	Vector2(460, 780),  # Flower bed
-	Vector2(380, 750),  # Moss root
-	Vector2(620, 760),  # Sand terrace
-	Vector2(540, 880)
+	Vector2(960, 880),  # Surface entrance
+	Vector2(780, 780),  # Clover bed
+	Vector2(460, 760),  # Moss root
+	Vector2(1240, 760), # Sand terrace
+	Vector2(960, 880)
 ]
 
 var _work_timer: float = 0.0
@@ -41,7 +42,7 @@ func _ready() -> void:
 	_init_subterranean_grid()
 	_spawn_initial_ants()
 	_spawn_initial_bees()
-	print("[The Living Colony] World Canvas loaded with dynamic Subterranean Grid.")
+	print("[The Vivarium] 16:9 Landscape World loaded with Subterranean Grid (60x26).")
 
 func _init_subterranean_grid() -> void:
 	subterranean_grid = Node2D.new()
@@ -82,7 +83,7 @@ func _process_ant_construction_tasks() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var mouse_pos = get_global_mouse_position()
-		if mouse_pos.y >= 900.0 and subterranean_grid != null:
+		if mouse_pos.y >= 880.0 and subterranean_grid != null and GameManager.current_tool != "NONE":
 			match GameManager.current_tool:
 				"DIG":
 					if subterranean_grid.mark_tile_for_dig(mouse_pos):
@@ -95,33 +96,40 @@ func _unhandled_input(event: InputEvent) -> void:
 					GameManager.emit_signal("colony_event", "Đã hủy lệnh thi công tại ô này.")
 
 func _spawn_initial_ants() -> void:
-	# Spawn nurse ants patrolling brood nursery
+	# 1. Nurse ants patrolling brood nursery
 	for i in range(4):
 		var ant = ANT_SCENE.instantiate()
-		ant.position = Vector2(190 + randf_range(-40, 40), 1380 + randf_range(-25, 25))
+		ant.position = Vector2(460 + randf_range(-40, 40), 1380 + randf_range(-25, 25))
 		ant.waypoints = tunnel_path_royal_to_nursery
-		ant.speed = randf_range(35.0, 50.0)
+		ant.speed = randf_range(38.0, 52.0)
+		ant.role = "nurse"
 		entities_node.add_child(ant)
 		
-	# Spawn granary workers
+	# 2. Granary workers
 	for i in range(4):
 		var ant = ANT_SCENE.instantiate()
-		ant.position = Vector2(890 + randf_range(-40, 40), 1380 + randf_range(-25, 25))
+		ant.position = Vector2(1460 + randf_range(-40, 40), 1380 + randf_range(-25, 25))
 		ant.waypoints = tunnel_path_royal_to_granary
-		ant.speed = randf_range(38.0, 52.0)
+		ant.speed = randf_range(40.0, 54.0)
 		ant.carrying_seed = true
+		ant.role = "forager"
 		entities_node.add_child(ant)
 		
-	# Spawn outworld foragers
-	for i in range(3):
+	# 3. Outworld foragers & earth excavators
+	for i in range(4):
 		var ant = ANT_SCENE.instantiate()
-		ant.position = Vector2(540 + randf_range(-80, 80), 770 + randf_range(-10, 10))
+		ant.position = Vector2(960 + randf_range(-80, 80), 770 + randf_range(-10, 10))
 		ant.waypoints = outworld_ant_path
-		ant.speed = randf_range(40.0, 55.0)
+		ant.speed = randf_range(42.0, 58.0)
+		if i % 2 == 0:
+			ant.role = "excavator"
+			ant.carrying_mud = true
+		else:
+			ant.role = "forager"
 		entities_node.add_child(ant)
 
 func _spawn_initial_bees() -> void:
-	for i in range(5):
+	for i in range(6):
 		var bee = BEE_SCENE.instantiate()
-		bee.position = Vector2(randf_range(350, 750), randf_range(500, 700))
+		bee.position = Vector2(randf_range(600, 1500), randf_range(450, 700))
 		entities_node.add_child(bee)
