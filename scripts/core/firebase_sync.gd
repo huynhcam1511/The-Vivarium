@@ -1,27 +1,31 @@
 extends Node
 
-# The Living Colony - Dual Save System (Local Disk Auto-Save + Firebase Firestore Cloud Sync)
+# The Vivarium - Dual Save System (Local Disk + Firebase Realtime Database)
 signal save_completed(is_cloud: bool, message: String)
 signal load_completed(is_cloud: bool, message: String)
 
 const LOCAL_SAVE_PATH: String = "user://the_vivarium_save.json"
-const FIREBASE_PROJECT_ID: String = "the-vivarium"
-const FIRESTORE_BASE_URL: String = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID + "/databases/(default)/documents/saves/"
+const FIREBASE_RTDB_URL: String = "https://the-vivarium-default-rtdb.asia-southeast1.firebasedatabase.app/saves/"
 
-var player_id: String = "default_keeper"
+var player_id: String = "player_colony_1"
 var auto_save_timer: float = 0.0
 const AUTO_SAVE_INTERVAL: float = 120.0 # Tự động lưu mỗi 2 phút
 
-var http_request: HTTPRequest
+var http_request_save: HTTPRequest
+var http_request_load: HTTPRequest
 
 func _ready() -> void:
-	http_request = HTTPRequest.new()
-	add_child(http_request)
-	http_request.request_completed.connect(_on_http_request_completed)
+	http_request_save = HTTPRequest.new()
+	add_child(http_request_save)
+	http_request_save.request_completed.connect(_on_save_request_completed)
 	
-	print("[The Vivarium - Save System] Dual-Save Controller initialized.")
-	# Tự động nạp bản lưu gần nhất nếu có
-	call_deferred("load_game_local")
+	http_request_load = HTTPRequest.new()
+	add_child(http_request_load)
+	http_request_load.request_completed.connect(_on_load_request_completed)
+	
+	print("[The Vivarium - Save System] Dual-Save Controller initialized with Firebase RTDB (Singapore).")
+	# Ưu tiên thử nạp từ Cloud, nếu không có thì nạp từ Local
+	call_deferred("load_game_all")
 
 func _process(delta: float) -> void:
 	auto_save_timer += delta
@@ -31,6 +35,7 @@ func _process(delta: float) -> void:
 
 func get_save_data_dictionary() -> Dictionary:
 	return {
+		"game_title": "The Vivarium",
 		"version": "2.0",
 		"timestamp": Time.get_datetime_string_from_system(),
 		"biome": GameManager.current_biome,
@@ -150,7 +155,7 @@ func load_game_local() -> bool:
 			return true
 	return false
 
-# --- 2. FIREBASE FIRESTORE CLOUD SAVE (Online Sync) ---
+# --- 2. FIREBASE REALTIME DATABASE CLOUD SAVE (Online Sync) ---
 
 func save_game_all(reason: String = "") -> void:
 	save_game_local()
@@ -160,45 +165,38 @@ func save_game_all(reason: String = "") -> void:
 		msg += " (" + reason + ")"
 	GameManager.emit_signal("colony_event", msg)
 
+func load_game_all() -> void:
+	# Đầu tiên nạp ngay từ local để người chơi không phải chờ
+	var loaded = load_game_local()
+	# Sau đó nạp từ Cloud để đồng bộ bản mới nhất
+	load_game_cloud()
+
 func save_game_cloud() -> void:
 	var data = get_save_data_dictionary()
-	var json_str = JSON.stringify(data)
-	
-	# Định dạng Firestore Document REST API
-	var firestore_doc = {
-		"fields": {
-			"save_json": {
-				"stringValue": json_str
-			},
-			"last_updated": {
-				"stringValue": Time.get_datetime_string_from_system()
-			}
-		}
-	}
-	
-	var payload = JSON.stringify(firestore_doc)
-	var url = FIRESTORE_BASE_URL + player_id
+	var payload = JSON.stringify(data)
+	var url = FIREBASE_RTDB_URL + player_id + ".json"
 	var headers = ["Content-Type: application/json"]
 	
-	# Gửi request PATCH để tạo hoặc cập nhật document
-	http_request.request(url, headers, HTTPClient.METHOD_PATCH, payload)
+	http_request_save.request(url, headers, HTTPClient.METHOD_PUT, payload)
 
 func load_game_cloud() -> void:
-	var url = FIRESTORE_BASE_URL + player_id
-	http_request.request(url, [], HTTPClient.METHOD_GET)
+	var url = FIREBASE_RTDB_URL + player_id + ".json"
+	http_request_load.request(url, [], HTTPClient.METHOD_GET)
 
-func _on_http_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_save_request_completed(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
+	if response_code == 200:
+		emit_signal("save_completed", true, "Đã sao lưu lên Firebase Realtime Database thành công!")
+	elif response_code == 401 or response_code == 403:
+		print("[Firebase RTDB] Cần mở Rules cho phép đọc ghi (Xem hướng dẫn trong chat).")
+	else:
+		print("[Firebase RTDB] Save Response Code: %d" % response_code)
+
+func _on_load_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if response_code == 200:
 		var response_str = body.get_string_from_utf8()
-		var json = JSON.new()
-		if json.parse(response_str) == OK and json.data is Dictionary:
-			var fields = json.data.get("fields", {})
-			if fields.has("save_json"):
-				var raw_json = fields["save_json"].get("stringValue", "")
-				var inner_json = JSON.new()
-				if inner_json.parse(raw_json) == OK and inner_json.data is Dictionary:
-					apply_save_data_dictionary(inner_json.data)
-					emit_signal("load_completed", true, "Đã đồng bộ thế giới từ Firebase Firestore!")
-					GameManager.emit_signal("colony_event", "☁️ [Firebase Sync] Đã đồng bộ tiến trình thành công từ Đám Mây!")
-	elif response_code != 0:
-		print("[Firebase Cloud Sync] Response Code: %d (Sẽ thử lại ở chu kỳ kế tiếp)" % response_code)
+		if response_str != "null" and response_str != "":
+			var json = JSON.new()
+			if json.parse(response_str) == OK and json.data is Dictionary:
+				apply_save_data_dictionary(json.data)
+				emit_signal("load_completed", true, "Đã đồng bộ thế giới mới nhất từ Firebase Đám Mây!")
+				GameManager.emit_signal("colony_event", "☁️ [Firebase Cloud] Đã đồng bộ tiến trình thành công từ Đám Mây!")
