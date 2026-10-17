@@ -81,6 +81,14 @@ func _process_ant_construction_tasks() -> void:
 			GameManager.emit_signal("colony_event", "⚠️ Thiếu bùn đất để lấp hầm! Đàn kiến cần đào thêm đất sét.")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F12:
+		var img = get_viewport().get_texture().get_image()
+		var save_path = "C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/in_engine_main_gameplay.png"
+		var err = img.save_png(save_path)
+		print("[Screenshot] Gameplay screenshot saved: ", err == OK, " at ", save_path)
+		GameManager.emit_signal("colony_event", "📸 Đã chụp ảnh màn hình 2.5D chân thực vào Artifacts!")
+		return
+
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var mouse_pos = get_global_mouse_position()
 		if mouse_pos.y >= 880.0 and subterranean_grid != null and GameManager.current_tool != "NONE":
