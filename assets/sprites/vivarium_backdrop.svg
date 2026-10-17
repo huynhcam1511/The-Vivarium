@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <!-- Sky & Canopy Ambient Glow -->
+    <linearGradient id="canopySkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2D3B26"/>
+      <stop offset="30%" stop-color="#4B633C"/>
+      <stop offset="65%" stop-color="#8DAA6E"/>
+      <stop offset="100%" stop-color="#CADBB0"/>
+    </linearGradient>
+
+    <!-- Outworld Sand Substrate -->
+    <linearGradient id="sandSubstrate" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8D5AD"/>
+      <stop offset="50%" stop-color="#CEB684"/>
+      <stop offset="100%" stop-color="#A88B57"/>
+    </linearGradient>
+
+    <!-- Subterranean Soil / Acrylic Matrix -->
+    <linearGradient id="subSoilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E140E"/>
+      <stop offset="40%" stop-color="#281A12"/>
+      <stop offset="100%" stop-color="#140B07"/>
+    </linearGradient>
+
+    <!-- Red Observation Glow for Chambers (Ánh sáng đỏ quan sát) -->
+    <radialGradient id="redChamberGlow" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#D94B34" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#8F2519" stop-opacity="0.85"/>
+      <stop offset="85%" stop-color="#4D120B" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#240704" stop-opacity="0.2"/>
+    </radialGradient>
+
+    <!-- Moss Texture Gradient -->
+    <radialGradient id="mossGrad" cx="45%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#82AF43"/>
+      <stop offset="65%" stop-color="#4C7820"/>
+      <stop offset="100%" stop-color="#2B4E0F"/>
+    </radialGradient>
+
+    <!-- Glass Rim Reflection -->
+    <linearGradient id="glassRim" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.4)"/>
+      <stop offset="20%" stop-color="rgba(220,240,255,0.15)"/>
+      <stop offset="80%" stop-color="rgba(220,240,255,0.15)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.3)"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- 1. UPPER OUTWORLD & CANOPY BACKGROUND (y: 0 to 880) -->
+  <rect x="0" y="0" width="1080" height="880" fill="url(#canopySkyGrad)"/>
+
+  <!-- Sunbeams through foliage -->
+  <polygon points="120,0 340,0 520,800 200,800" fill="rgba(255, 255, 220, 0.08)"/>
+  <polygon points="560,0 720,0 950,800 700,800" fill="rgba(255, 255, 220, 0.06)"/>
+
+  <!-- Ancient Mossy Tree Trunk & Exposed Roots (Gốc cây cổ thụ & rễ lũa) -->
+  <path d="M 0,260 Q 240,320 380,480 Q 520,640 450,800 L 0,800 Z" fill="#3D291C"/>
+  <path d="M 1080,180 Q 840,280 720,440 Q 620,620 680,800 L 1080,800 Z" fill="#352317"/>
+
+  <!-- Lush Green Moss Patches (Thảm rêu nhung xanh mướt) -->
+  <ellipse cx="260" cy="540" rx="95" ry="42" fill="url(#mossGrad)"/>
+  <ellipse cx="340" cy="620" rx="110" ry="48" fill="url(#mossGrad)"/>
+  <ellipse cx="740" cy="560" rx="120" ry="45" fill="url(#mossGrad)"/>
+  <ellipse cx="640" cy="680" rx="90" ry="40" fill="url(#mossGrad)"/>
+
+  <!-- Sand & Soil Substrate Terrace -->
+  <path d="M 0,760 Q 280,740 540,770 Q 820,745 1080,760 L 1080,880 L 0,880 Z" fill="url(#sandSubstrate)"/>
+
+  <!-- Wildflowers (Hoa chuông và cúc dại trên mặt cạn) -->
+  <!-- Flower Stems & Blooms -->
+  <g stroke="#3E611E" stroke-width="2.5" stroke-linecap="round">
+    <path d="M 440,760 Q 448,710 442,670"/>
+    <path d="M 470,765 Q 482,725 490,685"/>
+    <path d="M 580,768 Q 575,720 585,675"/>
+    <path d="M 610,764 Q 625,715 630,660"/>
+  </g>
+  <!-- Daisies & Bluebells -->
+  <circle cx="442" cy="670" r="10" fill="#FFFFFF"/>
+  <circle cx="442" cy="670" r="4.5" fill="#F4BC2C"/>
+  <circle cx="490" cy="685" r="9" fill="#E6EEF8"/>
+  <circle cx="490" cy="685" r="4" fill="#E28E25"/>
+  <ellipse cx="585" cy="675" rx="9" ry="12" fill="#789AD8"/>
+  <ellipse cx="630" cy="660" rx="11" ry="14" fill="#90B2E8"/>
+
+  <!-- 2. ACRYLIC DIVIDER GLASS RIM (y: 875 to 895) -->
+  <rect x="0" y="875" width="1080" height="18" fill="url(#glassRim)"/>
+  <line x1="0" y1="875" x2="1080" y2="875" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+  <line x1="0" y1="893" x2="1080" y2="893" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>
+
+  <!-- 3. LOWER SUBTERRANEAN FORMICARIUM (y: 893 to 1920) -->
+  <rect x="0" y="893" width="1080" height="1027" fill="url(#subSoilGrad)"/>
+
+  <!-- Natural Soil Grain & Stratum Lines -->
+  <path d="M 0,1180 Q 400,1160 1080,1190" stroke="rgba(90, 55, 30, 0.3)" stroke-width="3" fill="none"/>
+  <path d="M 0,1480 Q 600,1510 1080,1470" stroke="rgba(80, 48, 25, 0.3)" stroke-width="3" fill="none"/>
+  <path d="M 0,1750 Q 300,1730 1080,1760" stroke="rgba(70, 40, 20, 0.3)" stroke-width="3" fill="none"/>
+
+  <!-- Carved Formicarium Chambers & Tunnels (Các khoang hầm rọi đèn đỏ) -->
+  <!-- Entrance Tunnel from Outworld to Nest -->
+  <path d="M 540,885 Q 540,940 540,990" stroke="#7A1D13" stroke-width="36" stroke-linecap="round" fill="none"/>
+
+  <!-- Chamber 1: Royal Queen Chamber (Central Majestic Room) -->
+  <ellipse cx="540" cy="1120" rx="240" ry="110" fill="url(#redChamberGlow)"/>
+  <ellipse cx="540" cy="1120" rx="240" ry="110" stroke="#B83826" stroke-width="6" fill="none"/>
+  <!-- Red LED Lamp Unit at ceiling of chamber -->
+  <rect x="470" y="1015" width="140" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
+
+  <!-- Tunnel Left -->
+  <path d="M 320,1140 Q 240,1180 180,1260" stroke="#7A1D13" stroke-width="34" stroke-linecap="round" fill="none"/>
+  
+  <!-- Chamber 2: High Humidity Brood Nursery (Left Chamber) -->
+  <ellipse cx="190" cy="1380" rx="160" ry="95" fill="url(#redChamberGlow)"/>
+  <ellipse cx="190" cy="1380" rx="160" ry="95" stroke="#B83826" stroke-width="5" fill="none"/>
+  <rect x="140" y="1290" width="100" height="8" rx="4" fill="#FF8270" filter="url(#softGlow)"/>
+
+  <!-- Tunnel Right -->
+  <path d="M 760,1140 Q 840,1180 900,1260" stroke="#7A1D13" stroke-width="34" stroke-linecap="round" fill="none"/>
+
+  <!-- Chamber 3: Dry Granary Seed Vault (Right Chamber) -->
+  <ellipse cx="890" cy="1380" rx="160" ry="95" fill="url(#redChamberGlow)"/>
+  <ellipse cx="890" cy="1380" rx="160" ry="95" stroke="#B83826" stroke-width="5" fill="none"/>
+  <rect x="840" y="1290" width="100" height="8" rx="4" fill="#FF8270" filter="url(#softGlow)"/>
+
+  <!-- Deep Tunnels Down to Deep Chambers -->
+  <path d="M 220,1460 Q 260,1540 360,1610" stroke="#7A1D13" stroke-width="32" stroke-linecap="round" fill="none"/>
+  <path d="M 860,1460 Q 820,1540 720,1610" stroke="#7A1D13" stroke-width="32" stroke-linecap="round" fill="none"/>
+  <path d="M 540,1225 Q 540,1420 540,1620" stroke="#7A1D13" stroke-width="34" stroke-linecap="round" fill="none"/>
+
+  <!-- Chamber 4: Lower Expansion / Hibernate Chamber (y: 1680) -->
+  <ellipse cx="540" cy="1700" rx="270" ry="105" fill="url(#redChamberGlow)"/>
+  <ellipse cx="540" cy="1700" rx="270" ry="105" stroke="#B83826" stroke-width="6" fill="none"/>
+  <rect x="460" y="1600" width="160" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
+
+  <!-- Outer Glass Frame Border (Khung viền kính bể Vivarium sang trọng) -->
+  <rect x="6" y="6" width="1068" height="1908" rx="16" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="12"/>
+</svg>

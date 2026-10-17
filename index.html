@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>The Great Elder Tree - Cây Cổ Thụ Diệu Kỳ (Demo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #EBD8AE;
+      --bg-cream-dark: #DEC79A;
+      --panel-bg: rgba(254, 250, 240, 0.88);
+      --panel-border: rgba(180, 140, 80, 0.18);
+      --honey-gold: #F6B828;
+      --honey-amber: #E8951E;
+      --honey-dark: #643912;
+      --honey-burgundy: #8B3428;
+      --text-dark: #4A3420;
+      --accent-yellow: #FFD23F;
+      --accent-green: #7BB661;
+      --accent-teal: #4EA699;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 8px 24px rgba(74, 52, 32, 0.12);
+      --shadow-card: 0 4px 12px rgba(74, 52, 32, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      background: radial-gradient(circle at 50% 40%, var(--bg-cream), var(--bg-cream-dark));
+      color: var(--text-dark);
+      position: relative;
+    }
+
+    /* Background Canvas */
+    #gameCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      cursor: grab;
+    }
+    #gameCanvas:active {
+      cursor: grabbing;
+    }
+
+    /* Top HUD */
+    .top-bar {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hud-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .pill-badge {
+      background: var(--honey-gold);
+      color: var(--honey-dark);
+      padding: 7px 18px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+      font-size: 19px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(180, 120, 20, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+    .pill-badge.quota {
+      background: #FFE894;
+      color: #925D06;
+      font-size: 16px;
+      padding: 7px 14px;
+    }
+    .pill-badge.quota small {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.8;
+      display: block;
+      line-height: 1;
+    }
+
+    /* Season Tracker Bar */
+    .season-tracker {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(8px);
+      padding: 4px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--honey-dark);
+      box-shadow: var(--shadow-card);
+    }
+    .season-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+      transition: all 0.2s;
+    }
+    .season-btn.active {
+      background: #FFF;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transform: scale(1.15);
+    }
+
+    .action-btn-small {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--honey-dark);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.15s;
+    }
+    .action-btn-small:hover {
+      transform: scale(1.08);
+      background: #FFF;
+    }
+
+    /* Left Panel: Climate Gauges */
+    .climate-card {
+      position: absolute;
+      top: 80px;
+      left: 20px;
+      width: 220px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--panel-border);
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .climate-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #9D7B50;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .gauge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .gauge-row:last-child {
+      margin-bottom: 0;
+    }
+    .gauge-icon {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+    .gauge-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: rgba(180, 140, 80, 0.18);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      position: relative;
+    }
+    .gauge-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      transition: width 0.5s ease;
+    }
+    .fill-temp { background: linear-gradient(90deg, #F9B036, #F27830); width: 75%; }
+    .fill-co2 { background: linear-gradient(90deg, #F27830, #D9534F); width: 62%; }
+    .fill-hum { background: linear-gradient(90deg, #5BC0BE, #3A86C8); width: 84%; }
+    .gauge-val {
+      font-size: 12px;
+      font-weight: 700;
+      width: 55px;
+      text-align: right;
+      color: #7A5B36;
+    }
+
+    /* Bottom Left: Honey Jar */
+    .honey-jar-container {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .honey-jar {
+      width: 74px;
+      height: 98px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(10px);
+      border: 3px solid #7D5B34;
+      border-radius: 18px 18px 24px 24px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .honey-jar:hover {
+      transform: translateY(-4px) scale(1.04);
+    }
+    .jar-lid {
+      position: absolute;
+      top: -3px;
+      left: 10px;
+      right: 10px;
+      height: 10px;
+      background: #A07248;
+      border: 2px solid #5A3A1E;
+      border-radius: 6px;
+    }
+    .honey-liquid {
+      width: 100%;
+      height: 68%;
+      background: linear-gradient(180deg, #FCD34D 0%, #F59E0B 100%);
+      transition: height 0.5s ease;
+      position: relative;
+    }
+    .honey-liquid::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+    }
+    .jar-label {
+      position: absolute;
+      top: 36px;
+      left: 6px;
+      right: 6px;
+      background: rgba(255, 250, 240, 0.9);
+      border-radius: 6px;
+      text-align: center;
+      padding: 3px 0;
+      font-size: 10px;
+      font-weight: 800;
+      color: #7D4C1E;
+      letter-spacing: 0.5px;
+    }
+    .jar-count {
+      position: absolute;
+      bottom: 6px;
+      width: 100%;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #FFF;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .medals-row {
+      display: flex;
+      gap: 8px;
+    }
+    .medal-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: var(--panel-bg);
+      border: 2px solid rgba(180, 140, 80, 0.25);
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .medal-circle:hover {
+      transform: translateY(-3px) scale(1.1);
+    }
+
+    /* Bottom Right: Big Modern Buttons */
+    .bottom-right-actions {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .big-action-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(74, 52, 32, 0.16);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+    .big-action-btn:hover {
+      transform: translateY(-5px) scale(1.08);
+    }
+    .big-action-btn:active {
+      transform: scale(0.96);
+    }
+    .btn-speed {
+      background: #FEE78A;
+      color: #925D06;
+      font-size: 26px;
+    }
+    .btn-market {
+      background: #3B2A1E;
+      color: #FFE69A;
+      font-size: 24px;
+    }
+    .btn-forage {
+      background: #F9BA26;
+      color: #3D260F;
+      font-size: 28px;
+    }
+    .new-tag {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #E53E3E;
+      color: #FFF;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: var(--radius-pill);
+      border: 2px solid #FFF;
+    }
+
+    /* Switch Zone Pill (Sky Hive <-> Underground Ants) */
+    .realm-switch {
+      position: absolute;
+      bottom: 104px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(254, 250, 240, 0.95);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(180, 140, 80, 0.28);
+      border-radius: var(--radius-pill);
+      padding: 6px 10px;
+      display: flex;
+      gap: 6px;
+      box-shadow: 0 10px 28px rgba(74, 52, 32, 0.18);
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .realm-btn {
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      border: none;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      background: transparent;
+      color: #7D5B34;
+    }
+    .realm-btn.active {
+      background: #F6B828;
+      color: #3D260F;
+      box-shadow: 0 3px 10px rgba(246, 184, 40, 0.35);
+      transform: scale(1.02);
+    }
+    .realm-btn.ant-active {
+      background: #8D5B4C;
+      color: #FFF;
+      box-shadow: 0 3px 10px rgba(141, 91, 76, 0.35);
+    }
+
+    /* Modal / Popup (Foraging Cards / Storybook) */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(45, 30, 18, 0.45);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal-window {
+      width: 90%;
+      max-width: 640px;
+      background: #FDF9EE;
+      border-radius: var(--radius-lg);
+      border: 3px solid rgba(180, 140, 80, 0.22);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      padding: 24px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px dashed rgba(180, 140, 80, 0.2);
+      padding-bottom: 12px;
+    }
+    .modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #5A3A1E;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: #F0DFC0;
+      color: #7D4C1E;
+      font-size: 20px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    /* Foraging Expedition Cards (Giống ảnh 7) */
+    .expedition-card {
+      background: #FFF;
+      border: 2px solid rgba(180, 140, 80, 0.16);
+      border-radius: 18px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 12px rgba(74, 52, 32, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .exp-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .exp-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #EAF3E2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+    .exp-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #4D3319;
+    }
+    .exp-rate {
+      font-size: 13px;
+      color: #8C6A43;
+      margin-top: 3px;
+    }
+    .exp-crew {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .crew-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: #F6B828;
+      color: #3D260F;
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(246, 184, 40, 0.3);
+    }
+    .crew-btn:active { transform: scale(0.9); }
+    .crew-count {
+      font-size: 17px;
+      font-weight: 800;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    /* Notification Toast */
+    .toast {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(58, 40, 24, 0.92);
+      color: #FFF;
+      padding: 10px 24px;
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Top HUD Bar -->
+  <div class="top-bar">
+    <div class="hud-group">
+      <div class="pill-badge" id="honeyCounter">
+        🍯 <span id="honeyValue">557</span>
+      </div>
+      <div class="pill-badge quota">
+        <div>
+          <small>UNLIMITED</small>
+          <div>∞ MỞ RỘNG</div>
+        </div>
+      </div>
+      <div class="pill-badge" style="background:#8D5B4C; color:#FFF;" id="mineralCounter">
+        🌱 <span id="mineralValue">184</span>
+      </div>
+    </div>
+
+    <!-- Season Tracker -->
+    <div class="season-tracker">
+      <button class="season-btn active" id="btnSpring" title="Mùa Xuân (Hoa nở)">🌸</button>
+      <button class="season-btn" id="btnSummer" title="Mùa Hạ (Mật ngập tràn)">☀️</button>
+      <button class="season-btn" id="btnAutumn" title="Mùa Thu (Lá rơi)">🍂</button>
+      <button class="season-btn" id="btnWinter" title="Mùa Đông (Tuyết phủ ấm cúng)">❄️</button>
+      <span id="seasonLabel">Mùa Thu Ấm Áp</span>
+    </div>
+
+    <div class="hud-group">
+      <button class="action-btn-small" id="btnHelp" title="Cốt truyện & Hướng dẫn">📖</button>
+      <button class="action-btn-small" id="btnZoomReset" title="Reset Camera">🔍</button>
+    </div>
+  </div>
+
+  <!-- Climate Card (Left) -->
+  <div class="climate-card">
+    <div class="climate-title">
+      <span>🌡️ KHÍ HẬU TỔ (HIVE CLIMATE)</span>
+    </div>
+    <div class="gauge-row">
+      <div class="gauge-icon">🌡️</div>
+      <div class="gauge-bar-bg"><div class="gauge-fill fill-temp" id="tempFill"></div></div>
+      <div class="gauge-val" id="tempVal">34.9 °C</div>
+    </div>
+    <div class="gauge-row">
+      <div class="gauge-icon">💨</div>
+      <div class="gauge-bar-bg"><div class="gauge-fill fill-co2" id="co2Fill"></div></div>
+      <div class="gauge-val" id="co2Val">679 ppm</div>
+    </div>
+    <div class="gauge-row">
+      <div class="gauge-icon">💧</div>
+      <div class="gauge-bar-bg"><div class="gauge-fill fill-hum" id="humFill"></div></div>
+      <div class="gauge-val" id="humVal">63 %</div>
+    </div>
+  </div>
+
+  <!-- Bottom Left: Honey Jar -->
+  <div class="honey-jar-container">
+    <div class="honey-jar" id="jarClick" title="Bấm để thu hoạch mật dự trữ!">
+      <div class="jar-lid"></div>
+      <div class="honey-liquid" id="jarLiquid"></div>
+      <div class="jar-label">HONEY</div>
+      <div class="jar-count" id="jarNum">26</div>
+    </div>
+    <div class="medals-row">
+      <div class="medal-circle" title="Huy hiệu Cỏ Ba Lá May Mắn">🍀</div>
+      <div class="medal-circle" title="Biên niên sử Cây Cổ Thụ">📜</div>
+      <div class="medal-circle" title="Di vật Cúc Áo Tí Hon">🔘</div>
+    </div>
+  </div>
+
+  <!-- Switch Realm (Ong trên trời <-> Kiến dưới lòng đất) -->
+  <div class="realm-switch">
+    <button class="realm-btn active" id="btnGoSky">🐝 Vòm Trời (Ong)</button>
+    <button class="realm-btn" id="btnGoEarth">🐜 Lòng Đất (Kiến)</button>
+  </div>
+
+  <!-- Bottom Right Action Buttons -->
+  <div class="bottom-right-actions">
+    <button class="big-action-btn btn-speed" id="btnBoost" title="Tăng tốc độ thu thập!">
+      ⚡
+    </button>
+    <button class="big-action-btn btn-market" id="btnMarket" title="Chợ giao thương Mật & Khoáng chất">
+      📈
+    </button>
+    <button class="big-action-btn btn-forage" id="btnForage" title="Phân công đội kiếm ăn">
+      🌸
+      <span class="new-tag">NEW</span>
+    </button>
+  </div>
+
+  <!-- Toast Message -->
+  <div class="toast" id="toastMsg">Vừa mở rộng thêm 1 ô tổ ong mới! 🍯</div>
+
+  <!-- Foraging Modal (Giao diện giống ảnh 7) -->
+  <div class="modal-overlay" id="forageModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">🌸 Phân Công Đội Kiếm Ăn (Foraging Expedition)</div>
+        <button class="close-btn" id="closeForage">&times;</button>
+      </div>
+
+      <div class="expedition-card">
+        <div class="exp-info">
+          <div class="exp-icon">🪻</div>
+          <div>
+            <div class="exp-name">Thung Lũng Chuông Xanh (Bluebell Hollow)</div>
+            <div class="exp-rate">+13.4 Mật/phút • Rất an toàn (0% rủi ro)</div>
+          </div>
+        </div>
+        <div class="exp-crew">
+          <button class="crew-btn" onclick="adjustCrew('bluebell', -1)">-</button>
+          <div class="crew-count" id="crew_bluebell">4 🐝</div>
+          <button class="crew-btn" onclick="adjustCrew('bluebell', 1)">+</button>
+        </div>
+      </div>
+
+      <div class="expedition-card">
+        <div class="exp-info">
+          <div class="exp-icon">🍀</div>
+          <div>
+            <div class="exp-name">Cánh Đồng Cỏ Ba Lá (Clover Flats)</div>
+            <div class="exp-rate">+19.8 Mật/phút • Hoa nở rộ mùa thu</div>
+          </div>
+        </div>
+        <div class="exp-crew">
+          <button class="crew-btn" onclick="adjustCrew('clover', -1)">-</button>
+          <div class="crew-count" id="crew_clover">3 🐝</div>
+          <button class="crew-btn" onclick="adjustCrew('clover', 1)">+</button>
+        </div>
+      </div>
+
+      <div class="expedition-card">
+        <div class="exp-info">
+          <div class="exp-icon">🍄</div>
+          <div>
+            <div class="exp-name">Hang Động Nấm Phát Quang (Glow Cave - Kiến)</div>
+            <div class="exp-rate">+15.2 Khoáng chất/phút • Rễ cổ thụ nuôi dưỡng</div>
+          </div>
+        </div>
+        <div class="exp-crew">
+          <button class="crew-btn" onclick="adjustCrew('mushroom', -1)">-</button>
+          <div class="crew-count" id="crew_mushroom">5 🐜</div>
+          <button class="crew-btn" onclick="adjustCrew('mushroom', 1)">+</button>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 16px; color: #8D6B44; font-size: 13px;">
+        💡 Mỗi chú ong hoặc chú kiến được phái đi sẽ tự động mang tài nguyên về làm giàu vương quốc vô tận của bạn!
+      </div>
+    </div>
+  </div>
+
+  <!-- Story & Lore Modal -->
+  <div class="modal-overlay" id="storyModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">📜 Biên Niên Sử Cây Cổ Thụ</div>
+        <button class="close-btn" id="closeStory">&times;</button>
+      </div>
+      <div style="line-height: 1.7; color: #5C3D20; font-size: 15px;">
+        <p style="margin-bottom: 12px;"><strong>Chương 1: Khởi nguồn của sự cộng sinh</strong></p>
+        <p style="margin-bottom: 12px;">
+          Từ ngàn năm trước, Cây Cổ Thụ đứng sừng sững giữa khu rừng sương mù. Dưới tán lá xanh ngút ngàn, những bé ong tròn xoe gom giọt mật đầu tiên. Sâu dưới lớp đất phù sa ấm áp, đàn kiến tí hon ươm những mầm nấm dạ quang đầu tiên.
+        </p>
+        <p style="margin-bottom: 12px;">
+          Ong gửi mật ngọt xuống lòng đất để tiếp thêm sức mạnh cho kiến đào hầm. Kiến mang khoáng chất quý báu bón vào rễ cổ thụ để cây đâm chồi, nở rộ hàng triệu đóa hoa ngát hương.
+        </p>
+        <div style="background: #F4E7CE; padding: 14px; border-radius: 14px; border-left: 4px solid #F6B828; margin-top: 14px;">
+          🌟 <strong>Mục tiêu của bạn:</strong> Không có kẻ thù, không có điểm dừng. Hãy bấm vào các ô dấu <code>+</code> để mở rộng tổ ong và buồng kiến to lớn khổng lồ không giới hạn!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Canvas & Core Engine Setup ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Game State
+    let honey = 557;
+    let minerals = 184;
+    let currentSeason = 'autumn'; // spring, summer, autumn, winter
+    let currentRealm = 'sky'; // 'sky' or 'earth'
+    let currentSeasonProgress = 0.65;
+
+    // Camera
+    let camera = {
+      x: 0,
+      y: 0,
+      targetY: 0,
+      zoom: 1.0,
+      targetZoom: 1.0,
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0
+    };
+
+    // Particles (Leaves / Snow / Petals)
+    const particles = [];
+    for (let i = 0; i < 45; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: 3 + Math.random() * 6,
+        speedX: -0.5 + Math.random() * 1,
+        speedY: 0.8 + Math.random() * 1.5,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (-0.02 + Math.random() * 0.04)
+      });
+    }
+
+    // Honeycomb Hex Grid System (Flat rounded hexes)
+    const HEX_SIZE = 64; // Radius of hex
+    const HEX_H_SPACING = Math.sqrt(3) * HEX_SIZE;
+    const HEX_V_SPACING = HEX_SIZE * 1.5;
+
+    // Cells list: { q, r, type: 'honey' | 'royal' | 'nursery' | 'empty', level, honeyStock, maxStock, bounce: 1.0 }
+    const hexCells = [
+      { q: 0, r: 0, type: 'queen', level: 1, honeyStock: 38, maxStock: 50, bounce: 1.0 },
+      { q: 1, r: 0, type: 'honey', level: 2, honeyStock: 16, maxStock: 40, bounce: 1.0 },
+      { q: 0, r: 1, type: 'nursery', level: 1, honeyStock: 24, maxStock: 30, bounce: 1.0 },
+      { q: -1, r: 1, type: 'honey', level: 1, honeyStock: 12, maxStock: 30, bounce: 1.0 },
+      { q: -1, r: 0, type: 'royal', level: 2, honeyStock: 28, maxStock: 30, bounce: 1.0 },
+      { q: 0, r: -1, type: 'honey', level: 3, honeyStock: 45, maxStock: 60, bounce: 1.0 },
+      { q: 1, r: -1, type: 'empty', level: 1, honeyStock: 0, maxStock: 20, bounce: 1.0 },
+      { q: 2, r: -1, type: 'honey', level: 1, honeyStock: 18, maxStock: 30, bounce: 1.0 },
+      { q: 1, r: 1, type: 'nursery', level: 2, honeyStock: 20, maxStock: 30, bounce: 1.0 },
+      { q: -1, r: 2, type: 'honey', level: 1, honeyStock: 15, maxStock: 30, bounce: 1.0 }
+    ];
+
+    // Underground Ant Chambers (Smooth rounded bubble rooms)
+    const antChambers = [
+      { x: 0, y: 1500, radius: 85, type: 'queen_ant', name: 'Buồng Nữ Hoàng Kiến', seeds: 40 },
+      { x: -160, y: 1620, radius: 65, type: 'nursery_ant', name: 'Nhà Trẻ Ấu Trùng', seeds: 25 },
+      { x: 170, y: 1580, radius: 70, type: 'fungus_garden', name: 'Vườn Nấm Dạ Quang', seeds: 30 },
+      { x: -80, y: 1800, radius: 80, type: 'mineral_vault', name: 'Kho Trữ Khoáng Thạch', seeds: 65 },
+      { x: 140, y: 1820, radius: 60, type: 'rest_pod', name: 'Khu Nghỉ Dưỡng Rễ Cây', seeds: 15 }
+    ];
+
+    // Cute Entities (Bees & Ants)
+    const bees = [];
+    for (let i = 0; i < 14; i++) {
+      bees.push({
+        x: (Math.random() - 0.5) * 400,
+        y: (Math.random() - 0.5) * 350,
+        targetX: (Math.random() - 0.5) * 350,
+        targetY: (Math.random() - 0.5) * 300,
+        wingPhase: Math.random() * Math.PI * 2,
+        angle: 0,
+        speed: 1.2 + Math.random() * 1.5,
+        type: i === 0 ? 'queen' : 'worker'
+      });
+    }
+
+    const ants = [];
+    for (let i = 0; i < 10; i++) {
+      ants.push({
+        x: (Math.random() - 0.5) * 300,
+        y: 1500 + (Math.random() - 0.5) * 300,
+        targetX: (Math.random() - 0.5) * 300,
+        targetY: 1500 + (Math.random() - 0.5) * 300,
+        legPhase: 0,
+        hasBackpack: Math.random() > 0.4
+      });
+    }
+
+    // Helper: Axial to Pixel for Hex Grid
+    function hexToPixel(q, r) {
+      const x = HEX_SIZE * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+      const y = HEX_SIZE * (3/2 * r);
+      return { x, y };
+    }
+
+    // Draw Rounded Polygon (Hexagon with rounded corners)
+    function drawRoundedHex(ctx, x, y, radius, cornerRadius, fillColor, strokeColor) {
+      const points = [];
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI / 3) * i - Math.PI / 6;
+        points.push({
+          x: x + radius * Math.cos(angle),
+          y: y + radius * Math.sin(angle)
+        });
+      }
+
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % 6];
+        const p0 = points[(i + 5) % 6];
+
+        // Draw curved corners
+        const d1x = p1.x - p0.x;
+        const d1y = p1.y - p0.y;
+        const d2x = p2.x - p1.x;
+        const d2y = p2.y - p1.y;
+
+        const len1 = Math.hypot(d1x, d1y);
+        const len2 = Math.hypot(d2x, d2y);
+
+        const startX = p1.x - (d1x / len1) * cornerRadius;
+        const startY = p1.y - (d1y / len1) * cornerRadius;
+        const endX = p1.x + (d2x / len2) * cornerRadius;
+        const endY = p1.y + (d2y / len2) * cornerRadius;
+
+        if (i === 0) ctx.moveTo(startX, startY);
+        else ctx.lineTo(startX, startY);
+        ctx.quadraticCurveTo(p1.x, p1.y, endX, endY);
+      }
+      ctx.closePath();
+
+      if (fillColor) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+      }
+      if (strokeColor) {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+    }
+
+    // Main Game Loop
+    function update(dt) {
+      // Smooth Camera follow
+      camera.y += (camera.targetY - camera.y) * 0.1;
+      camera.zoom += (camera.targetZoom - camera.zoom) * 0.1;
+
+      // Update Bees
+      bees.forEach(b => {
+        b.wingPhase += 0.4;
+        const dx = b.targetX - b.x;
+        const dy = b.targetY - b.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 15) {
+          b.targetX = (Math.random() - 0.5) * 450;
+          b.targetY = (Math.random() - 0.5) * 380;
+        } else {
+          b.x += (dx / dist) * b.speed;
+          b.y += (dy / dist) * b.speed;
+          b.angle = Math.atan2(dy, dx);
+        }
+      });
+
+      // Update Ants
+      ants.forEach(a => {
+        a.legPhase += 0.2;
+        const dx = a.targetX - a.x;
+        const dy = a.targetY - a.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 15) {
+          a.targetX = (Math.random() - 0.5) * 400;
+          a.targetY = 1500 + (Math.random() - 0.5) * 350;
+        } else {
+          a.x += (dx / dist) * 1.2;
+          a.y += (dy / dist) * 1.2;
+        }
+      });
+
+      // Update Particles (Falling seasonal effects)
+      particles.forEach(p => {
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.rot += p.rotSpeed;
+        if (p.y > height) {
+          p.y = -10;
+          p.x = Math.random() * width;
+        }
+      });
+
+      // Hex bouncy decay
+      hexCells.forEach(cell => {
+        if (cell.bounce > 1.0) {
+          cell.bounce += (1.0 - cell.bounce) * 0.15;
+        }
+      });
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.save();
+      // Apply Camera Transform
+      ctx.translate(width / 2 + camera.x, height / 2 - camera.y);
+      ctx.scale(camera.zoom, camera.zoom);
+
+      // --- 1. RENDER SKY REALM (VƯƠNG QUỐC ONG) ---
+      // Soft ambient tree branches in the background
+      ctx.strokeStyle = "rgba(140, 95, 55, 0.25)";
+      ctx.lineWidth = 48;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-450, 200);
+      ctx.bezierCurveTo(-200, 50, 0, 150, 450, -100);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(350, 280);
+      ctx.bezierCurveTo(150, 120, -50, -50, -350, -200);
+      ctx.stroke();
+
+      // Soft leaves clusters
+      ctx.fillStyle = currentSeason === 'winter' ? "rgba(200, 215, 225, 0.45)" : (currentSeason === 'autumn' ? "rgba(215, 120, 60, 0.25)" : "rgba(140, 190, 100, 0.35)");
+      for (let i = -3; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.arc(i * 140, -180 + Math.sin(i) * 50, 70, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Draw Honeycomb Cells
+      hexCells.forEach(cell => {
+        const { x, y } = hexToPixel(cell.q, cell.r);
+        const radius = (HEX_SIZE - 4) * cell.bounce;
+
+        // Shadow
+        drawRoundedHex(ctx, x, y + 8, radius, 14, "rgba(90, 55, 25, 0.12)", null);
+
+        // Fill Color by Type
+        let fill = "#F6C852"; // Honey
+        let stroke = "#E2A329";
+        if (cell.type === 'queen') {
+          fill = "#8C3428"; // Royal Chamber
+          stroke = "#68241B";
+        } else if (cell.type === 'royal') {
+          fill = "#E88A22"; // Warm Amber
+          stroke = "#C46D10";
+        } else if (cell.type === 'nursery') {
+          fill = "#F2DFB3"; // Nursery pale
+          stroke = "#D4BA85";
+        } else if (cell.type === 'empty') {
+          fill = "#EFE3CA";
+          stroke = "#DFCBB0";
+        }
+
+        if (currentSeason === 'winter') {
+          if (cell.type === 'empty') fill = "#D4E2EB";
+        }
+
+        drawRoundedHex(ctx, x, y, radius, 14, fill, stroke);
+
+        // Glossy Inner Highlight (Curved light reflection)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x - 8, y - 14, radius * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.fill();
+        ctx.restore();
+
+        // Cell Level or Stock Badge
+        if (cell.type !== 'empty') {
+          ctx.fillStyle = cell.type === 'queen' ? "#FFE8A3" : "#724719";
+          ctx.font = "bold 16px Fredoka";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(cell.type === 'queen' ? "👑" : cell.honeyStock, x, y);
+        }
+      });
+
+      // Expandable "+" Placeholders (Biểu tượng Unlimited Expansion!)
+      const neighbors = [
+        { q: 1, r: -2 }, { q: 2, r: 0 }, { q: -1, r: -1 }, { q: -2, r: 1 }, { q: 0, r: 2 }
+      ];
+      neighbors.forEach(n => {
+        const { x, y } = hexToPixel(n.q, n.r);
+        drawRoundedHex(ctx, x, y, HEX_SIZE - 8, 12, "rgba(255, 255, 255, 0.3)", "rgba(190, 145, 85, 0.35)");
+        ctx.fillStyle = "#8F6738";
+        ctx.font = "bold 22px Fredoka";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("+", x, y);
+      });
+
+      // Draw Floating Chibi Bees
+      bees.forEach(b => {
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(b.angle * 0.3);
+
+        // Wing Flutter
+        const wingOffset = Math.sin(b.wingPhase) * 6;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.beginPath();
+        ctx.ellipse(-2, -10 + wingOffset, 5, 8, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(4, -10 - wingOffset, 5, 8, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Round Chibi Bee Body (Golden oval)
+        ctx.fillStyle = b.type === 'queen' ? "#E28A2B" : "#F6C838";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, b.type === 'queen' ? 14 : 11, b.type === 'queen' ? 11 : 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Black Stripes
+        ctx.fillStyle = "#3D2611";
+        ctx.beginPath();
+        ctx.fillRect(-2, -7, 4, 14);
+        ctx.fillRect(4, -6, 3, 12);
+        ctx.fill();
+
+        // Cute Face (Eyes)
+        ctx.fillStyle = "#261507";
+        ctx.beginPath();
+        ctx.arc(-5, -2, 1.8, 0, Math.PI * 2);
+        ctx.arc(-5, 2, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Queen Crown
+        if (b.type === 'queen') {
+          ctx.font = "10px sans-serif";
+          ctx.fillText("👑", -6, -11);
+        }
+
+        ctx.restore();
+      });
+
+      // --- 2. THE GREAT TRUNK (THÂN CÂY NỐI 2 VƯƠNG QUỐC) ---
+      ctx.fillStyle = "#6E4528";
+      ctx.beginPath();
+      ctx.rect(-100, 350, 200, 1000);
+      ctx.fill();
+
+      // Rope elevator tracks (Thang tơ nhện giao thương)
+      ctx.strokeStyle = "rgba(255, 240, 200, 0.4)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([8, 8]);
+      ctx.beginPath();
+      ctx.moveTo(-30, 350);
+      ctx.lineTo(-30, 1350);
+      ctx.moveTo(30, 350);
+      ctx.lineTo(30, 1350);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Floating elevator basket
+      const basketY = 350 + (Math.sin(Date.now() * 0.001) * 0.5 + 0.5) * 950;
+      ctx.fillStyle = "#9C6A3E";
+      ctx.beginPath();
+      ctx.roundRect(-24, basketY, 48, 36, 8);
+      ctx.fill();
+      ctx.fillStyle = "#FFE79E";
+      ctx.font = "14px Fredoka";
+      ctx.textAlign = "center";
+      ctx.fillText("🍯⇄🌱", 0, basketY + 22);
+
+      // --- 3. UNDERGROUND ANT KINGDOM (LÒNG ĐẤT) ---
+      // Ground soil mass
+      ctx.fillStyle = "#4A3224";
+      ctx.beginPath();
+      ctx.rect(-1000, 1350, 2000, 1200);
+      ctx.fill();
+
+      // Soft curved root tunnels
+      ctx.strokeStyle = "#7D5234";
+      ctx.lineWidth = 42;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(0, 1350);
+      ctx.lineTo(0, 1500);
+      ctx.lineTo(-160, 1620);
+      ctx.moveTo(0, 1500);
+      ctx.lineTo(170, 1580);
+      ctx.lineTo(140, 1820);
+      ctx.moveTo(0, 1500);
+      ctx.lineTo(-80, 1800);
+      ctx.stroke();
+
+      // Underground Ant Chambers (Smooth circular bubble rooms)
+      antChambers.forEach(chamber => {
+        // Soft Glow around room
+        const grad = ctx.createRadialGradient(chamber.x, chamber.y, chamber.radius * 0.4, chamber.x, chamber.y, chamber.radius);
+        grad.addColorStop(0, "#F7E6C4");
+        grad.addColorStop(1, "#D2B284");
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(chamber.x, chamber.y, chamber.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#9E764E";
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        // Chamber Label & Fungi
+        ctx.fillStyle = "#5A381E";
+        ctx.font = "bold 13px Fredoka";
+        ctx.textAlign = "center";
+        ctx.fillText(chamber.name, chamber.x, chamber.y - 12);
+
+        // Glowing Teal Mushrooms
+        if (chamber.type === 'fungus_garden') {
+          ctx.font = "24px sans-serif";
+          ctx.fillText("🍄✨🍄", chamber.x, chamber.y + 18);
+        } else if (chamber.type === 'queen_ant') {
+          ctx.font = "24px sans-serif";
+          ctx.fillText("👑🐜", chamber.x, chamber.y + 18);
+        } else {
+          ctx.font = "bold 16px Fredoka";
+          ctx.fillStyle = "#7D4C20";
+          ctx.fillText("📦 " + chamber.seeds + " Hạt", chamber.x, chamber.y + 18);
+        }
+      });
+
+      // Draw Chibi Ants
+      ants.forEach(a => {
+        ctx.save();
+        ctx.translate(a.x, a.y);
+
+        // Head, Thorax, Abdomen (3 soft rounded brown/black circles)
+        ctx.fillStyle = "#2D1D13";
+        ctx.beginPath();
+        ctx.arc(-8, 0, 5, 0, Math.PI * 2); // Head
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);  // Thorax
+        ctx.arc(9, 0, 7, 0, Math.PI * 2);  // Round big Abdomen
+        ctx.fill();
+
+        // Antennae
+        ctx.strokeStyle = "#2D1D13";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-10, -2);
+        ctx.lineTo(-15, -7);
+        ctx.moveTo(-10, 2);
+        ctx.lineTo(-15, 7);
+        ctx.stroke();
+
+        // Backpack with seed
+        if (a.hasBackpack) {
+          ctx.fillStyle = "#86B049"; // Green seed
+          ctx.beginPath();
+          ctx.ellipse(3, -7, 5, 4, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      });
+
+      ctx.restore(); // Restore Camera
+
+      // --- 4. SCREEN OVERLAY PARTICLES (Snow / Leaves) ---
+      particles.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+
+        if (currentSeason === 'winter') {
+          // Soft fluffy snowflakes
+          ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (currentSeason === 'autumn') {
+          // Maple golden leaves
+          ctx.fillStyle = "rgba(215, 110, 40, 0.8)";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (currentSeason === 'spring') {
+          // Cherry blossom petals
+          ctx.fillStyle = "rgba(255, 180, 195, 0.85)";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+
+      requestAnimationFrame(render);
+    }
+
+    // Tick Loop for resource generation & animations
+    setInterval(() => {
+      update(0.016);
+    }, 16);
+
+    setInterval(() => {
+      // Passive honey & mineral growth
+      honey += 2;
+      document.getElementById('honeyValue').innerText = honey;
+      document.getElementById('jarNum').innerText = Math.floor(honey / 18);
+
+      minerals += 1;
+      document.getElementById('mineralValue').innerText = minerals;
+    }, 1200);
+
+    // Camera Pan Dragging (Mouse & Touch)
+    window.addEventListener('mousedown', e => {
+      if (e.target !== canvas) return;
+      camera.isDragging = true;
+      camera.lastMouseX = e.clientX;
+      camera.lastMouseY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!camera.isDragging) return;
+      const dx = e.clientX - camera.lastMouseX;
+      const dy = e.clientY - camera.lastMouseY;
+      camera.x += dx / camera.zoom;
+      camera.targetY -= dy / camera.zoom;
+      camera.lastMouseX = e.clientX;
+      camera.lastMouseY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => {
+      camera.isDragging = false;
+    });
+
+    // Zoom with Wheel
+    window.addEventListener('wheel', e => {
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      camera.targetZoom = Math.max(0.4, Math.min(2.0, camera.targetZoom * zoomFactor));
+    });
+
+    // Tap on Canvas to Expand Hive Cell (UNLIMITED MECHANIC)
+    canvas.addEventListener('click', e => {
+      if (Math.abs(e.clientX - camera.lastMouseX) > 5 || Math.abs(e.clientY - camera.lastMouseY) > 5) return;
+
+      // Add a new cell on click near center
+      const newQ = Math.floor((Math.random() - 0.5) * 6);
+      const newR = Math.floor((Math.random() - 0.5) * 6);
+
+      // Check if already exists
+      const exists = hexCells.some(c => c.q === newQ && c.r === newR);
+      if (!exists && honey >= 15) {
+        honey -= 15;
+        document.getElementById('honeyValue').innerText = honey;
+        hexCells.push({
+          q: newQ,
+          r: newR,
+          type: Math.random() > 0.3 ? 'honey' : 'nursery',
+          level: 1,
+          honeyStock: 10,
+          maxStock: 30,
+          bounce: 1.4 // Popping juice animation
+        });
+        showToast("🌟 Mở rộng thành công 1 ô tổ ong mới! (Quy mô: " + hexCells.length + " ô)");
+      }
+    });
+
+    // Realm Switchers
+    document.getElementById('btnGoSky').addEventListener('click', () => {
+      camera.targetY = 0;
+      document.getElementById('btnGoSky').className = 'realm-btn active';
+      document.getElementById('btnGoEarth').className = 'realm-btn';
+    });
+
+    document.getElementById('btnGoEarth').addEventListener('click', () => {
+      camera.targetY = 1600;
+      document.getElementById('btnGoEarth').className = 'realm-btn ant-active';
+      document.getElementById('btnGoSky').className = 'realm-btn';
+    });
+
+    document.getElementById('btnZoomReset').addEventListener('click', () => {
+      camera.x = 0;
+      camera.targetY = currentRealm === 'sky' ? 0 : 1600;
+      camera.targetZoom = 1.0;
+    });
+
+    // Season Switches
+    function setSeason(season, label) {
+      currentSeason = season;
+      document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('seasonLabel').innerText = label;
+
+      // Update Climate Gauges
+      if (season === 'winter') {
+        document.getElementById('tempVal').innerText = "18.2 °C";
+        document.getElementById('tempFill').style.width = "30%";
+        document.getElementById('humVal').innerText = "88 %";
+        document.getElementById('humFill').style.width = "88%";
+        showToast("❄️ Mùa đông đến! Tuyết rơi phủ ấm cúng trên tổ.");
+      } else if (season === 'spring') {
+        document.getElementById('tempVal').innerText = "26.5 °C";
+        document.getElementById('tempFill').style.width = "60%";
+        showToast("🌸 Mùa xuân sang! Hoa nở rực rỡ khắp khu rừng.");
+      } else if (season === 'summer') {
+        document.getElementById('tempVal').innerText = "34.9 °C";
+        document.getElementById('tempFill').style.width = "80%";
+        showToast("☀️ Mùa hạ ngập nắng! Mật hoa dồi dào.");
+      } else {
+        document.getElementById('tempVal').innerText = "28.9 °C";
+        document.getElementById('tempFill').style.width = "68%";
+        showToast("🍂 Mùa thu dịu dàng! Lá phong bay lãng mạn.");
+      }
+    }
+
+    document.getElementById('btnSpring').onclick = () => { setSeason('spring', 'Mùa Xuân Rực Rỡ'); document.getElementById('btnSpring').classList.add('active'); };
+    document.getElementById('btnSummer').onclick = () => { setSeason('summer', 'Mùa Hạ Nắng Vàng'); document.getElementById('btnSummer').classList.add('active'); };
+    document.getElementById('btnAutumn').onclick = () => { setSeason('autumn', 'Mùa Thu Ấm Áp'); document.getElementById('btnAutumn').classList.add('active'); };
+    document.getElementById('btnWinter').onclick = () => { setSeason('winter', 'Mùa Đông Tuyết Trắng'); document.getElementById('btnWinter').classList.add('active'); };
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toastMsg');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    // Modal Events
+    document.getElementById('btnForage').onclick = () => document.getElementById('forageModal').classList.add('open');
+    document.getElementById('closeForage').onclick = () => document.getElementById('forageModal').classList.remove('open');
+    document.getElementById('btnHelp').onclick = () => document.getElementById('storyModal').classList.add('open');
+    document.getElementById('closeStory').onclick = () => document.getElementById('storyModal').classList.remove('open');
+
+    // Crew adjust
+    window.adjustCrew = function(zone, delta) {
+      const el = document.getElementById('crew_' + zone);
+      let count = parseInt(el.innerText);
+      count = Math.max(0, count + delta);
+      el.innerText = count + (zone === 'mushroom' ? ' 🐜' : ' 🐝');
+      showToast("Đã điều động " + count + (zone === 'mushroom' ? ' kiến' : ' ong') + " tới vùng này!");
+    };
+
+    // Jar click
+    document.getElementById('jarClick').onclick = () => {
+      honey += 30;
+      document.getElementById('honeyValue').innerText = honey;
+      showToast("🍯 Thu hoạch +30 giọt mật hoa nguyên chất!");
+    };
+
+    document.getElementById('btnBoost').onclick = () => {
+      showToast("⚡ Kích hoạt tăng tốc thu hoạch 2X trong 30 giây!");
+    };
+
+    document.getElementById('btnMarket').onclick = () => {
+      showToast("📈 Chợ Mật Ong: Tỷ giá 1 Mật = 1.8 Khoáng Chất!");
+    };
+
+    // Start Loop
+    render();
+  </script>
+</body>
+</html>

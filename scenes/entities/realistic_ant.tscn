@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/entities/realistic_ant.gd" id="1_ant"]
+[ext_resource type="Texture2D" path="res://assets/sprites/realistic_ant.svg" id="2_ant_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/realistic_seeds.svg" id="3_seed_tex"]
+
+[node name="RealisticAnt" type="Node2D"]
+script = ExtResource("1_ant")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_ant_tex")
+
+[node name="SeedSprite" type="Sprite2D" parent="."]
+position = Vector2(0, -18)
+scale = Vector2(0.35, 0.35)
+texture = ExtResource("3_seed_tex")

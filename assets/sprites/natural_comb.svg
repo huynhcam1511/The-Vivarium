@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="600" height="500">
+  <defs>
+    <!-- Wax Wall Gradient -->
+    <linearGradient id="waxWall" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EED596"/>
+      <stop offset="50%" stop-color="#CFA858"/>
+      <stop offset="100%" stop-color="#9C7728"/>
+    </linearGradient>
+
+    <!-- Honey Storage Cell Fill (Amber glossy honey) -->
+    <radialGradient id="honeyCellFill" cx="45%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFDD6B"/>
+      <stop offset="50%" stop-color="#F5B224"/>
+      <stop offset="100%" stop-color="#B87309"/>
+    </radialGradient>
+
+    <!-- Pollen Bread Cell Fill (Dense bright orange/yellow pollen grains) -->
+    <radialGradient id="pollenCellFill" cx="45%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FF9F38"/>
+      <stop offset="60%" stop-color="#D96914"/>
+      <stop offset="100%" stop-color="#8F3C04"/>
+    </radialGradient>
+
+    <!-- Brood Core Cell Fill (Dark warm incubation core with larvae) -->
+    <radialGradient id="broodCellFill" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#4A2612"/>
+      <stop offset="60%" stop-color="#2B1408"/>
+      <stop offset="100%" stop-color="#120602"/>
+    </radialGradient>
+
+    <!-- Capped Brood Cap (Porous breathing wax cap) -->
+    <radialGradient id="cappedBrood" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#D5A463"/>
+      <stop offset="70%" stop-color="#9E6E34"/>
+      <stop offset="100%" stop-color="#644119"/>
+    </radialGradient>
+
+    <!-- Queen Cell (Peanut-shaped vertical cup) -->
+    <linearGradient id="queenCellGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F2DEC0"/>
+      <stop offset="40%" stop-color="#D8B57E"/>
+      <stop offset="80%" stop-color="#A57F48"/>
+      <stop offset="100%" stop-color="#5E431E"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 1. HONEY STORAGE ZONE (TẦNG TRÊN: Ô MẬT 7mm) -->
+  <g id="honeyZone">
+    <!-- Row 1 -->
+    <polygon points="120,40 145,25 170,40 170,70 145,85 120,70" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="175,40 200,25 225,40 225,70 200,85 175,70" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="230,40 255,25 280,40 280,70 255,85 230,70" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="285,40 310,25 335,40 335,70 310,85 285,70" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="340,40 365,25 390,40 390,70 365,85 340,70" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="395,40 420,25 445,40 445,70 420,85 395,70" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="450,40 475,25 500,40 500,70 475,85 450,70" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+
+    <!-- Row 2 -->
+    <polygon points="92,88 117,73 142,88 142,118 117,133 92,118" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="147,88 172,73 197,88 197,118 172,133 147,118" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="202,88 227,73 252,88 252,118 227,133 202,118" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="257,88 282,73 307,88 307,118 282,133 257,118" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="312,88 337,73 362,88 362,118 337,133 312,118" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="367,88 392,73 417,88 417,118 392,133 367,118" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="422,88 447,73 472,88 472,118 447,133 422,118" fill="url(#honeyCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+  </g>
+
+  <!-- 2. POLLEN BREAD BAND (VÀNH ĐAI PHẤN HOA TRUNG GIAN) -->
+  <g id="pollenBand">
+    <polygon points="120,136 145,121 170,136 170,166 145,181 120,166" fill="url(#pollenCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="175,136 200,121 225,136 225,166 200,181 175,166" fill="url(#pollenCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="230,136 255,121 280,136 280,166 255,181 230,166" fill="url(#pollenCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="285,136 310,121 335,136 335,166 310,181 285,166" fill="url(#pollenCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="340,136 365,121 390,136 390,166 365,181 340,166" fill="url(#pollenCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="395,136 420,121 445,136 445,166 420,181 395,166" fill="url(#pollenCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+  </g>
+
+  <!-- 3. BROOD COMB CORE (TÂM ẤU TRÙNG & NHỘNG BỌC SÁP) -->
+  <g id="broodCore">
+    <!-- Open Brood Cells with Little C-Shaped White Larvae Inside -->
+    <polygon points="147,184 172,169 197,184 197,214 172,229 147,214" fill="url(#broodCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <path d="M 166,192 C 163,186 173,182 178,186 C 182,190 182,198 177,202 C 172,206 165,204 167,196 Z" fill="#F8FDF2" stroke="#CAD6BD" stroke-width="0.8"/>
+
+    <polygon points="202,184 227,169 252,184 252,214 227,229 202,214" fill="url(#broodCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <circle cx="227" cy="199" r="2.2" fill="#FFFFFF"/> <!-- Single fresh pearl egg -->
+
+    <!-- Capped Brood Cells (Ô nhộng nắp sáp phẳng) -->
+    <polygon points="257,184 282,169 307,184 307,214 282,229 257,214" fill="url(#cappedBrood)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="312,184 337,169 362,184 362,214 337,229 312,214" fill="url(#cappedBrood)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="367,184 392,169 417,184 417,214 392,229 367,214" fill="url(#cappedBrood)" stroke="url(#waxWall)" stroke-width="4"/>
+
+    <!-- Row 4 -->
+    <polygon points="175,232 200,217 225,232 225,262 200,277 175,262" fill="url(#cappedBrood)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="230,232 255,217 280,232 280,262 255,277 230,262" fill="url(#cappedBrood)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="285,232 310,217 335,232 335,262 310,277 285,262" fill="url(#cappedBrood)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="340,232 365,217 390,232 390,262 365,277 340,262" fill="url(#cappedBrood)" stroke="url(#waxWall)" stroke-width="4"/>
+    <polygon points="395,232 420,217 445,232 445,262 420,277 395,262" fill="url(#broodCellFill)" stroke="url(#waxWall)" stroke-width="4"/>
+    <circle cx="420" cy="247" r="2.2" fill="#FFFFFF"/>
+  </g>
+
+  <!-- 4. QUEEN CELLS (MŨ CHÚA QUẢ ĐẬU PHỘNG RỦ XUỐNG DƯỚI ĐÁY TỔ) -->
+  <g id="queenCups">
+    <!-- Queen Cell 1 -->
+    <path d="M 235,270 C 230,290 220,315 224,345 C 228,375 252,385 252,395 C 252,385 276,375 280,345 C 284,315 274,290 269,270 Z" 
+          fill="url(#queenCellGrad)" stroke="#8C6630" stroke-width="3.5"/>
+    <!-- Textured Pitted Surface of Queen Cell (Gờ sáp mắt cáo đặc trưng) -->
+    <circle cx="245" cy="320" r="4" fill="#C29D5C" opacity="0.6"/>
+    <circle cx="258" cy="335" r="4.5" fill="#C29D5C" opacity="0.6"/>
+    <circle cx="248" cy="355" r="4" fill="#C29D5C" opacity="0.6"/>
+
+    <!-- Queen Cell 2 (Right) -->
+    <path d="M 345,270 C 340,290 330,315 334,345 C 338,375 362,385 362,395 C 362,385 386,375 390,345 C 394,315 384,290 379,270 Z" 
+          fill="url(#queenCellGrad)" stroke="#8C6630" stroke-width="3.5"/>
+    <circle cx="355" cy="320" r="4" fill="#C29D5C" opacity="0.6"/>
+    <circle cx="368" cy="335" r="4.5" fill="#C29D5C" opacity="0.6"/>
+    <circle cx="358" cy="355" r="4" fill="#C29D5C" opacity="0.6"/>
+  </g>
+</svg>

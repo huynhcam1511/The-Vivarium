@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
+  <defs>
+    <radialGradient id="mudGrad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#9E6E45"/>
+      <stop offset="55%" stop-color="#6E4424"/>
+      <stop offset="100%" stop-color="#3A1F0D"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Moist Clay/Mud Pellet (Viên bùn đất dẻo kiến dùng đắp vách hầm) -->
+  <g>
+    <path d="M 30,12 C 42,14 50,22 48,34 C 46,46 38,50 28,48 C 16,46 10,38 12,26 C 14,16 22,10 30,12 Z" 
+          fill="url(#mudGrad)"/>
+    <!-- Moist Sheen / Highlights (Độ ẩm bóng trên viên đất) -->
+    <circle cx="24" cy="22" r="3.5" fill="#C2946A" opacity="0.65"/>
+    <circle cx="34" cy="28" r="2.5" fill="#C2946A" opacity="0.55"/>
+  </g>
+</svg>

@@ -1,0 +1,309 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/scientific_hud.gd" id="1_hud"]
+
+[node name="ScientificHUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+
+[node name="TelemetryPill" type="PanelContainer" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="TopBar/TelemetryPill"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "🌡️ 34.8°C | 💧 63% RH | 💨 679 ppm CO2"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BiomePill" type="PanelContainer" parent="TopBar"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="TopBar/BiomePill"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "🌲 Temperate Forest"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WeatherPill" type="PanelContainer" parent="TopBar"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="TopBar/WeatherPill"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "☀️ Nắng Ấm"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResourcePanel" type="PanelContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 64.0
+offset_right = -16.0
+offset_bottom = 124.0
+grow_horizontal = 2
+
+[node name="VBox" type="VBoxContainer" parent="ResourcePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Row1" type="HBoxContainer" parent="ResourcePanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="ClayBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/ClayBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🧱 Bùn Đất:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/ClayBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "45 viên"
+
+[node name="WaxBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/WaxBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🕯️ Sáp Ong:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/WaxBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "28.5g"
+
+[node name="PropolisBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/PropolisBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🌲 Keo Propolis:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/PropolisBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "14.0g"
+
+[node name="ProteinBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row1"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row1/ProteinBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🦗 Đạm Dế:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row1/ProteinBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "65.0g"
+
+[node name="Row2" type="HBoxContainer" parent="ResourcePanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="HoneyBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/HoneyBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🍯 Mật Chín:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/HoneyBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "345.0g"
+
+[node name="SeedBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/SeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🌾 Hạt Cỏ:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/SeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "128 hạt"
+
+[node name="AntBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/AntBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🐜 Đàn Kiến:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/AntBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "31 con"
+
+[node name="BeeBox" type="HBoxContainer" parent="ResourcePanel/VBox/Row2"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ResourcePanel/VBox/Row2/BeeBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "🐝 Đàn Ong:"
+
+[node name="Count" type="Label" parent="ResourcePanel/VBox/Row2/BeeBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "23 con"
+
+[node name="WeatherBar" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 132.0
+offset_right = -16.0
+offset_bottom = 168.0
+grow_horizontal = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BtnSunny" type="Button" parent="WeatherBar"]
+layout_mode = 2
+text = "☀️ Nắng Ấm"
+
+[node name="BtnRain" type="Button" parent="WeatherBar"]
+layout_mode = 2
+text = "🌧️ Mưa Bão (Thử thách)"
+
+[node name="BtnHeat" type="Button" parent="WeatherBar"]
+layout_mode = 2
+text = "🔥 Nắng Gắt (Thử thách)"
+
+[node name="BtnWinter" type="Button" parent="WeatherBar"]
+layout_mode = 2
+text = "❄️ Mùa Đông (Ngủ đông)"
+
+[node name="QuickNav" type="HBoxContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -106.0
+offset_right = 190.0
+offset_bottom = -68.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BtnGotoSky" type="Button" parent="QuickNav"]
+layout_mode = 2
+text = "🌿 Tầng Cạn (Outworld & Hoa)"
+
+[node name="BtnGotoNest" type="Button" parent="QuickNav"]
+layout_mode = 2
+text = "🐜 Tổ Ngầm (Formicarium)"
+
+[node name="BottomActions" type="HBoxContainer" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -60.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="BtnBuildChamber" type="Button" parent="BottomActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🛠️ Đắp Hầm Kiến (20 Đất)"
+
+[node name="BtnBuildComb" type="Button" parent="BottomActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🐝 Đắp Ô Sáp (6g Sáp+2g Keo)"
+
+[node name="BtnJournal" type="Button" parent="BottomActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "📜 Biên Niên Sử Tự Nhiên"
+
+[node name="ToastNotification" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -200.0
+offset_right = 240.0
+offset_bottom = -145.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="ToastNotification"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Thông báo sinh thái tự nhiên"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="JournalDialog" type="Window" parent="."]
+title = "Biên Niên Sử Bể Sinh Thái Chân Thực"
+position = Vector2i(100, 200)
+size = Vector2i(520, 600)
+visible = false
+
+[node name="Margin" type="MarginContainer" parent="JournalDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="JournalDialog/Margin"]
+layout_mode = 2
+
+[node name="Content" type="RichTextLabel" parent="JournalDialog/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Nội dung nhật ký"
+
+[connection signal="pressed" from="WeatherBar/BtnSunny" to="." method="_on_btn_weather_sunny_pressed"]
+[connection signal="pressed" from="WeatherBar/BtnRain" to="." method="_on_btn_weather_rain_pressed"]
+[connection signal="pressed" from="WeatherBar/BtnHeat" to="." method="_on_btn_weather_heat_pressed"]
+[connection signal="pressed" from="WeatherBar/BtnWinter" to="." method="_on_btn_weather_winter_pressed"]
+[connection signal="pressed" from="QuickNav/BtnGotoSky" to="." method="_on_btn_goto_sky_pressed"]
+[connection signal="pressed" from="QuickNav/BtnGotoNest" to="." method="_on_btn_goto_nest_pressed"]
+[connection signal="pressed" from="BottomActions/BtnBuildChamber" to="." method="_on_btn_build_chamber_pressed"]
+[connection signal="pressed" from="BottomActions/BtnBuildComb" to="." method="_on_btn_build_comb_pressed"]
+[connection signal="pressed" from="BottomActions/BtnJournal" to="." method="_on_btn_journal_pressed"]

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="eggGrad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#E8F1F2"/>
+      <stop offset="100%" stop-color="#B2C4C6"/>
+    </radialGradient>
+    <radialGradient id="larvaGrad" cx="35%" cy="25%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#F2F5E8"/>
+      <stop offset="80%" stop-color="#D7E0C0"/>
+      <stop offset="100%" stop-color="#A8B490"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Clustered Translucent Pearl Eggs (Chùm trứng ngọc trai li ti) -->
+  <g>
+    <ellipse cx="28" cy="65" rx="5" ry="3.5" fill="url(#eggGrad)" transform="rotate(-20 28 65)"/>
+    <ellipse cx="34" cy="63" rx="4.8" ry="3.4" fill="url(#eggGrad)" transform="rotate(15 34 63)"/>
+    <ellipse cx="31" cy="69" rx="5" ry="3.5" fill="url(#eggGrad)" transform="rotate(40 31 69)"/>
+    <ellipse cx="25" cy="71" rx="4.5" ry="3.2" fill="url(#eggGrad)" transform="rotate(-10 25 71)"/>
+    <ellipse cx="37" cy="68" rx="4.8" ry="3.3" fill="url(#eggGrad)" transform="rotate(-45 37 68)"/>
+  </g>
+
+  <!-- Big Fat Curved Larvae (Ấu trùng kiến béo múp chia ngấn) -->
+  <g>
+    <!-- Larva 1 (Curved C-shape) -->
+    <path d="M 52 48 C 50 38 62 30 72 35 C 80 40 82 52 76 60 C 70 66 58 64 54 56 C 52 52 52 50 52 48 Z" 
+          fill="url(#larvaGrad)" stroke="#A0AC85" stroke-width="1.2"/>
+    <!-- Larva Segments -->
+    <path d="M 58 36 Q 66 40 70 44" fill="none" stroke="#B8C49D" stroke-width="1"/>
+    <path d="M 62 44 Q 70 48 74 53" fill="none" stroke="#B8C49D" stroke-width="1"/>
+    <path d="M 60 52 Q 68 56 71 60" fill="none" stroke="#B8C49D" stroke-width="1"/>
+    <!-- Tiny dark mouthpart -->
+    <circle cx="53" cy="46" r="1" fill="#755238"/>
+
+    <!-- Larva 2 (Smaller) -->
+    <path d="M 42 74 C 40 68 46 62 52 64 C 57 66 58 73 54 78 C 50 82 43 81 41 76 Z" 
+          fill="url(#larvaGrad)" stroke="#A0AC85" stroke-width="1"/>
+  </g>
+</svg>
