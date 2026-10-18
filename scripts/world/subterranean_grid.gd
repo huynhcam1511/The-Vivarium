@@ -298,6 +298,43 @@ func is_tile_walkable(grid_pos: Vector2i) -> bool:
 		return false
 	return grid_data[grid_pos] == TileState.TUNNEL or grid_data[grid_pos] == TileState.PENDING_FILL
 
+# Serialization & Deserialization (Full Round-trip State Save/Load)
+func serialize_grid() -> Dictionary:
+	var solid_cells: Array[Array] = []
+	var tunnel_cells: Array[Array] = []
+	for pos in grid_data.keys():
+		var s = grid_data[pos]
+		if s == TileState.SOLID:
+			solid_cells.append([pos.x, pos.y])
+		else:
+			tunnel_cells.append([pos.x, pos.y])
+	return {
+		"width": GRID_WIDTH,
+		"height": GRID_HEIGHT,
+		"solid_cells": solid_cells,
+		"tunnel_cells": tunnel_cells
+	}
+
+func deserialize_grid(data: Dictionary) -> void:
+	if not data.has("solid_cells") or not data.has("tunnel_cells"):
+		return
+	grid_data.clear()
+	pending_dig_queue.clear()
+	pending_fill_queue.clear()
+	
+	for c in data["solid_cells"]:
+		var p = Vector2i(c[0], c[1])
+		grid_data[p] = TileState.SOLID
+		
+	for c in data["tunnel_cells"]:
+		var p = Vector2i(c[0], c[1])
+		grid_data[p] = TileState.TUNNEL
+		
+	_sync_all_systems()
+	queue_redraw()
+	emit_signal("grid_updated")
+
+
 func world_to_grid(world_pos: Vector2) -> Vector2i:
 	var x = int(world_pos.x / CELL_SIZE)
 	var y = int((world_pos.y - OFFSET_Y) / CELL_SIZE)

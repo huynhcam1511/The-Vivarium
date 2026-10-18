@@ -79,8 +79,21 @@ func get_save_data_dictionary() -> Dictionary:
 			"excavation": GameManager.priority_excavation,
 			"foraging": GameManager.priority_foraging,
 			"mode": GameManager.priority_mode
-		}
+		},
+		"terrain": _get_current_terrain_data()
 	}
+
+func _get_current_terrain_data() -> Dictionary:
+	var root = get_tree().root
+	var grid = root.find_child("SubterraneanGrid", true, false)
+	if grid == null:
+		var main = root.find_child("Main", true, false)
+		if main and "subterranean_grid" in main and main.subterranean_grid != null:
+			grid = main.subterranean_grid
+	if grid != null and grid.has_method("serialize_grid"):
+		return grid.serialize_grid()
+	return {}
+
 
 func apply_save_data_dictionary(data: Dictionary) -> void:
 	if data.has("resources"):
@@ -123,10 +136,21 @@ func apply_save_data_dictionary(data: Dictionary) -> void:
 		GameManager.priority_excavation = float(phero.get("excavation", 0.2))
 		GameManager.priority_foraging = float(phero.get("foraging", 0.1))
 		GameManager.priority_mode = str(phero.get("mode", "LINEAR"))
+
+	if data.has("terrain") and data["terrain"] is Dictionary and not data["terrain"].is_empty():
+		var root = get_tree().root
+		var grid = root.find_child("SubterraneanGrid", true, false)
+		if grid == null:
+			var main = root.find_child("Main", true, false)
+			if main and "subterranean_grid" in main and main.subterranean_grid != null:
+				grid = main.subterranean_grid
+		if grid != null and grid.has_method("deserialize_grid"):
+			grid.deserialize_grid(data["terrain"])
 		
 	GameManager.emit_signal("resources_updated")
 	GameManager.emit_signal("climate_updated")
 	GameManager.emit_signal("pheromone_priority_updated")
+
 
 # --- 1. LOCAL SAVE & LOAD (Offline) ---
 
