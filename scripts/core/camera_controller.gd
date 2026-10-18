@@ -21,7 +21,10 @@ const MAX_ZOOM: float = 1.75
 const KEYBOARD_PAN_SPEED: float = 650.0
 
 func _ready() -> void:
-	position = target_position
+	if position != Vector2.ZERO:
+		target_position = position
+	else:
+		position = target_position
 	zoom = target_zoom
 	print("[VivariumCamera] 16:9 Landscape Camera active. X bounds: [%.0f, %.0f], Y bounds: [%.0f, %.0f]" % [
 		MIN_X, MAX_X, MIN_Y, MAX_Y

@@ -58,9 +58,9 @@
   <rect x="0" y="0" width="1920" height="880" fill="url(#canopySkyGrad)"/>
 
   <!-- Sunbeams through foliage -->
-  <polygon points="240,0 480,0 720,800 360,800" fill="rgba(255, 255, 220, 0.07)"/>
-  <polygon points="980,0 1200,0 1500,800 1150,800" fill="rgba(255, 255, 220, 0.06)"/>
-  <polygon points="1520,0 1740,0 1900,800 1620,800" fill="rgba(255, 255, 220, 0.05)"/>
+  <polygon points="240,0 480,0 720,800 360,800" fill="#FFFFDC" fill-opacity="0.08"/>
+  <polygon points="980,0 1200,0 1500,800 1150,800" fill="#FFFFDC" fill-opacity="0.06"/>
+  <polygon points="1520,0 1740,0 1900,800 1620,800" fill="#FFFFDC" fill-opacity="0.05"/>
 
   <!-- Ancient Mossy Oak Branches & Driftwood (Gốc cây cổ thụ & nhánh lũa) -->
   <!-- Left Trunk & Branch -->
