@@ -256,6 +256,10 @@ func _connect_gamemanager_tools() -> void:
 func _on_colony_event(_text: String) -> void:
 	pass
 
+var _captured_overview: bool = false
+var _captured_nest: bool = false
+var _captured_canopy: bool = false
+
 func _process(delta: float) -> void:
 	# Update all worker ants
 	for ant in ants:
@@ -271,12 +275,36 @@ func _process(delta: float) -> void:
 		_work_tick_timer = 0.0
 		_dispatch_pending_construction_tasks()
 		
-	# Auto-capture validation screenshot
-	if not _screenshot_taken:
-		_frame_count += 1
-		if _frame_count >= 75:
-			_screenshot_taken = true
-			capture_playable_slice_screenshot()
+	# Sequential multi-angle capture for Phase 3 Acceptance
+	_frame_count += 1
+	if _frame_count == 30 and not _captured_overview:
+		_captured_overview = true
+		camera.position = Vector2(960, 960)
+		camera.target_position = Vector2(960, 960)
+		camera.zoom = Vector2(0.95, 0.95)
+		camera.target_zoom = Vector2(0.95, 0.95)
+		camera.force_update_scroll()
+	elif _frame_count == 40:
+		_save_viewport_image("C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/acceptance_1_overview.png")
+	elif _frame_count == 60 and not _captured_nest:
+		_captured_nest = true
+		camera.position = Vector2(960, 1340)
+		camera.target_position = Vector2(960, 1340)
+		camera.zoom = Vector2(1.25, 1.25)
+		camera.target_zoom = Vector2(1.25, 1.25)
+		camera.force_update_scroll()
+	elif _frame_count == 70:
+		_save_viewport_image("C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/acceptance_2_nest_closeup.png")
+	elif _frame_count == 90 and not _captured_canopy:
+		_captured_canopy = true
+		camera.position = Vector2(1200, 480)
+		camera.target_position = Vector2(1200, 480)
+		camera.zoom = Vector2(1.15, 1.15)
+		camera.target_zoom = Vector2(1.15, 1.15)
+		camera.force_update_scroll()
+	elif _frame_count == 100:
+		_save_viewport_image("C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/acceptance_3_bees_flowers_closeup.png")
+
 
 func _process_ant(ant: WorkerAntEntity, delta: float) -> void:
 	if ant.state == "EXCAVATING" or ant.state == "FILLING":
@@ -332,7 +360,7 @@ func _process_bee(bee: HoneybeeEntity, delta: float) -> void:
 			bee.target_pos = HIVE_POS + Vector2(randf_range(-40, 20), randf_range(10, 50))
 			bee.state = "RETURNING"
 			bee.state_timer = 0.0
-			GameManager.wildflower_honey += 0.5
+			GameManager.honey_wildflower += 0.5
 			GameManager.emit_signal("resources_updated")
 			
 	elif bee.state == "RETURNING":
@@ -544,6 +572,9 @@ func _grid_to_world_center(cell: Vector2i) -> Vector2:
 	return Vector2(cell.x * CELL_SIZE + CELL_SIZE * 0.5, cell.y * CELL_SIZE + OFFSET_Y + CELL_SIZE * 0.5)
 
 func capture_playable_slice_screenshot() -> String:
+	return _save_viewport_image("C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/playable_slice_in_engine_gameplay.png")
+
+func _save_viewport_image(save_path: String) -> String:
 	if DisplayServer.get_name() == "headless":
 		return ""
 	var vp := get_viewport()
@@ -552,7 +583,6 @@ func capture_playable_slice_screenshot() -> String:
 	var img := vp.get_texture().get_image()
 	if img == null:
 		return ""
-	var save_path := "C:/Users/ADMIN-PC/.gemini/antigravity/brain/62e7cefe-a2ad-4fd1-ab1c-53e2bb5d0810/playable_slice_in_engine_gameplay.png"
 	img.save_png(save_path)
-	print("[Playable Slice] In-Engine Gameplay Screenshot saved: %s" % save_path)
+	print("[Playable Slice] Image saved: %s" % save_path)
 	return save_path
