@@ -17,6 +17,8 @@ extends CanvasLayer
 
 @onready var btn_save: Button = $TopMargin/HBox/TopActions/BtnSave
 @onready var btn_mode: Button = $TopMargin/HBox/TopActions/BtnMode
+@onready var btn_terrain: Button = $TopMargin/HBox/TopActions/BtnTerrain
+
 
 @onready var btn_nav_canopy: Button = $BottomLeftNav/Panel/Margin/HBox/BtnNavCanopy
 @onready var btn_nav_surface: Button = $BottomLeftNav/Panel/Margin/HBox/BtnNavSurface
@@ -54,6 +56,7 @@ func _ready() -> void:
 	GameManager.colony_event.connect(_show_toast)
 	GameManager.pheromone_priority_updated.connect(_on_pheromone_priority_updated)
 	GameManager.mode_changed.connect(_on_mode_changed)
+	GameManager.terrain_mode_changed.connect(_on_terrain_mode_changed)
 
 	# 2. Wire navigation buttons
 	btn_nav_canopy.pressed.connect(_on_nav_canopy_pressed)
@@ -77,6 +80,8 @@ func _ready() -> void:
 	# 5. Wire top actions
 	btn_save.pressed.connect(func(): FirebaseSync.save_game_all("Thao tác người chơi"))
 	btn_mode.pressed.connect(func(): mode_dialog.popup_centered())
+	btn_terrain.pressed.connect(func(): GameManager.toggle_terrain_mode())
+
 
 	# 6. Wire priority dialog presets
 	$PriorityDialog/Margin/VBox/BtnPresetBalanced.pressed.connect(func():
@@ -125,6 +130,12 @@ func _update_all_labels() -> void:
 	_on_climate_updated()
 	_on_resources_updated()
 	_on_mode_changed(GameManager.game_mode)
+	_on_terrain_mode_changed(GameManager.use_tilemap_terrain)
+
+func _on_terrain_mode_changed(use_tilemap: bool) -> void:
+	if btn_terrain:
+		btn_terrain.text = "🗺️ TileMap [BẬT]" if use_tilemap else "📜 Legacy [BẬT]"
+
 
 func _on_climate_updated() -> void:
 	telemetry_label.text = "🌡️ %.1f°C | 💧 %.0f%% RH | 💨 %.0f ppm CO2" % [

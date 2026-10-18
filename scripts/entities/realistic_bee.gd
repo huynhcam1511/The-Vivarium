@@ -54,5 +54,7 @@ func _process(delta: float) -> void:
 			state = "flying"
 			state_timer = 0.0
 			
-	# High-frequency wing buzz animation
-	sprite.scale.x = 1.0 + sin(hover_phase * 2.0) * 0.08
+	# High-frequency wing buzz animation (preserving base scale 0.048)
+	sprite.scale.x = 0.048 * (1.0 + sin(hover_phase * 2.0) * 0.08)
+	sprite.scale.y = 0.048
+

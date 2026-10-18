@@ -7,6 +7,11 @@ signal weather_changed(new_weather: String)
 signal colony_event(message: String)
 signal pheromone_priority_updated
 signal mode_changed(new_mode: String)
+signal terrain_mode_changed(use_tilemap: bool)
+
+# --- TERRAIN RENDERING FEATURE FLAG ---
+var use_tilemap_terrain: bool = true # Toggle between Legacy Terrain (_draw) and New TileMapLayer + AStarGrid2D
+
 
 # --- PHYSICAL NATURAL RESOURCES (100% Thu gom & Tự tiết ra) ---
 var clay_mud: int = 45           # Viên bùn đất kiến gom ngoài tự nhiên để xây vách
@@ -87,6 +92,18 @@ func set_game_mode(new_mode: String) -> void:
 		emit_signal("colony_event", "🌱 Chế Độ Thảnh Thơi (Living Sandbox): Môi trường an toàn, không có đói lả bầy đàn.")
 	else:
 		emit_signal("colony_event", "⚔️ Chế Độ Sinh Tồn (Survival Sandbox): Tiêu hao tài nguyên thực tế, bão lũ và giá rét đe dọa đàn!")
+
+func set_terrain_mode(use_tilemap: bool) -> void:
+	use_tilemap_terrain = use_tilemap
+	emit_signal("terrain_mode_changed", use_tilemap_terrain)
+	if use_tilemap_terrain:
+		emit_signal("colony_event", "🗺️ [Địa Hình] Đã chuyển sang New TileMapLayer Terrain (Stylized 2D + AStarGrid2D).")
+	else:
+		emit_signal("colony_event", "📜 [Địa Hình] Đã chuyển sang Legacy Terrain (_draw textured soil).")
+
+func toggle_terrain_mode() -> void:
+	set_terrain_mode(not use_tilemap_terrain)
+
 
 func set_time_scale(scale: float) -> void:
 	Engine.time_scale = scale

@@ -83,25 +83,45 @@ func _process_ant_construction_tasks() -> void:
 	if subterranean_grid == null:
 		return
 		
-	# 1. Thực hiện đào hầm tự động (Excavation)
+	# 1. Tìm nhiệm vụ đào hầm (Dig)
 	var dig_target = subterranean_grid.get_next_dig_target()
 	if dig_target != Vector2i(-1, -1):
-		subterranean_grid.complete_dig(dig_target)
-		GameManager.clay_mud += 1
-		GameManager.emit_signal("colony_event", "⛏️ Kiến thợ đã cắn vỡ ô đất và tha lên 1 viên bùn đất (+1 Bùn)!")
-		GameManager.emit_signal("resources_updated")
+		var target_world = subterranean_grid.grid_to_world_center(dig_target)
+		var ant_dispatched = _dispatch_nearest_idle_ant("DIG", dig_target, target_world)
+		if not ant_dispatched:
+			# Fallback: Nếu tất cả kiến đang bận hoặc không đến được, hoàn thành trực tiếp theo nhịp mô phỏng
+			subterranean_grid.complete_dig(dig_target)
+			GameManager.clay_mud += 1
+			GameManager.emit_signal("colony_event", "⛏️ Kiến thợ đã cắn vỡ ô đất và tha lên 1 viên bùn đất (+1 Bùn)!")
+			GameManager.emit_signal("resources_updated")
 		return
 		
-	# 2. Thực hiện lấp hầm chống ngập (Filling)
+	# 2. Tìm nhiệm vụ lấp hầm (Fill)
 	var fill_target = subterranean_grid.get_next_fill_target()
 	if fill_target != Vector2i(-1, -1):
 		if GameManager.clay_mud >= 1:
-			GameManager.clay_mud -= 1
-			subterranean_grid.complete_fill(fill_target)
-			GameManager.emit_signal("colony_event", "🧱 Kiến thợ đã mang bùn đất đắp kín một ô hầm (-1 Bùn)!")
-			GameManager.emit_signal("resources_updated")
+			var target_world = subterranean_grid.grid_to_world_center(fill_target)
+			var ant_dispatched = _dispatch_nearest_idle_ant("FILL", fill_target, target_world)
+			if not ant_dispatched:
+				GameManager.clay_mud -= 1
+				subterranean_grid.complete_fill(fill_target)
+				GameManager.emit_signal("colony_event", "🧱 Kiến thợ đã mang bùn đất đắp kín một ô hầm (-1 Bùn)!")
+				GameManager.emit_signal("resources_updated")
 		else:
 			GameManager.emit_signal("colony_event", "⚠️ Thiếu bùn đất để lấp hầm! Đàn kiến cần đào thêm đất sét.")
+
+func _dispatch_nearest_idle_ant(task_type: String, cell: Vector2i, target_pos: Vector2) -> bool:
+	var best_ant = null
+	var best_dist = 999999.0
+	for child in entities_node.get_children():
+		if child.has_method("assign_task") and child.get("task_state") == "PATROL":
+			var d = child.position.distance_to(target_pos)
+			if d < best_dist:
+				best_dist = d
+				best_ant = child
+	if best_ant != null:
+		return best_ant.assign_task(task_type, cell, target_pos)
+	return false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_F12:
@@ -134,6 +154,8 @@ func _spawn_initial_ants() -> void:
 		ant.waypoints = tunnel_path_royal_to_nursery
 		ant.speed = randf_range(38.0, 52.0)
 		ant.role = "nurse"
+		if ant.has_method("set_grid_reference"):
+			ant.set_grid_reference(subterranean_grid)
 		entities_node.add_child(ant)
 		
 	# 2. Granary workers
@@ -144,6 +166,8 @@ func _spawn_initial_ants() -> void:
 		ant.speed = randf_range(40.0, 54.0)
 		ant.carrying_seed = true
 		ant.role = "forager"
+		if ant.has_method("set_grid_reference"):
+			ant.set_grid_reference(subterranean_grid)
 		entities_node.add_child(ant)
 		
 	# 3. Outworld foragers & earth excavators
@@ -157,7 +181,10 @@ func _spawn_initial_ants() -> void:
 			ant.carrying_mud = true
 		else:
 			ant.role = "forager"
+		if ant.has_method("set_grid_reference"):
+			ant.set_grid_reference(subterranean_grid)
 		entities_node.add_child(ant)
+
 
 func _spawn_initial_bees() -> void:
 	for i in range(6):
