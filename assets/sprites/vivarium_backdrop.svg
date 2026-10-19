@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1800" width="1920" height="1800">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2560 1800" width="2560" height="1800">
   <defs>
     <!-- Sky & Canopy Ambient Glow -->
     <linearGradient id="canopySkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -55,7 +55,7 @@
   <!-- ========================================== -->
   <!-- 1. UPPER OUTWORLD & CANOPY (y: 0 to 880)  -->
   <!-- ========================================== -->
-  <rect x="0" y="0" width="1920" height="880" fill="url(#canopySkyGrad)"/>
+  <rect x="0" y="0" width="2560" height="880" fill="url(#canopySkyGrad)"/>
 
   <!-- Sunbeams through foliage -->
   <polygon points="240,0 480,0 720,800 360,800" fill="#FFFFDC" fill-opacity="0.08"/>
@@ -78,7 +78,7 @@
   <ellipse cx="960" cy="740" rx="160" ry="40" fill="url(#mossGrad)"/>
 
   <!-- Sand & Soil Substrate Terrace -->
-  <path d="M 0,760 Q 480,735 960,765 Q 1440,740 1920,760 L 1920,880 L 0,880 Z" fill="url(#sandSubstrate)"/>
+  <path d="M 0,760 Q 480,735 960,765 Q 1440,740 1920,760 Q 2240,745 2560,760 L 2560,880 L 0,880 Z" fill="url(#sandSubstrate)"/>
 
   <!-- Wildflower Meadows (Cúc trắng, cỏ ba lá, hoa chuông xanh) -->
   <g stroke="#3E611E" stroke-width="2.5" stroke-linecap="round">
@@ -108,14 +108,14 @@
   <!-- ========================================== -->
   <!-- 2. ACRYLIC DIVIDER GLASS RIM (y: 875..895) -->
   <!-- ========================================== -->
-  <rect x="0" y="875" width="1920" height="18" fill="url(#glassRim)"/>
-  <line x1="0" y1="875" x2="1920" y2="875" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-  <line x1="0" y1="893" x2="1920" y2="893" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>
+  <rect x="0" y="875" width="2560" height="18" fill="url(#glassRim)"/>
+  <line x1="0" y1="875" x2="2560" y2="875" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+  <line x1="0" y1="893" x2="2560" y2="893" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>
 
   <!-- ============================================== -->
   <!-- 3. LOWER SUBTERRANEAN FORMICARIUM (893..1800) -->
   <!-- ============================================== -->
-  <rect x="0" y="893" width="1920" height="907" fill="url(#subSoilGrad)"/>
+  <rect x="0" y="893" width="2560" height="907" fill="url(#subSoilGrad)"/>
 
   <!-- Natural Soil Grain & Stratum Lines -->
   <path d="M 0,1180 Q 700,1160 1920,1190" stroke="rgba(90, 55, 30, 0.3)" stroke-width="3" fill="none"/>
@@ -159,5 +159,5 @@
   <rect x="880" y="1560" width="160" height="10" rx="5" fill="#FF8270" filter="url(#softGlow)"/>
 
   <!-- Outer Glass Frame Border (Khung viền kính bể Vivarium sang trọng) -->
-  <rect x="6" y="6" width="1908" height="1788" rx="18" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="12"/>
+  <rect x="6" y="6" width="2548" height="1788" rx="18" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="12"/>
 </svg>

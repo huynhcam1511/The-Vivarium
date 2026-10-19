@@ -1,0 +1,70 @@
+[
+  {
+    "file": "env_tree_ancient_trunk_base_v2.png",
+    "canvas": [
+      760,
+      800
+    ],
+    "content_bbox": [
+      16,
+      223,
+      743,
+      797
+    ],
+    "source": "cropped from composite reference, chroma alpha extraction",
+    "alpha_real": true,
+    "independently_drawn": false,
+    "seams_verified": false
+  },
+  {
+    "file": "env_tree_bough_main_moss_v2.png",
+    "canvas": [
+      1200,
+      360
+    ],
+    "content_bbox": [
+      299,
+      7,
+      901,
+      352
+    ],
+    "source": "cropped from composite reference, chroma alpha extraction",
+    "alpha_real": true,
+    "independently_drawn": false,
+    "seams_verified": false
+  },
+  {
+    "file": "env_foliage_canopy_clump_01_v2.png",
+    "canvas": [
+      512,
+      512
+    ],
+    "content_bbox": [
+      10,
+      57,
+      501,
+      455
+    ],
+    "source": "cropped from composite reference, chroma alpha extraction",
+    "alpha_real": true,
+    "independently_drawn": false,
+    "seams_verified": false
+  },
+  {
+    "file": "env_tree_root_deep_cluster_v2.png",
+    "canvas": [
+      640,
+      920
+    ],
+    "content_bbox": [
+      14,
+      2,
+      627,
+      388
+    ],
+    "source": "cropped from composite reference, chroma alpha extraction",
+    "alpha_real": true,
+    "independently_drawn": false,
+    "seams_verified": false
+  }
+]

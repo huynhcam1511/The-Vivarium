@@ -1,0 +1,13 @@
+asset_id,description,category,status,approved,notes
+ANT-WORKER-001,ant worker sprite sheet 4-dir idle walk,character,in_progress,no,Silhouette readable at 1.0x (64x64 canvas)
+ANT-QUEEN-001,ant queen royal sprite idle breathe,character,ready_for_production,no,128x128 canvas
+BEE-WORKER-001,bee worker flight pollen harvest 12fps,character,in_progress,no,Translucent wings 64x64 canvas
+BEE-QUEEN-001,bee queen comb chamber idle,character,ready_for_production,no,128x128 canvas
+TREE-ANCIENT-001,ancient tree layered trunk branches foliage roots,environment,ready_for_production,no,Sliced into 4 layers
+TERRAIN-001,organic editable terrain materials/masks,terrain,ready_for_production,no,Seamless loam and clay
+ANT-CHAMBER-001,functional ant chamber visual kit (queen/granary/mushroom),colony,ready_for_production,no,Organic Bézier curves
+BEE-COMB-001,hex cell states (empty/nectar/capped_honey/pollen/brood),colony,ready_for_production,no,R=20px axial grid
+LAKE-001,lake surface underwater layers,environment,ready_for_production,no,Reflective surface + flora
+FISH-001,lake fish swim animation,wildlife,ready_for_production,no,Flocking motion
+DUCK-001,lake mallard duck swim and dive,wildlife,ready_for_production,no,Surface watercraft
+HUD-001,game HUD icons panels telemetry in Vietnamese,ui,completed,yes,Glassmorphism live on port 2000

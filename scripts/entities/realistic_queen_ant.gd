@@ -9,7 +9,7 @@ func _ready() -> void:
 	print("[Vivarium] Queen Ant established in the Royal Chamber.")
 
 func _process(delta: float) -> void:
-	# Subtle physogastric breathing animation (bụng phình nhịp thở sinh học)
+	# Quiet movement in the royal chamber; preserve the painted silhouette.
 	breath_phase += delta * 2.2
-	var breath_scale = 1.0 + sin(breath_phase) * 0.035
-	sprite.scale = Vector2(breath_scale, 1.0 + sin(breath_phase + 0.4) * 0.02)
+	sprite.position.y = sin(breath_phase) * 0.7
+	sprite.rotation = sin(breath_phase * 0.5) * 0.006

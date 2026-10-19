@@ -1,0 +1,33 @@
+asset_id,asset_name,category,sub_category,logical_size,source_res,layer,pivot,anim_requirement,lod_support,priority,status,pack_id,notes
+ENV-SKY-DAY-001,Bầu trời ban ngày chuyển sắc gradient,environment,sky,1920x640,1920x640,bg_sky_far,"(0.5, 0.0)",static,LOD0-LOD1,HIGH,PENDING,PACK-002,Gradient xanh dương dịu từ 8ECAE6 xuống 219EBC
+ENV-SKY-CLOUDS-001,Cụm mây trôi xa parallax 1,environment,sky,600x180,600x180,bg_sky_mid,"(0.5, 0.5)",drift_horizontal,LOD0-LOD1,MEDIUM,PENDING,PACK-005,Tốc độ trôi chậm 0.15 parallax factor
+ENV-SKY-MNTN-001,Dãy núi xa mờ sương,environment,sky,1920x360,1920x360,bg_mountain,"(0.5, 1.0)",static,LOD0-LOD1,LOW,PENDING,PACK-005,Silhouette đồi núi phủ sương lam
+ENV-CANOPY-CLUMP-01,Cụm vòm tán lá sồi đại thụ 01,environment,flora_canopy,240x240,512x512,mid_foliage,"(0.5, 0.5)",sway_wind_subtle,LOD0-LOD3,HIGH,PENDING,PACK-002,Tán lá dày râm mát cản nắng
+ENV-CANOPY-CLUMP-02,Cụm vòm tán lá sồi đại thụ 02 đón nắng,environment,flora_canopy,280x260,512x512,mid_foliage,"(0.5, 0.5)",sway_wind_subtle,LOD0-LOD3,MEDIUM,PENDING,PACK-005,Tán lá đón ánh sáng vàng ấm
+ENV-CANOPY-LEAF-FALL,Hạt hiệu ứng lá rơi lả tả,environment,fx,16x16,64x64,fore_fx,"(0.5, 0.5)",particle_physics,LOD1-LOD3,LOW,PENDING,PACK-005,Sprite hạt lá bay
+ENV-TREE-TRUNK-BASE,Thân sồi cổ thụ đoạn gốc gồ ghề,environment,flora_tree,380x400,760x800,mid_ground_struct,"(0.5, 1.0)",static,LOD0-LOD3,HIGH,PENDING,PACK-002,Vỏ sồi nứt nẻ rêu phong hốc cây
+ENV-TREE-BOUGH-MAIN,Cành sồi bạnh ngang lớn (treo tổ ong),environment,flora_tree,600x180,1200x360,mid_ground_struct,"(0.1, 0.5)",sway_heavy_wind,LOD0-LOD3,HIGH,PENDING,PACK-002,Cành chịu lực treo tổ ong
+ENV-TREE-ROOT-DEEP,Cụm rễ sồi cắm sâu lòng đất,environment,flora_tree,320x460,640x920,mid_underground,"(0.5, 0.0)",static,LOD0-LOD3,HIGH,PENDING,PACK-002,Rễ xuyên qua các tầng đất ngầm
+ENV-FLOWER-CLOVER-01,Cụm hoa cỏ ba lá trắng (White Clover),environment,flora_ground,36x40,128x128,fore_ground_flora,"(0.5, 1.0)",sway_wind_fast,LOD1-LOD3,HIGH,PENDING,PACK-002,Nguồn mật & phấn hoa chính của ong
+ENV-FLOWER-DAISY-01,Cụm cúc dại vàng trắng (English Daisy),environment,flora_ground,32x44,128x128,fore_ground_flora,"(0.5, 1.0)",sway_wind_fast,LOD1-LOD3,HIGH,PENDING,PACK-002,Cúc dại nở rộ trên thảm cỏ
+ENV-FLOWER-BLUEBELL-01,Cụm hoa chuông xanh (Bluebell),environment,flora_ground,30x42,128x128,fore_ground_flora,"(0.5, 1.0)",sway_wind_fast,LOD1-LOD3,MEDIUM,PENDING,PACK-004,Hoa chuông tím xanh thanh nhã
+ENV-GRASS-TUFT-01,Bụi cỏ nhung xanh rì rậm rạp,environment,flora_ground,48x28,128x128,fore_ground_flora,"(0.5, 1.0)",sway_wind_fast,LOD1-LOD3,HIGH,PENDING,PACK-002,Viền chân cỏ che mép đất
+ENV-MOSS-PATCH-01,Vạt rêu nhung bò trên vỏ cây/đá,environment,flora_ground,64x32,128x128,fore_ground_flora,"(0.5, 0.5)",static,LOD1-LOD3,MEDIUM,PENDING,PACK-004,Rêu xanh nhung velvet bám ẩm
+ENV-FERN-CLUSTER-01,Bụi dương xỉ rừng ẩm mát,environment,flora_ground,56x48,128x128,fore_ground_flora,"(0.5, 1.0)",sway_wind_subtle,LOD1-LOD3,MEDIUM,PENDING,PACK-004,Dương xỉ ven suối hồ
+ENV-TERRAIN-SURFACE-GRASS,Dải cỏ viền mặt đất hữu cơ che mép,environment,terrain,256x48,512x96,fore_ground_terrain,"(0.0, 0.5)",static,LOD0-LOD3,HIGH,PENDING,PACK-002,Che mép chuyển tiếp giữa đất ngầm và không gian trên mặt đất
+ENV-TERRAIN-LOAM-V2,Texture đất mùn tối hữu cơ tileable,terrain,substrate,128x128,512x512,mid_underground_tile,"(0.0, 0.0)",static,LOD0-LOD3,HIGH,APPROVED,PACK-001,Đã nghiệm thu TASK-008 PASS
+ENV-TERRAIN-CLAY-01,Texture vỉa đất sét vàng tầng sâu,terrain,substrate,128x128,512x512,mid_underground_tile,"(0.0, 0.0)",static,LOD0-LOD3,MEDIUM,PENDING,PACK-003,Tầng địa chất sâu hơn đất mùn
+ENV-TERRAIN-PEAT-01,Texture than bùn nén chặt ẩm ướt,terrain,substrate,128x128,512x512,mid_underground_tile,"(0.0, 0.0)",static,LOD0-LOD3,MEDIUM,PENDING,PACK-003,Tầng địa chất đáy tổ kiến
+ENV-CAVE-WALL-RIM-ATLAS,Bộ viền vách đất hữu cơ bo góc buồng tổ,terrain,cave_wall,128x128,512x512,mid_underground_wall,"(0.5, 0.5)",static,LOD0-LOD3,HIGH,PENDING,PACK-002,9-slice hoặc blob tileset bo tròn hốc hang đào
+ENV-PEBBLE-EMBED-01,Viên sỏi cuội ngầm nhúng vách hang,terrain,props,32x24,64x64,mid_underground_wall,"(0.5, 0.5)",static,LOD1-LOD3,MEDIUM,PENDING,PACK-003,Sỏi ngầm lấp lánh trong đất
+ENV-LAKE-SURFACE-WAVE,Mặt nước hồ phẳng có sóng lăn tăn,environment,water,384x48,768x96,mid_water_surface,"(0.0, 0.0)",uv_scroll_ripple,LOD0-LOD3,HIGH,PENDING,PACK-002,Mặt nước phản chiếu ánh sáng
+ENV-LAKE-WATER-BODY,Khối nước trong suốt chuyển màu tầng sâu,environment,water,384x240,768x480,mid_water_depth,"(0.0, 0.0)",static_translucent,LOD0-LOD3,HIGH,PENDING,PACK-002,Alpha 0.75 sắc xanh từ 2A6F97 đến 0F2A3F
+ENV-LAKE-BANK-SLOPE,Mép bờ đất dốc thoải dẫn xuống hồ,environment,water,180x120,360x240,mid_ground_terrain,"(0.0, 0.0)",static,LOD0-LOD3,HIGH,PENDING,PACK-002,Đất ven nước ngập ẩm có sỏi cuội
+ENV-LAKE-BOTTOM-MUD,Lớp bùn cát đáy hồ trầm tích,environment,water,384x64,768x128,mid_water_depth,"(0.0, 0.0)",static,LOD0-LOD3,MEDIUM,PENDING,PACK-004,Đáy hồ nuôi cây rong thủy sinh
+ENV-WATER-FALL-STREAM,Dòng thác nước nhỏ chảy từ vách đá,environment,water,64x220,128x440,mid_water_surface,"(0.5, 0.0)",spritesheet_anim_6f,LOD1-LOD3,LOW,PENDING,PACK-004,Thác nước róc rách tạo bọt trắng
+ENV-LIGHT-SUN-RAY-01,Luồng sáng rẻ quạt mặt trời qua tán lá,environment,lighting,280x420,560x840,fore_light_additive,"(0.5, 0.0)",pulse_alpha_additive,LOD0-LOD3,HIGH,PENDING,PACK-002,Tia nắng vàng ấm áp chiếu xuống outworld
+ENV-LIGHT-CAVE-RED-GLOW,Vùng sáng đèn quan sát màu đỏ buồng tổ,environment,lighting,220x220,440x440,underground_light_add,"(0.5, 0.5)",pulse_alpha_subtle,LOD0-LOD3,HIGH,PENDING,PACK-002,Ánh đỏ 660nm tiêu chuẩn formicarium
+ENV-FX-RAIN-DROP-01,Hạt mưa rơi xéo nghiêng theo gió,environment,weather,4x24,8x48,fore_weather,"(0.5, 0.5)",particle_physics,LOD0-LOD2,LOW,PENDING,PACK-005,Hệ thống thời tiết mưa rào
+ENV-BIOME-DESERT-SAND,Texture cát vàng khô cằn hạt mịn,terrain,biome_arid,128x128,512x512,mid_underground_tile,"(0.0, 0.0)",static,LOD0-LOD3,LOW,PENDING,PACK-006,Vùng khô hạn Arid Biome
+ENV-BIOME-SWAMP-MUCK,Texture bùn lầy đen đầm lầy hữu cơ,terrain,biome_swamp,128x128,512x512,mid_underground_tile,"(0.0, 0.0)",static,LOD0-LOD3,LOW,PENDING,PACK-006,Vùng ngập nước Swamp Biome
+ENV-TRANSITION-MASK-01,Alpha mask hòa trộn 2 chất liệu địa tầng,terrain,shader_mask,256x256,512x512,system_mask,"(0.5, 0.5)",shader_input,LOD0-LOD3,HIGH,PENDING,PACK-003,Noise hữu cơ để hòa trộn đất mùn sang đất sét

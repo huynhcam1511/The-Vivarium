@@ -1,0 +1,11 @@
+﻿asset_id,description,category,status,approved,notes
+ANT-WORKER-001,ant worker sprite + idle/walk,character,not_started,no,
+BEE-WORKER-001,bee worker sprite + flight,character,not_started,no,
+TREE-ANCIENT-001,ancient tree layered trunk branches foliage roots,environment,not_started,no,
+TERRAIN-001,organic editable terrain materials/masks,terrain,not_started,no,
+ANT-CHAMBER-001,functional ant chamber visual kit,colony,not_started,no,
+BEE-COMB-001,hex cell brood honey pollen states,colony,not_started,no,
+LAKE-001,lake surface underwater layers,environment,not_started,no,
+FISH-001,fish swim animation,wildlife,not_started,no,
+DUCK-001,duck swim animation,wildlife,not_started,no,
+HUD-001,game HUD icons panels,ui,not_started,no,

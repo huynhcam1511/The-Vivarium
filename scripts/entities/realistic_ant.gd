@@ -1,5 +1,8 @@
 extends Node2D
 
+const WALK_A: Texture2D = preload("res://assets/sprites/ant_walk_a.png")
+const WALK_B: Texture2D = preload("res://assets/sprites/ant_walk_b.png")
+
 # Realistic Worker Ant Controller (Camponotus / Messor)
 # Supports:
 # 1. Waypoint patrol loops (Legacy fallback)
@@ -14,6 +17,7 @@ var current_target_index: int = 0
 var leg_anim_phase: float = 0.0
 var carrying_seed: bool = false
 var carrying_mud: bool = false
+var surface_patrol: bool = false
 
 # Dynamic AStar Navigation
 var path: PackedVector2Array = PackedVector2Array()
@@ -33,6 +37,7 @@ var work_timer: float = 0.0
 func _ready() -> void:
 	var scale_var = randf_range(0.85, 1.15)
 	scale = Vector2(scale_var, scale_var)
+	sprite.texture = WALK_A
 	_update_carried_sprites()
 
 func set_grid_reference(grid: Node2D) -> void:
@@ -41,8 +46,25 @@ func set_grid_reference(grid: Node2D) -> void:
 func assign_task(task_type: String, target_cell: Vector2i, target_pos: Vector2) -> bool:
 	if grid_ref == null or not grid_ref.has_method("get_point_path"):
 		return false
-	
-	var calculated_path: PackedVector2Array = grid_ref.get_point_path(position, target_pos)
+	var calculated_path: PackedVector2Array = PackedVector2Array()
+	var best_length := INF
+	var approach_cells: Array[Vector2i] = [target_cell]
+	if task_type == "DIG":
+		approach_cells.clear()
+	for offset in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		approach_cells.append(target_cell + offset)
+	for cell in approach_cells:
+		if not grid_ref.is_tile_walkable(cell):
+			continue
+		var candidate: PackedVector2Array = grid_ref.get_point_path(position, grid_ref.grid_to_world_center(cell))
+		if candidate.is_empty():
+			continue
+		var length := position.distance_to(candidate[0])
+		for i in range(1, candidate.size()):
+			length += candidate[i - 1].distance_to(candidate[i])
+		if length < best_length:
+			best_length = length
+			calculated_path = candidate
 	if calculated_path.size() > 0:
 		path = calculated_path
 		path_index = 0
@@ -80,15 +102,15 @@ func _process_path_movement(delta: float) -> void:
 			return
 	else:
 		dir = dir.normalized()
-		position += dir * speed * 1.2 * delta
+		position = position.move_toward(target, speed * 1.2 * delta)
 		_apply_rotation_and_anim(dir, delta)
 
 func _process_working(delta: float) -> void:
 	work_timer += delta
-	# Subtle excavating wiggle
-	if sprite:
-		sprite.scale.x = BASE_SPRITE_SCALE.x * (1.0 + sin(leg_anim_phase) * 0.12)
-		sprite.scale.y = BASE_SPRITE_SCALE.y
+	# Short, readable digging strokes without distorting the whole animal.
+	leg_anim_phase += delta * 10.0
+	sprite.texture = WALK_A if int(leg_anim_phase / PI) % 2 == 0 else WALK_B
+	sprite.position.y = sin(leg_anim_phase) * 1.0
 
 	
 	if work_timer >= 1.2:
@@ -124,12 +146,17 @@ func _process_patrol(delta: float) -> void:
 		return
 		
 	var target = waypoints[current_target_index]
+	if surface_patrol:
+		position.y = _surface_foot_y(position.x) - 9.0
+		target.y = position.y
 	var dir = (target - position)
-	var dist = dir.length()
+	var dist = absf(target.x - position.x) if surface_patrol else dir.length()
 	
 	if dist < 12.0:
 		current_target_index = (current_target_index + 1) % waypoints.size()
-		if randf() > 0.65:
+		sprite.texture = WALK_A
+		sprite.position.y = 0.0
+		if not surface_patrol and randf() > 0.65:
 			if role == "builder" or role == "excavator":
 				carrying_mud = !carrying_mud
 				carrying_seed = false
@@ -140,21 +167,45 @@ func _process_patrol(delta: float) -> void:
 	else:
 		dir = dir.normalized()
 		position += dir * speed * delta
+		if surface_patrol:
+			position.y = _surface_foot_y(position.x) - 9.0
 		_apply_rotation_and_anim(dir, delta)
 
-const BASE_SPRITE_SCALE: Vector2 = Vector2(0.045, 0.045)
+func _surface_foot_y(x: float) -> float:
+	# The mound is raised above the flat meadow ground.
+	if x < 650.0:
+		return 880.0
+	if x < 800.0:
+		return lerpf(880.0, 805.0, smoothstep(650.0, 800.0, x))
+	if x < 1120.0:
+		return 805.0
+	if x < 1310.0:
+		return lerpf(805.0, 880.0, smoothstep(1120.0, 1310.0, x))
+	return 880.0
+
+const BASE_SPRITE_SCALE: Vector2 = Vector2(0.026, 0.026)
 
 func _apply_rotation_and_anim(dir: Vector2, delta: float) -> void:
-	var target_angle = dir.angle() + PI / 2.0
-	rotation = lerp_angle(rotation, target_angle, 8.0 * delta)
-	leg_anim_phase += delta * 12.0
-	if sprite:
-		sprite.scale.x = BASE_SPRITE_SCALE.x * (1.0 + sin(leg_anim_phase) * 0.06)
-		sprite.scale.y = BASE_SPRITE_SCALE.y
+	# These illustrations are side profiles. Face the travel direction without
+	# turning a walking ant vertically when a route enters a shaft.
+	if absf(dir.x) > 0.08:
+		sprite.flip_h = dir.x > 0.0
+		_update_carried_sprites()
+	rotation = lerpf(rotation, clampf(dir.y * 0.12, -0.12, 0.12), 8.0 * delta)
+	leg_anim_phase += delta * 18.0
+	sprite.texture = WALK_A if int(leg_anim_phase / PI) % 2 == 0 else WALK_B
+	sprite.position.y = sin(leg_anim_phase) * 1.1
+	sprite.scale = BASE_SPRITE_SCALE
+
 
 
 func _update_carried_sprites() -> void:
+	var mouth_x := 11.0 if sprite != null and sprite.flip_h else -11.0
 	if seed_sprite:
 		seed_sprite.visible = carrying_seed and not carrying_mud
+		seed_sprite.position = Vector2(mouth_x, -1.0)
+		seed_sprite.scale = Vector2(0.07, 0.07)
 	if mud_sprite:
 		mud_sprite.visible = carrying_mud
+		mud_sprite.position = Vector2(mouth_x, -1.0)
+		mud_sprite.scale = Vector2(0.07, 0.07)

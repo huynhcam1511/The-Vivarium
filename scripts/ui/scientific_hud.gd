@@ -7,13 +7,13 @@ extends CanvasLayer
 @onready var biome_label: Label = $TopMargin/HBox/AtmospherePill/Margin/HBox/BiomeLabel
 @onready var weather_label: Label = $TopMargin/HBox/AtmospherePill/Margin/HBox/WeatherLabel
 
-@onready var clay_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/ClayLabel
-@onready var wax_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/WaxLabel
-@onready var honey_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/HoneyLabel
-@onready var protein_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/ProteinLabel
-@onready var seed_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/SeedLabel
-@onready var ant_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/AntLabel
-@onready var bee_label: Label = $TopMargin/HBox/ResourcePill/Margin/HBox/BeeLabel
+@onready var clay_label: Label = $TopResourceMargin/ResourcePill/Margin/HBox/ClayLabel
+@onready var wax_label: Label = $TopResourceMargin/ResourcePill/Margin/HBox/WaxLabel
+@onready var honey_label: Label = $TopResourceMargin/ResourcePill/Margin/HBox/HoneyLabel
+@onready var protein_label: Label = $TopResourceMargin/ResourcePill/Margin/HBox/ProteinLabel
+@onready var seed_label: Label = $TopResourceMargin/ResourcePill/Margin/HBox/SeedLabel
+@onready var ant_label: Label = $TopResourceMargin/ResourcePill/Margin/HBox/AntLabel
+@onready var bee_label: Label = $TopResourceMargin/ResourcePill/Margin/HBox/BeeLabel
 
 @onready var btn_save: Button = $TopMargin/HBox/TopActions/BtnSave
 @onready var btn_mode: Button = $TopMargin/HBox/TopActions/BtnMode
@@ -30,6 +30,12 @@ extends CanvasLayer
 @onready var btn_pheromone: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnPheromone
 @onready var btn_honeys: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnHoneys
 @onready var btn_journal: Button = $BottomCenterToolbar/Panel/Margin/HBox/BtnJournal
+@onready var btn_hive: Button = $BottomQuickActions/Panel/Margin/HBox/BtnHive
+@onready var btn_zoom_out: Button = $BottomQuickActions/Panel/Margin/HBox/BtnZoomOut
+@onready var btn_zoom_in: Button = $BottomQuickActions/Panel/Margin/HBox/BtnZoomIn
+@onready var btn_weather: Button = $BottomQuickActions/Panel/Margin/HBox/BtnWeather
+@onready var btn_colony: Button = $BottomQuickActions/Panel/Margin/HBox/BtnColony
+@onready var btn_help: Button = $BottomQuickActions/Panel/Margin/HBox/BtnHelp
 
 @onready var btn_pause: Button = $BottomRightTime/Panel/Margin/HBox/BtnPause
 @onready var btn_1x: Button = $BottomRightTime/Panel/Margin/HBox/Btn1x
@@ -47,8 +53,11 @@ extends CanvasLayer
 @onready var mode_dialog: Window = $ModeDialog
 
 var toast_timer: float = 0.0
+var colony_dialog: AcceptDialog
+var help_dialog: AcceptDialog
 
 func _ready() -> void:
+	_apply_visual_theme()
 	# 1. Connect simulation signals
 	GameManager.resources_updated.connect(_on_resources_updated)
 	GameManager.climate_updated.connect(_on_climate_updated)
@@ -70,6 +79,12 @@ func _ready() -> void:
 	btn_pheromone.pressed.connect(func(): priority_dialog.popup_centered())
 	btn_honeys.pressed.connect(func(): _update_honey_dialog(); honey_dialog.popup_centered())
 	btn_journal.pressed.connect(_on_btn_journal_pressed)
+	btn_hive.pressed.connect(func(): _camera_action("go_to_hive"))
+	btn_zoom_out.pressed.connect(func(): _camera_action("zoom_out"))
+	btn_zoom_in.pressed.connect(func(): _camera_action("zoom_in"))
+	btn_weather.pressed.connect(_cycle_weather)
+	btn_colony.pressed.connect(_show_colony_dialog)
+	btn_help.pressed.connect(func(): help_dialog.popup_centered())
 
 	# 4. Wire time controls
 	btn_pause.pressed.connect(func(): GameManager.set_time_scale(0.0))
@@ -119,6 +134,39 @@ func _ready() -> void:
 	priority_dialog.visible = false
 	honey_dialog.visible = false
 	mode_dialog.visible = false
+	colony_dialog = AcceptDialog.new()
+	colony_dialog.title = "Thông tin đàn"
+	colony_dialog.min_size = Vector2i(430, 270)
+	add_child(colony_dialog)
+	help_dialog = AcceptDialog.new()
+	help_dialog.title = "Điều khiển Vivarium"
+	help_dialog.min_size = Vector2i(490, 260)
+	help_dialog.dialog_text = "Chuột phải/giữa hoặc WASD: kéo camera\nCon lăn hoặc nút +/−: phóng to, thu nhỏ\n1/2/3: tới tán cây, mặt đất, tổ kiến\nĐào/Lấp: chọn công cụ rồi nhấp vào ô đất\nHủy: nhấp ô đã đánh dấu để bỏ lệnh\nR: đặt lại camera · F11: toàn màn hình"
+	add_child(help_dialog)
+
+func _apply_visual_theme() -> void:
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.075, 0.105, 0.095, 0.88)
+	panel_style.border_color = Color(0.61, 0.73, 0.52, 0.38)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(10)
+	panel_style.content_margin_left = 4
+	panel_style.content_margin_right = 4
+	for panel_path in ["TopMargin/HBox/AtmospherePill", "TopResourceMargin/ResourcePill", "BottomLeftNav/Panel", "BottomCenterToolbar/Panel", "BottomQuickActions/Panel", "BottomRightTime/Panel", "ToastContainer/Panel"]:
+		get_node(panel_path).add_theme_stylebox_override("panel", panel_style)
+	var button_style := StyleBoxFlat.new()
+	button_style.bg_color = Color(0.16, 0.22, 0.17, 0.94)
+	button_style.set_corner_radius_all(6)
+	button_style.set_content_margin_all(7)
+	var hover_style := button_style.duplicate()
+	hover_style.bg_color = Color(0.27, 0.38, 0.25, 1.0)
+	for button in [btn_save, btn_mode, btn_terrain, btn_nav_canopy, btn_nav_surface, btn_nav_nest, btn_dig, btn_fill, btn_cancel, btn_pheromone, btn_honeys, btn_journal, btn_hive, btn_zoom_out, btn_zoom_in, btn_weather, btn_colony, btn_help, btn_pause, btn_1x, btn_2x, btn_5x]:
+		button.add_theme_stylebox_override("normal", button_style)
+		button.add_theme_stylebox_override("hover", hover_style)
+		button.add_theme_color_override("font_color", Color(0.96, 0.95, 0.84))
+		button.add_theme_color_override("font_hover_color", Color.WHITE)
+	for label in [telemetry_label, biome_label, weather_label, clay_label, wax_label, honey_label, protein_label, seed_label, ant_label, bee_label]:
+		label.add_theme_color_override("font_color", Color(0.97, 0.95, 0.86))
 
 func _process(delta: float) -> void:
 	if toast_timer > 0.0:
@@ -128,17 +176,18 @@ func _process(delta: float) -> void:
 
 func _update_all_labels() -> void:
 	_on_climate_updated()
+	_on_weather_changed(GameManager.weather_state)
 	_on_resources_updated()
 	_on_mode_changed(GameManager.game_mode)
 	_on_terrain_mode_changed(GameManager.use_tilemap_terrain)
 
 func _on_terrain_mode_changed(use_tilemap: bool) -> void:
 	if btn_terrain:
-		btn_terrain.text = "🗺️ TileMap [BẬT]" if use_tilemap else "📜 Legacy [BẬT]"
+		btn_terrain.text = "🗺 Đất: Mới" if use_tilemap else "🗺 Đất: Cũ"
 
 
 func _on_climate_updated() -> void:
-	telemetry_label.text = "🌡️ %.1f°C | 💧 %.0f%% RH | 💨 %.0f ppm CO2" % [
+	telemetry_label.text = "🌡 %.1f°C   💧 %.0f%%   CO₂ %.0f" % [
 		GameManager.temperature,
 		GameManager.humidity,
 		GameManager.co2_level
@@ -147,10 +196,18 @@ func _on_climate_updated() -> void:
 
 func _on_weather_changed(new_weather: String) -> void:
 	match new_weather:
-		"SUNNY": weather_label.text = "☀️ Nắng Ấm"
-		"RAINSTORM": weather_label.text = "🌧️ Mưa Bão"
-		"HEATWAVE": weather_label.text = "🔥 Nắng Gắt"
-		"WINTER_CHILL": weather_label.text = "❄️ Mùa Đông"
+		"SUNNY":
+			weather_label.text = "☀️ Nắng Ấm"
+			btn_weather.text = "☀ Thời tiết"
+		"RAINSTORM":
+			weather_label.text = "🌧️ Mưa Bão"
+			btn_weather.text = "🌧 Mưa bão"
+		"HEATWAVE":
+			weather_label.text = "🔥 Nắng Gắt"
+			btn_weather.text = "🔥 Nắng gắt"
+		"WINTER_CHILL":
+			weather_label.text = "❄️ Mùa Đông"
+			btn_weather.text = "❄ Trời lạnh"
 
 func _on_resources_updated() -> void:
 	clay_label.text = "🧱 %d" % GameManager.clay_mud
@@ -179,9 +236,9 @@ func _update_honey_dialog() -> void:
 
 func _on_mode_changed(mode: String) -> void:
 	if mode == "LIVING":
-		btn_mode.text = "🌱 Chế Độ: Thảnh Thơi"
+		btn_mode.text = "🌱 Thảnh thơi"
 	else:
-		btn_mode.text = "⚔️ Chế Độ: Sinh Tồn"
+		btn_mode.text = "⚔ Sinh tồn"
 
 func _on_pheromone_priority_updated() -> void:
 	_show_toast("Đã cập nhật Pheromone: %s Mode" % GameManager.priority_mode)
@@ -215,9 +272,9 @@ func _on_tool_cancel_pressed() -> void:
 	_update_tool_buttons()
 
 func _update_tool_buttons() -> void:
-	btn_dig.text = "⛏️ [ĐÀO (BẬT)]" if GameManager.current_tool == "DIG" else "⛏️ Đào (Dig)"
-	btn_fill.text = "🧱 [LẤP (BẬT)]" if GameManager.current_tool == "FILL" else "🧱 Lấp (Fill)"
-	btn_cancel.text = "🧼 [HỦY (BẬT)]" if GameManager.current_tool == "DELETE" else "🧼 Hủy (Cancel)"
+	btn_dig.text = "⛏ Đào ✓" if GameManager.current_tool == "DIG" else "⛏ Đào"
+	btn_fill.text = "🧱 Lấp ✓" if GameManager.current_tool == "FILL" else "🧱 Lấp"
+	btn_cancel.text = "✕ Hủy ✓" if GameManager.current_tool == "DELETE" else "✕ Hủy"
 
 # --- NAVIGATION ---
 
@@ -243,3 +300,17 @@ func _on_btn_journal_pressed() -> void:
 		text += entry["content"] + "\n\n"
 	journal_content.text = text
 	journal_dialog.popup_centered()
+
+func _camera_action(method_name: String) -> void:
+	var cam = get_tree().root.find_child("Camera2D", true, false)
+	if cam and cam.has_method(method_name):
+		cam.call(method_name)
+
+func _cycle_weather() -> void:
+	var states := ["SUNNY", "RAINSTORM", "HEATWAVE", "WINTER_CHILL"]
+	var next_index := (states.find(GameManager.weather_state) + 1) % states.size()
+	GameManager.set_weather(states[next_index])
+
+func _show_colony_dialog() -> void:
+	colony_dialog.dialog_text = "Kiến: %d y tá · %d thợ · %d lính · %d dọn tổ\nOng: %d y tá · %d xây tổ · %d canh gác · %d kiếm mật\n\nTrứng kiến: %d · Ấu trùng kiến: %d\nTrứng ong: %d · Ấu trùng ong: %d\n\nBùn đất: %d · Hạt: %d · Mật: %.1fg" % [GameManager.minor_nurse_ants, GameManager.media_forager_ants, GameManager.major_soldier_ants, GameManager.undertaker_ants, GameManager.nurse_bees, GameManager.builder_bees, GameManager.guard_fanner_bees, GameManager.forager_bees, GameManager.ant_eggs, GameManager.ant_larvae, GameManager.bee_eggs, GameManager.bee_larvae, GameManager.clay_mud, GameManager.seeds_stock, GameManager.get_total_honey()]
+	colony_dialog.popup_centered()

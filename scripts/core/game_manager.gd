@@ -10,7 +10,7 @@ signal mode_changed(new_mode: String)
 signal terrain_mode_changed(use_tilemap: bool)
 
 # --- TERRAIN RENDERING FEATURE FLAG ---
-var use_tilemap_terrain: bool = true # Toggle between Legacy Terrain (_draw) and New TileMapLayer + AStarGrid2D
+var use_tilemap_terrain: bool = false # Hand-painted terrain is the visual default; TileMap remains available from the HUD.
 
 
 # --- PHYSICAL NATURAL RESOURCES (100% Thu gom & Tự tiết ra) ---

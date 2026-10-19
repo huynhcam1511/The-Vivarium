@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dmqm74v3hnd8q"]
+
+[ext_resource type="Script" path="res://scripts/prototypes/prototype_ant.gd" id="1_ant_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/stylized_ant.png" id="2_ant_tex"]
+
+[node name="PrototypeAnt" type="Node2D"]
+script = ExtResource("1_ant_script")
+
+[node name="Shadow" type="Sprite2D" parent="."]
+position = Vector2(0, 3)
+scale = Vector2(0.04, 0.02)
+texture = ExtResource("2_ant_tex")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 2
+scale = Vector2(0.048, 0.048)
+texture = ExtResource("2_ant_tex")

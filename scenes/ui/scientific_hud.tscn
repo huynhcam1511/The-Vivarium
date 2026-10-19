@@ -50,51 +50,60 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 13
 text = "☀️ Nắng Ấm"
 
-[node name="ResourcePill" type="PanelContainer" parent="TopMargin/HBox"]
+[node name="TopResourceMargin" type="MarginContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 14.0
+offset_top = 56.0
+offset_right = -350.0
+offset_bottom = 90.0
+grow_horizontal = 2
+
+[node name="ResourcePill" type="PanelContainer" parent="TopResourceMargin"]
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="TopMargin/HBox/ResourcePill"]
+[node name="Margin" type="MarginContainer" parent="TopResourceMargin/ResourcePill"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 4
 
-[node name="HBox" type="HBoxContainer" parent="TopMargin/HBox/ResourcePill/Margin"]
+[node name="HBox" type="HBoxContainer" parent="TopResourceMargin/ResourcePill/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="ClayLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+[node name="ClayLabel" type="Label" parent="TopResourceMargin/ResourcePill/Margin/HBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🧱 45"
 
-[node name="WaxLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+[node name="WaxLabel" type="Label" parent="TopResourceMargin/ResourcePill/Margin/HBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🕯️ 28.5g"
 
-[node name="HoneyLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+[node name="HoneyLabel" type="Label" parent="TopResourceMargin/ResourcePill/Margin/HBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🍯 365.0g"
 
-[node name="ProteinLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+[node name="ProteinLabel" type="Label" parent="TopResourceMargin/ResourcePill/Margin/HBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🦗 65.0g"
 
-[node name="SeedLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+[node name="SeedLabel" type="Label" parent="TopResourceMargin/ResourcePill/Margin/HBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🌾 128"
 
-[node name="AntLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+[node name="AntLabel" type="Label" parent="TopResourceMargin/ResourcePill/Margin/HBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🐜 31"
 
-[node name="BeeLabel" type="Label" parent="TopMargin/HBox/ResourcePill/Margin/HBox"]
+[node name="BeeLabel" type="Label" parent="TopResourceMargin/ResourcePill/Margin/HBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🐝 23"
@@ -219,6 +228,63 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "📜 Nhật Ký"
 
+[node name="BottomQuickActions" type="MarginContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -101.0
+offset_right = 300.0
+offset_bottom = -61.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Panel" type="PanelContainer" parent="BottomQuickActions"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="BottomQuickActions/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 3
+
+[node name="HBox" type="HBoxContainer" parent="BottomQuickActions/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="BtnHive" type="Button" parent="BottomQuickActions/Panel/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "🐝 Tổ ong"
+
+[node name="BtnZoomOut" type="Button" parent="BottomQuickActions/Panel/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "− Thu nhỏ"
+
+[node name="BtnZoomIn" type="Button" parent="BottomQuickActions/Panel/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "+ Phóng to"
+
+[node name="BtnWeather" type="Button" parent="BottomQuickActions/Panel/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "☀ Thời tiết"
+
+[node name="BtnColony" type="Button" parent="BottomQuickActions/Panel/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "📊 Đàn"
+
+[node name="BtnHelp" type="Button" parent="BottomQuickActions/Panel/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "? Hướng dẫn"
+
 
 [node name="BottomRightTime" type="MarginContainer" parent="."]
 anchors_preset = 3
@@ -268,9 +334,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -280.0
-offset_top = 62.0
+offset_top = 104.0
 offset_right = 280.0
-offset_bottom = 100.0
+offset_bottom = 142.0
 grow_horizontal = 2
 
 [node name="Panel" type="PanelContainer" parent="ToastContainer"]
@@ -431,3 +497,4 @@ text = "🌱 Chế Độ Thảnh Thơi (Living Sandbox) — Quan sát êm đềm
 [node name="BtnModeSurvival" type="Button" parent="ModeDialog/Margin/VBox"]
 layout_mode = 2
 text = "⚔️ Chế Độ Sinh Tồn (Survival Sandbox) — Khắc nghiệt, thử thách thời tiết"
+

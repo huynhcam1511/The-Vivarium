@@ -4,19 +4,20 @@ class_name VivariumCamera
 # The Vivarium - Smooth 2.5D Landscape Camera Controller
 # Decoupled navigation: Pan with RMB/MMB or WASD, Zoom with Wheel, Presets 1/2/3
 
-var target_zoom: Vector2 = Vector2(1.0, 1.0)
-var target_position: Vector2 = Vector2(960, 720)
+var target_zoom: Vector2 = Vector2(0.8, 0.8)
+var target_position: Vector2 = Vector2(960, 980)
 
 var is_panning: bool = false
 var pan_start_mouse_pos: Vector2 = Vector2.ZERO
 var pan_start_cam_pos: Vector2 = Vector2.ZERO
 
 const MIN_X: float = 640.0
-const MAX_X: float = 1280.0
+const MAX_X: float = 2070.0
 const MIN_Y: float = 360.0   # Canopy & Wild Honeycomb (Top)
 const MAX_Y: float = 1440.0  # Deep subterranean chambers (Bottom)
 const MIN_ZOOM: float = 0.55
 const MAX_ZOOM: float = 1.75
+const WORLD_WIDTH: float = 2560.0
 
 const KEYBOARD_PAN_SPEED: float = 650.0
 
@@ -26,6 +27,8 @@ func _ready() -> void:
 	else:
 		position = target_position
 	zoom = target_zoom
+	_clamp_target_position()
+	position = target_position
 	print("[VivariumCamera] 16:9 Landscape Camera active. X bounds: [%.0f, %.0f], Y bounds: [%.0f, %.0f]" % [
 		MIN_X, MAX_X, MIN_Y, MAX_Y
 	])
@@ -82,14 +85,31 @@ func _unhandled_input(event: InputEvent) -> void:
 				go_to_formicarium()
 			KEY_R:
 				reset_camera()
+			KEY_F11:
+				var mode := DisplayServer.window_get_mode()
+				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if mode == DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN)
+				_clamp_target_position()
 
 func _clamp_target_position() -> void:
-	target_position.x = clamp(target_position.x, MIN_X, MAX_X)
+	var half_visible_width := get_viewport_rect().size.x / (2.0 * target_zoom.x)
+	target_position.x = clampf(target_position.x, half_visible_width, WORLD_WIDTH - half_visible_width)
 	target_position.y = clamp(target_position.y, MIN_Y, MAX_Y)
 
 func _adjust_zoom(factor: float) -> void:
-	var new_scale = clamp(target_zoom.x * factor, MIN_ZOOM, MAX_ZOOM)
+	var fit_zoom := get_viewport_rect().size.x / WORLD_WIDTH
+	var new_scale = clamp(target_zoom.x * factor, maxf(MIN_ZOOM, fit_zoom), MAX_ZOOM)
 	target_zoom = Vector2(new_scale, new_scale)
+	_clamp_target_position()
+
+func zoom_in() -> void:
+	_adjust_zoom(1.12)
+
+func zoom_out() -> void:
+	_adjust_zoom(0.88)
+
+func go_to_hive() -> void:
+	target_position = Vector2(1510, 630)
+	_clamp_target_position()
 
 # --- QUICK BOOKMARK METHODS ---
 

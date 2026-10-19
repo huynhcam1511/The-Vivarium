@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/entities/realistic_ant.gd" id="1_ant"]
-[ext_resource type="Texture2D" path="res://assets/sprites/stylized_ant.png" id="2_ant_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ant_walk_a.png" id="2_ant_tex"]
 [ext_resource type="Texture2D" path="res://assets/sprites/realistic_seeds.svg" id="3_seed_tex"]
 [ext_resource type="Texture2D" path="res://assets/sprites/clay_mud_ball.svg" id="4_mud_tex"]
 
@@ -9,15 +9,16 @@
 script = ExtResource("1_ant")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.045, 0.045)
+scale = Vector2(0.026, 0.026)
 texture = ExtResource("2_ant_tex")
 
 [node name="SeedSprite" type="Sprite2D" parent="."]
-position = Vector2(0, -18)
-scale = Vector2(0.35, 0.35)
+position = Vector2(0, -32)
+scale = Vector2(0.65, 0.65)
 texture = ExtResource("3_seed_tex")
 
 [node name="MudSprite" type="Sprite2D" parent="."]
-position = Vector2(0, -18)
-scale = Vector2(0.35, 0.35)
+position = Vector2(0, -32)
+scale = Vector2(0.65, 0.65)
 texture = ExtResource("4_mud_tex")
+
