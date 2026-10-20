@@ -1,0 +1,68 @@
+{
+  "CLEAR_SUNNY": {
+    "stateId": "CLEAR_SUNNY",
+    "label": "Clear Sunny",
+    "temperature": "32.3°C",
+    "humidity": "36%",
+    "windSpeed": "1.5 m/s",
+    "soilMoisture": "44%",
+    "fps": "60 FPS",
+    "transitionStatus": "Ổn định (CLEAR_SUNNY)",
+    "timestamp": "2026-10-20T15:03:23.360Z"
+  },
+  "GENTLE_RAIN": {
+    "stateId": "GENTLE_RAIN",
+    "label": "Gentle Rain",
+    "temperature": "25.6°C",
+    "humidity": "68%",
+    "windSpeed": "4.5 m/s",
+    "soilMoisture": "45%",
+    "fps": "60 FPS",
+    "transitionStatus": "Ổn định (GENTLE_RAIN)",
+    "timestamp": "2026-10-20T15:03:27.865Z"
+  },
+  "STORMY_TEMPEST": {
+    "stateId": "STORMY_TEMPEST",
+    "label": "Stormy Tempest",
+    "temperature": "21.3°C",
+    "humidity": "83%",
+    "windSpeed": "9.8 m/s",
+    "soilMoisture": "47%",
+    "fps": "60 FPS",
+    "transitionStatus": "Ổn định (STORMY_TEMPEST)",
+    "timestamp": "2026-10-20T15:03:32.364Z"
+  },
+  "HEATWAVE": {
+    "stateId": "HEATWAVE",
+    "label": "Heatwave",
+    "temperature": "37.2°C",
+    "humidity": "27%",
+    "windSpeed": "1.0 m/s",
+    "soilMoisture": "47%",
+    "fps": "60 FPS",
+    "transitionStatus": "Ổn định (HEATWAVE)",
+    "timestamp": "2026-10-20T15:03:36.929Z"
+  },
+  "AUTUMN_BREEZE": {
+    "stateId": "AUTUMN_BREEZE",
+    "label": "Autumn Breeze",
+    "temperature": "27.3°C",
+    "humidity": "39%",
+    "windSpeed": "5.5 m/s",
+    "soilMoisture": "47%",
+    "fps": "60 FPS",
+    "transitionStatus": "Ổn định (AUTUMN_BREEZE)",
+    "timestamp": "2026-10-20T15:03:41.426Z"
+  },
+  "FOGGY_MIST": {
+    "stateId": "FOGGY_MIST",
+    "label": "Foggy Mist",
+    "temperature": "21.1°C",
+    "humidity": "74%",
+    "windSpeed": "0.8 m/s",
+    "soilMoisture": "47%",
+    "fps": "60 FPS",
+    "transitionStatus": "Ổn định (FOGGY_MIST)",
+    "timestamp": "2026-10-20T15:03:45.907Z"
+  }
+}
