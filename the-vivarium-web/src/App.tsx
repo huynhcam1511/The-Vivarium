@@ -6,10 +6,34 @@ import { TelemetryHeader } from './components/TelemetryHeader';
 import { GameToolbar } from './components/GameToolbar';
 import { AssetPreviewScene } from './components/AssetPreviewScene';
 import { EnvironmentPreviewScene } from './components/EnvironmentPreviewScene';
+import { WorldIntegrationScene } from './components/WorldIntegrationScene';
+import { AquaticShowcaseScene } from './aquatic/AquaticShowcaseScene';
+import { WeatherShowcaseScene } from './weather/WeatherShowcaseScene';
+import { OakUnifiedV5QAScene } from './components/OakUnifiedV5QAScene';
 import type { ToolType, TimeSpeed } from './types';
 
 export const App: React.FC = () => {
   // Check URL parameters for standalone preview modes
+  const isIntegrationMode = window.location.search.includes('mode=integration');
+  if (isIntegrationMode) {
+    return <WorldIntegrationScene />;
+  }
+
+  const isAquaticMode = window.location.search.includes('mode=aquatic');
+  if (isAquaticMode) {
+    return <AquaticShowcaseScene />;
+  }
+
+  const isWeatherMode = window.location.search.includes('mode=weather');
+  if (isWeatherMode) {
+    return <WeatherShowcaseScene />;
+  }
+
+  const isOakV5Mode = window.location.search.includes('mode=qa-oak-unified-v5');
+  if (isOakV5Mode) {
+    return <OakUnifiedV5QAScene />;
+  }
+
   const isEnvPreviewMode = window.location.search.includes('mode=environment-preview');
   const isPreviewMode = window.location.search.includes('mode=preview');
 

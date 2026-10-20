@@ -73,12 +73,12 @@ func _ready() -> void:
 func test_camera_navigation() -> bool:
 	var cam := VivariumCamera.new()
 	cam.position = Vector2(960, 960)
-	cam._ready()
+	add_child(cam)
 	# Verify target clamping
 	cam.target_position = Vector2(100, 2000)
 	cam._clamp_target_position()
 	var clamped := (cam.target_position.x >= cam.MIN_X and cam.target_position.y <= cam.MAX_Y)
-	cam.free()
+	cam.queue_free()
 	return clamped
 
 func test_dig_lifecycle() -> bool:
