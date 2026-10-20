@@ -21,13 +21,16 @@ export const WeatherShowcaseScene: React.FC = () => {
   const [timeSpeed, setTimeSpeed] = useState<number>(1);
   const [fps, setFps] = useState<number>(60);
 
+  const timeSpeedRef = useRef(timeSpeed);
+  timeSpeedRef.current = timeSpeed;
+
   const handleSelectWeather = (type: WeatherType) => {
     weatherSystemRef.current.setWeather(type, 3.0);
     setWeatherState(weatherSystemRef.current.getWeatherState());
   };
 
   useEffect(() => {
-    let active = true;
+    let isMounted = true;
     let pixiApp: Application | null = null;
     let frameCount = 0;
     let fpsTimer = 0;
@@ -48,7 +51,15 @@ export const WeatherShowcaseScene: React.FC = () => {
         antialias: true,
       });
 
-      if (!active) return;
+      if (!isMounted) {
+        try {
+          pixiApp.destroy(true, { children: true });
+        } catch {
+          // ignore cleanup error if not fully initialized
+        }
+        return;
+      }
+
       containerRef.current.appendChild(pixiApp.canvas);
       appRef.current = pixiApp;
 
@@ -138,7 +149,7 @@ export const WeatherShowcaseScene: React.FC = () => {
       // Main Loop
       pixiApp.ticker.add((ticker) => {
         const deltaSeconds = ticker.deltaMS / 1000.0;
-        const effectiveDt = deltaSeconds * timeSpeed;
+        const effectiveDt = deltaSeconds * timeSpeedRef.current;
 
         // Update Weather System
         weatherSystemRef.current.update(effectiveDt, 0.45);
@@ -160,15 +171,19 @@ export const WeatherShowcaseScene: React.FC = () => {
     init();
 
     return () => {
-      active = false;
+      isMounted = false;
       if (pixiApp) {
-        pixiApp.destroy(true, { children: true, texture: false });
+        try {
+          pixiApp.destroy(true, { children: true, texture: false });
+        } catch {
+          // ignore Pixi v8 cleanup timing error
+        }
       }
     };
-  }, [timeSpeed]);
+  }, []); // Run once on mount
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-neutral-950 font-sans select-none">
+    <div className="relative w-screen h-screen overflow-hidden bg-neutral-950 font-sans select-none" data-testid="weather-suite-root">
       {/* Pixi Canvas */}
       <div ref={containerRef} className="absolute inset-0 z-0" />
 
@@ -179,7 +194,7 @@ export const WeatherShowcaseScene: React.FC = () => {
             🌦️
           </div>
           <div>
-            <h1 className="text-xs font-black tracking-wider text-sky-100 uppercase">
+            <h1 className="text-xs font-black tracking-wider text-sky-100 uppercase" data-testid="header-title">
               THE VIVARIUM — WEATHER SUITE (PACK-005)
             </h1>
             <p className="text-[10px] text-sky-400/80 font-medium">
@@ -190,7 +205,7 @@ export const WeatherShowcaseScene: React.FC = () => {
 
         {/* Time Speed & Performance */}
         <div className="flex items-center gap-3 bg-neutral-900/90 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/10 shadow-xl pointer-events-auto text-xs">
-          <span className="font-mono text-emerald-400 font-bold">{fps} FPS</span>
+          <span className="font-mono text-emerald-400 font-bold" data-testid="telemetry-fps">{fps} FPS</span>
           <div className="w-px h-4 bg-white/15" />
           <div className="flex items-center gap-1">
             {[0, 1, 2, 5].map((speed) => (
@@ -211,7 +226,7 @@ export const WeatherShowcaseScene: React.FC = () => {
       </header>
 
       {/* Weather Selector Panel */}
-      <div className="fixed bottom-4 left-4 z-30">
+      <div className="fixed bottom-4 left-4 z-30" data-testid="weather-control-panel">
         <WeatherControlPanel
           currentWeather={weatherState.currentWeather}
           targetWeather={weatherState.targetWeather}

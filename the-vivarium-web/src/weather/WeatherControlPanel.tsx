@@ -40,7 +40,7 @@ export const WeatherControlPanel: React.FC<WeatherControlPanelProps> = ({
           <span>🌦️</span>
           <span>Khí Quyển & Thời Tiết (PACK-005)</span>
         </div>
-        <span className="text-[10px] text-neutral-400">
+        <span className="text-[10px] text-neutral-400" data-testid="status-transition">
           {transitionProgress < 1.0 ? `Đang chuyển (${(transitionProgress * 100).toFixed(0)}%)` : `Ổn định (${currentWeather})`}
         </span>
       </div>
@@ -53,6 +53,7 @@ export const WeatherControlPanel: React.FC<WeatherControlPanelProps> = ({
           return (
             <button
               key={type}
+              data-testid={`btn-weather-${type}`}
               onClick={() => onSelectWeather(type)}
               className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border text-left transition-all ${
                 isSelected
@@ -74,19 +75,19 @@ export const WeatherControlPanel: React.FC<WeatherControlPanelProps> = ({
       <div className="grid grid-cols-4 gap-1 bg-black/40 p-2 rounded-xl border border-white/5 text-[10px] text-center">
         <div>
           <span className="text-neutral-400 block text-[9px]">Nhiệt độ</span>
-          <span className="font-bold text-rose-300">{temperature.toFixed(1)}°C</span>
+          <span className="font-bold text-rose-300" data-testid="telemetry-temperature">{temperature.toFixed(1)}°C</span>
         </div>
         <div>
           <span className="text-neutral-400 block text-[9px]">Độ ẩm</span>
-          <span className="font-bold text-sky-300">{humidity.toFixed(0)}%</span>
+          <span className="font-bold text-sky-300" data-testid="telemetry-humidity">{humidity.toFixed(0)}%</span>
         </div>
         <div>
           <span className="text-neutral-400 block text-[9px]">Sức gió</span>
-          <span className="font-bold text-teal-300">{windSpeed.toFixed(1)} m/s</span>
+          <span className="font-bold text-teal-300" data-testid="telemetry-wind">{windSpeed.toFixed(1)} m/s</span>
         </div>
         <div>
           <span className="text-neutral-400 block text-[9px]">Ẩm đất ngầm</span>
-          <span className="font-bold text-amber-300">{(soilMoisture * 100).toFixed(0)}%</span>
+          <span className="font-bold text-amber-300" data-testid="telemetry-soil">{(soilMoisture * 100).toFixed(0)}%</span>
         </div>
       </div>
     </div>
