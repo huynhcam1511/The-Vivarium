@@ -6,10 +6,16 @@ import { TelemetryHeader } from './components/TelemetryHeader';
 import { GameToolbar } from './components/GameToolbar';
 import { AssetPreviewScene } from './components/AssetPreviewScene';
 import { EnvironmentPreviewScene } from './components/EnvironmentPreviewScene';
+import { WeatherShowcaseScene } from './weather/WeatherShowcaseScene';
 import type { ToolType, TimeSpeed } from './types';
 
 export const App: React.FC = () => {
   // Check URL parameters for standalone preview modes
+  const isWeatherMode = window.location.search.includes('mode=weather');
+  if (isWeatherMode) {
+    return <WeatherShowcaseScene />;
+  }
+
   const isEnvPreviewMode = window.location.search.includes('mode=environment-preview');
   const isPreviewMode = window.location.search.includes('mode=preview');
 
