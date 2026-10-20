@@ -1,16 +1,15 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect } from 'vitest';
 import { AquaticSystem } from './AquaticSystem';
 
 describe('AquaticSystem (PACK-004 Test Suite)', () => {
   it('should initialize with correct default configuration and entity counts', () => {
     const aquatic = new AquaticSystem();
-    assert.strictEqual(aquatic.floraList.length, 14, 'Should initialize 14 flora specimens');
-    assert.strictEqual(aquatic.fishes.length, 9, 'Should initialize 9 fishes (6 minnows + 3 carp)');
-    assert.strictEqual(aquatic.waterfowls.length, 1, 'Should initialize 1 waterfowl (Mallard duck)');
-    assert.strictEqual(aquatic.bubbles.length, 24, 'Should initialize 24 submerged bubble particles');
-    assert.strictEqual(aquatic.getWaterLevel(), 570, 'Default baseline water level should be Y: 570');
-    assert.strictEqual(aquatic.getWaterClarity(), 0.92, 'Default clarity should be 0.92');
+    expect(aquatic.floraList.length).toBe(14);
+    expect(aquatic.fishes.length).toBe(9);
+    expect(aquatic.waterfowls.length).toBe(1);
+    expect(aquatic.bubbles.length).toBe(24);
+    expect(aquatic.getWaterLevel()).toBe(570);
+    expect(aquatic.getWaterClarity()).toBe(0.92);
   });
 
   it('should simulate continuous flora sway and fish oscillation over time', () => {
@@ -20,8 +19,8 @@ describe('AquaticSystem (PACK-004 Test Suite)', () => {
 
     aquatic.update(0.5);
 
-    assert.ok(aquatic.floraList[0].swayPhase > initialFloraPhase, 'Flora sway phase should advance');
-    assert.ok(aquatic.fishes[0].wiggle > initialFishWiggle, 'Fish tail wiggle should advance');
+    expect(aquatic.floraList[0].swayPhase).toBeGreaterThan(initialFloraPhase);
+    expect(aquatic.fishes[0].wiggle).toBeGreaterThan(initialFishWiggle);
   });
 
   it('should maintain fishes within water basin boundaries', () => {
@@ -37,8 +36,10 @@ describe('AquaticSystem (PACK-004 Test Suite)', () => {
     const bottomY = aquatic.config.surfaceBaseY + aquatic.config.maxDepth;
 
     for (const f of aquatic.fishes) {
-      assert.ok(f.position.x >= minX - 10 && f.position.x <= maxX + 10, `Fish X (${f.position.x}) should be inside basin [${minX}, ${maxX}]`);
-      assert.ok(f.position.y >= surfY && f.position.y <= bottomY, `Fish Y (${f.position.y}) should be below water surface`);
+      expect(f.position.x).toBeGreaterThanOrEqual(minX - 10);
+      expect(f.position.x).toBeLessThanOrEqual(maxX + 10);
+      expect(f.position.y).toBeGreaterThanOrEqual(surfY);
+      expect(f.position.y).toBeLessThanOrEqual(bottomY);
     }
   });
 
@@ -51,8 +52,8 @@ describe('AquaticSystem (PACK-004 Test Suite)', () => {
     const afterRainLevel = aquatic.getWaterLevel();
 
     // Water level Y decreases as water rises
-    assert.ok(afterRainLevel < initialLevel, `Water surface Y (${afterRainLevel}) should rise towards sky relative to baseline (${initialLevel})`);
-    assert.ok(aquatic.waterLevelOffset > 0, 'Water level offset should be positive');
+    expect(afterRainLevel).toBeLessThan(initialLevel);
+    expect(aquatic.waterLevelOffset).toBeGreaterThan(0);
   });
 
   it('should handle evaporation under heatwave conditions', () => {
@@ -64,8 +65,8 @@ describe('AquaticSystem (PACK-004 Test Suite)', () => {
     const afterEvapLevel = aquatic.getWaterLevel();
 
     // Water level Y increases as water recedes
-    assert.ok(afterEvapLevel > initialLevel, `Water surface Y (${afterEvapLevel}) should recede downwards`);
-    assert.ok(aquatic.waterLevelOffset < 0, 'Water level offset should be negative');
+    expect(afterEvapLevel).toBeGreaterThan(initialLevel);
+    expect(aquatic.waterLevelOffset).toBeLessThan(0);
   });
 
   it('should calculate accurate harmonic surface wave profile at any world X', () => {
@@ -74,8 +75,11 @@ describe('AquaticSystem (PACK-004 Test Suite)', () => {
     const y2 = aquatic.sampleWaterSurfaceY(1600);
     const y3 = aquatic.sampleWaterSurfaceY(1800);
 
-    assert.ok(typeof y1 === 'number' && !isNaN(y1), 'Sampled Y should be a valid number');
-    assert.ok(typeof y2 === 'number' && !isNaN(y2), 'Sampled Y should be a valid number');
-    assert.ok(typeof y3 === 'number' && !isNaN(y3), 'Sampled Y should be a valid number');
+    expect(typeof y1).toBe('number');
+    expect(isNaN(y1)).toBe(false);
+    expect(typeof y2).toBe('number');
+    expect(isNaN(y2)).toBe(false);
+    expect(typeof y3).toBe('number');
+    expect(isNaN(y3)).toBe(false);
   });
 });

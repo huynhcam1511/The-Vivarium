@@ -11,12 +11,13 @@ export const AquaticShowcaseScene: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const aquaticSystemRef = useRef<AquaticSystem>(new AquaticSystem());
   const cameraRef = useRef<CameraController | null>(null);
+  const appRef = useRef<Application | null>(null);
 
   const [fps, setFps] = useState<number>(60);
   const [, setTick] = useState<number>(0);
 
   useEffect(() => {
-    let app: Application | null = null;
+    let active = true;
     let animId: number;
     let lastTime = performance.now();
     let frameCount = 0;
@@ -24,6 +25,11 @@ export const AquaticShowcaseScene: React.FC = () => {
 
     const init = async () => {
       if (!containerRef.current) return;
+
+      // Clean existing children in case of React StrictMode double-mount
+      while (containerRef.current.firstChild) {
+        containerRef.current.removeChild(containerRef.current.firstChild);
+      }
 
       const pixiApp = new Application();
       await pixiApp.init({
@@ -34,17 +40,19 @@ export const AquaticShowcaseScene: React.FC = () => {
         antialias: true,
       });
 
-      if (!containerRef.current) {
-        pixiApp.destroy();
+      if (!active || !containerRef.current) {
+        pixiApp.destroy({ removeView: true });
         return;
       }
-      app = pixiApp;
+
+      appRef.current = pixiApp;
       containerRef.current.appendChild(pixiApp.canvas);
 
       const worldContainer = new Container();
       pixiApp.stage.addChild(worldContainer);
 
       const camera = new CameraController(worldContainer);
+      camera.setViewportSize(window.innerWidth, window.innerHeight);
       cameraRef.current = camera;
       // Focus on Lake Basin by default
       camera.jumpTo(1680, 600, 1.25);
@@ -109,13 +117,23 @@ export const AquaticShowcaseScene: React.FC = () => {
       }
 
       // Main render loop
+      const urlParams = new URLSearchParams(window.location.search);
+      let isPaused = urlParams.get('paused') === 'true';
+
+      // Expose pause toggle & camera helper for QA and screenshot automation
+      (window as unknown as { __AQUATIC_PAUSE__?: (pause: boolean) => void }).__AQUATIC_PAUSE__ = (pause: boolean) => {
+        isPaused = pause;
+      };
+
       const loop = (currentTime: number) => {
         const dt = Math.min(0.1, (currentTime - lastTime) / 1000);
         lastTime = currentTime;
 
         camera.update(dt);
-        aquaticSim.update(dt);
-        aquaticRenderer.update(dt);
+        if (!isPaused) {
+          aquaticSim.update(dt);
+          aquaticRenderer.update(dt);
+        }
 
         frameCount++;
         fpsTimer += dt;
@@ -135,13 +153,15 @@ export const AquaticShowcaseScene: React.FC = () => {
     init();
 
     return () => {
+      active = false;
       cancelAnimationFrame(animId);
-      if (app) {
+      if (appRef.current) {
         try {
-          app.destroy(true);
+          appRef.current.destroy({ removeView: true });
         } catch (e) {
           console.warn('Cleanup:', e);
         }
+        appRef.current = null;
       }
     };
   }, []);
