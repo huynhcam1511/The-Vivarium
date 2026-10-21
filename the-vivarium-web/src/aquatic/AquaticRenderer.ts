@@ -34,6 +34,12 @@ export class AquaticRenderer {
 
   private sim: AquaticSystem;
   private lakeBasinRendered: boolean = false;
+  private cachedBasinHash: string = '';
+
+  public invalidateLakeBasin(): void {
+    this.lakeBasinRendered = false;
+    this.cachedBasinHash = '';
+  }
 
   constructor(sim: AquaticSystem) {
     this.sim = sim;
@@ -148,9 +154,11 @@ export class AquaticRenderer {
 
   update(dt: number): void {
     this.renderWaterfall(dt);
-    if (!this.lakeBasinRendered) {
+    const currentBasinHash = `${this.sim.config.basinMinX}_${this.sim.config.basinMaxX}_${this.sim.config.surfaceBaseY}_${this.sim.config.maxDepth}`;
+    if (!this.lakeBasinRendered || this.cachedBasinHash !== currentBasinHash) {
       this.renderLakeBasinAndSediment();
       this.lakeBasinRendered = true;
+      this.cachedBasinHash = currentBasinHash;
     }
     this.renderSubmergedFlora();
     this.renderWaterColumns();

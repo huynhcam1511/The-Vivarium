@@ -6,6 +6,8 @@ export class OrganicTerrainRenderer {
   readonly terrainData: OrganicTerrainData;
 
   // Visual layers inside terrain container
+  private cavityBackgroundGraphics: Graphics;
+  private subterraneanObjectContainer: Container;
   private soilContainer: Container;
   private soilTilingLayer: TilingSprite | null = null;
   private soilTilingLayer2: TilingSprite | null = null;
@@ -14,7 +16,6 @@ export class OrganicTerrainRenderer {
   private pebbleTilingLayer: TilingSprite | null = null;
 
   private maskGraphics: Graphics;
-  private cavityBackgroundGraphics: Graphics;
   private rimContourGraphics: Graphics;
   private surfaceGrassRimGraphics: Graphics;
   private debugGridGraphics: Graphics;
@@ -22,6 +23,12 @@ export class OrganicTerrainRenderer {
   // Cached Marching Squares Grid & Densities
   private cachedDensity: Float32Array | null = null;
   private isDensityInitialized: boolean = false;
+
+  // Telemetry tracking for QA & Benchmark
+  public rebuildCount: number = 0;
+  public totalRebuildTimeMs: number = 0;
+  public lastRebuildDurationMs: number = 0;
+  public rebuildDurations: number[] = [];
 
   constructor(terrainData: OrganicTerrainData) {
     this.terrainData = terrainData;
@@ -31,7 +38,11 @@ export class OrganicTerrainRenderer {
     this.cavityBackgroundGraphics = new Graphics();
     this.container.addChild(this.cavityBackgroundGraphics);
 
-    // 2. Soil Texture Tiling Group (Masked by organic terrain mask)
+    // 2. Subterranean Objects & Roots (Index 1: In front of cavity, behind soil)
+    this.subterraneanObjectContainer = new Container();
+    this.container.addChild(this.subterraneanObjectContainer);
+
+    // 3. Soil Texture Tiling Group (Masked by organic terrain mask)
     this.soilContainer = new Container();
     this.container.addChild(this.soilContainer);
 
@@ -39,17 +50,40 @@ export class OrganicTerrainRenderer {
     this.soilContainer.mask = this.maskGraphics;
     this.soilContainer.addChild(this.maskGraphics);
 
-    // 3. Earthen Rim & Contact Shadows (Soft natural cutaway shading & loam border)
+    // 4. Earthen Rim & Contact Shadows (Soft natural cutaway shading & loam border)
     this.rimContourGraphics = new Graphics();
     this.container.addChild(this.rimContourGraphics);
 
-    // 4. Surface Grass Rim (Lush grass line on undulating horizon)
+    // 5. Surface Grass Rim (Lush grass line on undulating horizon)
     this.surfaceGrassRimGraphics = new Graphics();
     this.container.addChild(this.surfaceGrassRimGraphics);
 
-    // 5. Debug Grid Layer (Optional toggle)
+    // 6. Debug Grid Layer (Optional toggle)
     this.debugGridGraphics = new Graphics();
     this.container.addChild(this.debugGridGraphics);
+  }
+
+  addSubterraneanLayer(layer: Container): void {
+    this.subterraneanObjectContainer.addChild(layer);
+  }
+
+  get avgRebuildDurationMs(): number {
+    return this.rebuildCount > 0 ? this.totalRebuildTimeMs / this.rebuildCount : 0;
+  }
+
+  get maxRebuildDurationMs(): number {
+    return this.rebuildDurations.length > 0 ? Math.max(...this.rebuildDurations) : 0;
+  }
+
+  get totalRebuildCpuTimeMs(): number {
+    return this.totalRebuildTimeMs;
+  }
+
+  resetRebuildMetrics(): void {
+    this.rebuildCount = 0;
+    this.totalRebuildTimeMs = 0;
+    this.lastRebuildDurationMs = 0;
+    this.rebuildDurations = [];
   }
 
   setSoilTexture(tex: Texture): void {
@@ -135,6 +169,7 @@ export class OrganicTerrainRenderer {
   }
 
   rebuildTerrainMesh(showDebugGrid: boolean = false, dirtyBox?: { minX: number; maxX: number; minY: number; maxY: number }): void {
+    const t0 = performance.now();
     const data = this.terrainData;
     const originX = data.originX;
     const originY = data.originY;
@@ -466,5 +501,11 @@ export class OrganicTerrainRenderer {
       }
       this.debugGridGraphics.stroke({ color: 0xf97316, width: 2.0, alpha: 0.95 });
     }
+
+    const dt = performance.now() - t0;
+    this.rebuildCount++;
+    this.lastRebuildDurationMs = dt;
+    this.totalRebuildTimeMs += dt;
+    this.rebuildDurations.push(dt);
   }
 }

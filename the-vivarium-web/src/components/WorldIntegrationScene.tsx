@@ -30,6 +30,8 @@ export const WorldIntegrationScene: React.FC = () => {
   const terrainDataRef = useRef<OrganicTerrainData>(new OrganicTerrainData());
   const terrainRendererRef = useRef<OrganicTerrainRenderer | null>(null);
   const cameraRef = useRef<CameraController | null>(null);
+  const aquaticRendererRef = useRef<AquaticRenderer | null>(null);
+  const weatherRendererRef = useRef<WeatherRenderer | null>(null);
 
   // Interactive Tools & Camera Preset State
   const [currentTool, setCurrentTool] = useState<'SELECT' | 'DIG' | 'FILL'>('SELECT');
@@ -79,6 +81,7 @@ export const WorldIntegrationScene: React.FC = () => {
     let lastTime = performance.now();
     let frameCount = 0;
     let fpsTimer = 0;
+    let cleanupListeners: (() => void) | null = null;
 
     const init = async () => {
       if (!containerRef.current) return;
@@ -118,6 +121,7 @@ export const WorldIntegrationScene: React.FC = () => {
       // 1. SKY & DISTANT HORIZON LAYER (Behind everything)
       const weatherSystem = weatherSystemRef.current;
       const weatherRenderer = new WeatherRenderer(weatherSystem, 3200, 1600);
+      weatherRendererRef.current = weatherRenderer;
       weatherRenderer.container.position.set(-1600, -900);
       worldStage.addChild(weatherRenderer.container);
 
@@ -140,6 +144,7 @@ export const WorldIntegrationScene: React.FC = () => {
       } catch (e) {
         console.warn('Weather textures load fallback:', e);
       }
+      if (!active) return;
 
       // 2. SUBTERRANEAN ORGANIC TERRAIN & CAVE CAVITIES
       const terrainData = terrainDataRef.current;
@@ -164,16 +169,17 @@ export const WorldIntegrationScene: React.FC = () => {
       } catch (e) {
         console.warn('Soil texture fallback:', e);
       }
+      if (!active) return;
       terrainRenderer.rebuildTerrainMesh(false);
 
       // 3. ANCIENT OAK DUAL-PASS SANDWICH ASSEMBLY (V5 & V2)
-      // Pass 1: Roots placed BEHIND solid soil, inside the excavated cavity group
+      // Pass 1: Roots placed BEHIND solid soil, inside the subterranean group (above cavity background)
       // Pass 2: Trunk Buttress placed IN FRONT of solid soil
       const trunkGroundY = terrainData.getSurfaceY(0);
 
-      // Root layer group placed right behind terrain mask
+      // Root layer group placed inside terrain container between cavity background and soil
       const rootBackGroup = new Container();
-      worldStage.addChildAt(rootBackGroup, worldStage.getChildIndex(terrainRenderer.container));
+      terrainRenderer.addSubterraneanLayer(rootBackGroup);
 
       // Trunk & Foliage front group placed in front of terrain
       const trunkFrontGroup = new Container();
@@ -315,6 +321,7 @@ export const WorldIntegrationScene: React.FC = () => {
       // 5. AQUATIC BASIN & WATERFALL SUBSYSTEM
       const aquaticSystem = aquaticSystemRef.current;
       const aquaticRenderer = new AquaticRenderer(aquaticSystem);
+      aquaticRendererRef.current = aquaticRenderer;
       worldStage.addChild(aquaticRenderer.container);
 
       // Load PACK-004 Real Aquatic Textures
@@ -336,6 +343,7 @@ export const WorldIntegrationScene: React.FC = () => {
       } catch (e) {
         console.warn('Aquatic textures load fallback:', e);
       }
+      if (!active) return;
 
       // Interactive Dig/Fill cursor preview indicator
       const previewIndicator = new Graphics();
@@ -434,16 +442,48 @@ export const WorldIntegrationScene: React.FC = () => {
         container.addEventListener('pointerleave', handlePointerLeave);
         container.addEventListener('wheel', handleWheel, { passive: false });
         container.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        cleanupListeners = () => {
+          container.removeEventListener('pointerdown', handlePointerDown);
+          window.removeEventListener('pointermove', handlePointerMove);
+          window.removeEventListener('pointerup', handlePointerUp);
+          container.removeEventListener('pointerleave', handlePointerLeave);
+          container.removeEventListener('wheel', handleWheel);
+        };
       }
 
-      // Expose debug handles on window for automated QA and profiling
-      (window as unknown as Record<string, unknown>).__TERRAIN_RENDERER__ = terrainRenderer;
-      (window as unknown as Record<string, unknown>).__TERRAIN_DATA__ = terrainData;
-      (window as unknown as Record<string, unknown>).__CAMERA__ = camera;
-      (window as unknown as Record<string, unknown>).__AQUATIC_RENDERER__ = aquaticRenderer;
-      (window as unknown as Record<string, unknown>).__AQUATIC_SYSTEM__ = aquaticSystem;
-      (window as unknown as Record<string, unknown>).__WEATHER_RENDERER__ = weatherRenderer;
-      (window as unknown as Record<string, unknown>).__WEATHER_SYSTEM__ = weatherSystem;
+      // Expose debug handles as dynamic getters on window for automated QA and profiling
+      const isQaMode = import.meta.env.DEV || window.location.search.includes('mode=integration');
+      if (isQaMode) {
+        Object.defineProperty(window, '__CAMERA__', {
+          get: () => cameraRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__TERRAIN_RENDERER__', {
+          get: () => terrainRendererRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__TERRAIN_DATA__', {
+          get: () => terrainDataRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__AQUATIC_RENDERER__', {
+          get: () => aquaticRendererRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__AQUATIC_SYSTEM__', {
+          get: () => aquaticSystemRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__WEATHER_RENDERER__', {
+          get: () => weatherRendererRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__WEATHER_SYSTEM__', {
+          get: () => weatherSystemRef.current,
+          configurable: true,
+        });
+      }
 
       // Main Loop
       const loop = (currentTime: number) => {
@@ -516,14 +556,25 @@ export const WorldIntegrationScene: React.FC = () => {
     init();
 
     return () => {
+      active = false;
       cancelAnimationFrame(animId);
+      if (cleanupListeners) {
+        cleanupListeners();
+      }
       if (pixiApp) {
         try {
-          pixiApp.destroy(true);
+          pixiApp.destroy(true, { children: true });
         } catch (e) {
           console.warn('Pixi destroy cleanup:', e);
         }
       }
+      delete (window as unknown as Record<string, unknown>).__CAMERA__;
+      delete (window as unknown as Record<string, unknown>).__TERRAIN_RENDERER__;
+      delete (window as unknown as Record<string, unknown>).__TERRAIN_DATA__;
+      delete (window as unknown as Record<string, unknown>).__AQUATIC_RENDERER__;
+      delete (window as unknown as Record<string, unknown>).__AQUATIC_SYSTEM__;
+      delete (window as unknown as Record<string, unknown>).__WEATHER_RENDERER__;
+      delete (window as unknown as Record<string, unknown>).__WEATHER_SYSTEM__;
     };
   }, []);
 
@@ -718,6 +769,7 @@ export const WorldIntegrationScene: React.FC = () => {
           {[0, 1, 2, 5].map((s) => (
             <button
               key={s}
+              data-testid={`btn-speed-${s}`}
               onClick={() => setTimeSpeed(s)}
               className={`px-2 py-1 rounded-lg font-mono text-[11px] transition ${
                 timeSpeed === s ? 'bg-amber-500 text-neutral-950 font-bold' : 'bg-white/5 hover:bg-white/10 text-neutral-300'

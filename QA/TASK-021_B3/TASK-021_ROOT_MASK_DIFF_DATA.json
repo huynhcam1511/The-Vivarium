@@ -1,0 +1,16 @@
+{
+  "test": "TASK-021 Oak V5 Root Mask Cavity Visual Verification",
+  "cavityBoundingBox": {
+    "minX": 680,
+    "maxX": 920,
+    "minY": 440,
+    "maxY": 640
+  },
+  "rootZoneChangedPixels": 44234,
+  "recoveredUnfilledPixels": 0,
+  "verificationCriteria": {
+    "minExposedRootPixels": 4000,
+    "maxUnfilledPixels": 10
+  },
+  "verificationVerdict": "PASS_AUTHENTIC_ROOT_EXPOSURE_AND_RECOVER"
+}
