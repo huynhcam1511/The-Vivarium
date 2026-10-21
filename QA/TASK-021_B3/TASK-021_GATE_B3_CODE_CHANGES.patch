@@ -1,0 +1,439 @@
+diff --git a/the-vivarium-web/src/aquatic/AquaticRenderer.ts b/the-vivarium-web/src/aquatic/AquaticRenderer.ts
+index 29246ab..55b6308 100644
+--- a/the-vivarium-web/src/aquatic/AquaticRenderer.ts
++++ b/the-vivarium-web/src/aquatic/AquaticRenderer.ts
+@@ -33,6 +33,7 @@ export class AquaticRenderer {
+   private fernTex: Texture | null = null;
+ 
+   private sim: AquaticSystem;
++  private lakeBasinRendered: boolean = false;
+ 
+   constructor(sim: AquaticSystem) {
+     this.sim = sim;
+@@ -147,8 +148,9 @@ export class AquaticRenderer {
+ 
+   update(dt: number): void {
+     this.renderWaterfall(dt);
+-    if (this.sim.timeElapsed < 0.1 || Math.abs(this.sim.waterLevelOffset) > 0.05) {
++    if (!this.lakeBasinRendered) {
+       this.renderLakeBasinAndSediment();
++      this.lakeBasinRendered = true;
+     }
+     this.renderSubmergedFlora();
+     this.renderWaterColumns();
+diff --git a/the-vivarium-web/src/components/WorldIntegrationScene.tsx b/the-vivarium-web/src/components/WorldIntegrationScene.tsx
+index 1487045..1b15dc0 100644
+--- a/the-vivarium-web/src/components/WorldIntegrationScene.tsx
++++ b/the-vivarium-web/src/components/WorldIntegrationScene.tsx
+@@ -436,6 +436,15 @@ export const WorldIntegrationScene: React.FC = () => {
+         container.addEventListener('contextmenu', (e) => e.preventDefault());
+       }
+ 
++      // Expose debug handles on window for automated QA and profiling
++      (window as unknown as Record<string, unknown>).__TERRAIN_RENDERER__ = terrainRenderer;
++      (window as unknown as Record<string, unknown>).__TERRAIN_DATA__ = terrainData;
++      (window as unknown as Record<string, unknown>).__CAMERA__ = camera;
++      (window as unknown as Record<string, unknown>).__AQUATIC_RENDERER__ = aquaticRenderer;
++      (window as unknown as Record<string, unknown>).__AQUATIC_SYSTEM__ = aquaticSystem;
++      (window as unknown as Record<string, unknown>).__WEATHER_RENDERER__ = weatherRenderer;
++      (window as unknown as Record<string, unknown>).__WEATHER_SYSTEM__ = weatherSystem;
++
+       // Main Loop
+       const loop = (currentTime: number) => {
+         const dt = Math.min(0.1, (currentTime - lastTime) / 1000);
+diff --git a/the-vivarium-web/src/engine/CameraController.ts b/the-vivarium-web/src/engine/CameraController.ts
+index f073474..ee08ef6 100644
+--- a/the-vivarium-web/src/engine/CameraController.ts
++++ b/the-vivarium-web/src/engine/CameraController.ts
+@@ -14,13 +14,13 @@ export class CameraController {
+   zoom: number = 0.82;
+   targetZoom: number = 0.82;
+   minZoom: number = 0.45;
+-  maxZoom: number = 2.4;
++  maxZoom: number = 4.5;
+ 
+   // World boundary constraints
+-  readonly worldMinX: number = 0;
+-  readonly worldMaxX: number = 1920;
+-  readonly worldMinY: number = 0;
+-  readonly worldMaxY: number = 1440; // 640 surface + 800 subterranean
++  readonly worldMinX: number = -1600;
++  readonly worldMaxX: number = 2400;
++  readonly worldMinY: number = -1000;
++  readonly worldMaxY: number = 1600; // 640 surface + 800 subterranean
+ 
+   // Drag pan state
+   isDragging: boolean = false;
+diff --git a/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts b/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts
+index a23a665..e8a6af1 100644
+--- a/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts
++++ b/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts
+@@ -79,17 +79,17 @@ export class OrganicTerrainRenderer {
+     }
+   }
+ 
+-  setUndergroundStrata(clayTex: Texture, peatTex: Texture, pebbleTex?: Texture): void {
++  setUndergroundStrata(clayTex: Texture, peatTex: Texture, pebbleTex?: Texture, blendMaskTex?: Texture): void {
+     if (!this.clayTilingLayer) {
+       this.clayTilingLayer = new TilingSprite({
+         texture: clayTex,
+         width: 2400,
+-        height: 320,
++        height: 380,
+       });
+       this.clayTilingLayer.anchor.set(0.5, 0.0);
+-      this.clayTilingLayer.position.set(0, 180); // Clay strata below loam
++      this.clayTilingLayer.position.set(0, 160); // Clay strata below loam
+       this.clayTilingLayer.tileScale.set(0.5, 0.5);
+-      this.clayTilingLayer.alpha = 0.55;
++      this.clayTilingLayer.alpha = 0.52;
+       this.soilContainer.addChild(this.clayTilingLayer);
+     }
+ 
+@@ -97,15 +97,29 @@ export class OrganicTerrainRenderer {
+       this.peatTilingLayer = new TilingSprite({
+         texture: peatTex,
+         width: 2400,
+-        height: 400,
++        height: 480,
+       });
+       this.peatTilingLayer.anchor.set(0.5, 0.0);
+-      this.peatTilingLayer.position.set(0, 480); // Deep bedrock peat strata
++      this.peatTilingLayer.position.set(0, 440); // Deep bedrock peat strata
+       this.peatTilingLayer.tileScale.set(0.5, 0.5);
+-      this.peatTilingLayer.alpha = 0.70;
++      this.peatTilingLayer.alpha = 0.68;
+       this.soilContainer.addChild(this.peatTilingLayer);
+     }
+ 
++    // Organic transition blend layer at clay/peat boundary (Y: 420 - 480)
++    if (blendMaskTex) {
++      const blendLayer = new TilingSprite({
++        texture: blendMaskTex,
++        width: 2400,
++        height: 120,
++      });
++      blendLayer.anchor.set(0.5, 0.5);
++      blendLayer.position.set(0, 445);
++      blendLayer.tileScale.set(0.65, 0.65);
++      blendLayer.alpha = 0.42;
++      this.soilContainer.addChild(blendLayer);
++    }
++
+     if (pebbleTex && !this.pebbleTilingLayer) {
+       this.pebbleTilingLayer = new TilingSprite({
+         texture: pebbleTex,
+@@ -115,15 +129,11 @@ export class OrganicTerrainRenderer {
+       this.pebbleTilingLayer.anchor.set(0.5, 0.0);
+       this.pebbleTilingLayer.position.set(12, 120);
+       this.pebbleTilingLayer.tileScale.set(0.45, 0.45);
+-      this.pebbleTilingLayer.alpha = 0.35;
++      this.pebbleTilingLayer.alpha = 0.32;
+       this.soilContainer.addChild(this.pebbleTilingLayer);
+     }
+   }
+ 
+-  /**
+-   * High-Performance Marching Squares Mesh Rebuild
+-   * Supports dirty-region optimization to eliminate frame time spikes (< 1.5ms per dig)
+-   */
+   rebuildTerrainMesh(showDebugGrid: boolean = false, dirtyBox?: { minX: number; maxX: number; minY: number; maxY: number }): void {
+     const data = this.terrainData;
+     const originX = data.originX;
+@@ -222,13 +232,22 @@ export class OrganicTerrainRenderer {
+     this.maskGraphics.clear();
+     const boundarySegments: { x1: number; y1: number; x2: number; y2: number }[] = [];
+ 
+-    // Marching Squares polygon generation
++    const lerp = (v0: number, v1: number) => {
++      const denom = v1 - v0;
++      if (Math.abs(denom) < 0.0001) return 0.5;
++      return Math.max(0.0, Math.min(1.0, (iso - v0) / denom));
++    };
++
++    // HIGH PERFORMANCE RUN-LENGTH ENCODED MARCHING SQUARES
+     for (let j = 0; j < subRows; j++) {
+       const y0 = originY + j * step;
+       const y1 = y0 + step;
+       const rowIdx = j * (subCols + 1);
+       const nextRowIdx = rowIdx + (subCols + 1);
+ 
++      let runStartX = -1;
++      let runWidth = 0;
++
+       for (let i = 0; i < subCols; i++) {
+         const x0 = originX + i * step;
+         const x1 = x0 + step;
+@@ -244,101 +263,107 @@ export class OrganicTerrainRenderer {
+         const bBL = dBL >= iso ? 1 : 0;
+         const caseIdx = (bTL << 3) | (bTR << 2) | (bBR << 1) | bBL;
+ 
+-        if (caseIdx === 0) continue;
+-
+         if (caseIdx === 15) {
+-          this.maskGraphics.rect(x0 - 0.2, y0 - 0.2, step + 0.4, step + 0.4);
+-          this.maskGraphics.fill({ color: 0xffffff });
+-          continue;
+-        }
++          if (runStartX === -1) {
++            runStartX = x0;
++            runWidth = step;
++          } else {
++            runWidth += step;
++          }
++        } else {
++          if (runStartX !== -1) {
++            this.maskGraphics.rect(runStartX - 0.2, y0 - 0.2, runWidth + 0.4, step + 0.4);
++            runStartX = -1;
++            runWidth = 0;
++          }
+ 
+-        const lerp = (v0: number, v1: number) => {
+-          const denom = v1 - v0;
+-          if (Math.abs(denom) < 0.0001) return 0.5;
+-          return Math.max(0.0, Math.min(1.0, (iso - v0) / denom));
+-        };
+-
+-        const topX = x0 + step * lerp(dTL, dTR);
+-        const rightY = y0 + step * lerp(dTR, dBR);
+-        const bottomX = x0 + step * lerp(dBL, dBR);
+-        const leftY = y0 + step * lerp(dTL, dBL);
+-
+-        let polyPts: { x: number; y: number }[] = [];
+-
+-        switch (caseIdx) {
+-          case 1:
+-            polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
+-            boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
+-            break;
+-          case 2:
+-            polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
+-            boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
+-            break;
+-          case 3:
+-            polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: x1, y: rightY }, { x: x1, y: y1 }];
+-            boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
+-            break;
+-          case 4:
+-            polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
+-            boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
+-            break;
+-          case 5:
+-            polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
+-            this.maskGraphics.poly(polyPts);
+-            this.maskGraphics.fill({ color: 0xffffff });
+-            polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
+-            boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
+-            boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
+-            break;
+-          case 6:
+-            polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x1, y: y1 }];
+-            boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
+-            break;
+-          case 7:
+-            polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }, { x: x0, y: y1 }, { x: x1, y: y1 }];
+-            boundarySegments.push({ x1: topX, y1: y0, x2: x0, y2: leftY });
+-            break;
+-          case 8:
+-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
+-            boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
+-            break;
+-          case 9:
+-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
+-            boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
+-            break;
+-          case 10:
+-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
+-            this.maskGraphics.poly(polyPts);
+-            this.maskGraphics.fill({ color: 0xffffff });
+-            polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
+-            boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
+-            boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
+-            break;
+-          case 11:
+-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x1, y: rightY }, { x: x1, y: y1 }, { x: x0, y: y1 }];
+-            boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
+-            break;
+-          case 12:
+-            polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: x0, y: leftY }];
+-            boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
+-            break;
+-          case 13:
+-            polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
+-            boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
+-            break;
+-          case 14:
+-            polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x0, y: leftY }];
+-            boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
+-            break;
+-        }
++          if (caseIdx === 0) continue;
++
++          const topX = x0 + step * lerp(dTL, dTR);
++          const rightY = y0 + step * lerp(dTR, dBR);
++          const bottomX = x0 + step * lerp(dBL, dBR);
++          const leftY = y0 + step * lerp(dTL, dBL);
++
++          let polyPts: { x: number; y: number }[] = [];
++
++          switch (caseIdx) {
++            case 1:
++              polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
++              boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
++              break;
++            case 2:
++              polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
++              boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
++              break;
++            case 3:
++              polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: x1, y: rightY }, { x: x1, y: y1 }];
++              boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
++              break;
++            case 4:
++              polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
++              boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
++              break;
++            case 5:
++              polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
++              this.maskGraphics.poly(polyPts);
++              polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
++              boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
++              boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
++              break;
++            case 6:
++              polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x1, y: y1 }];
++              boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
++              break;
++            case 7:
++              polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }, { x: x0, y: y1 }, { x: x1, y: y1 }];
++              boundarySegments.push({ x1: topX, y1: y0, x2: x0, y2: leftY });
++              break;
++            case 8:
++              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
++              boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
++              break;
++            case 9:
++              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
++              boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
++              break;
++            case 10:
++              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
++              this.maskGraphics.poly(polyPts);
++              polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
++              boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
++              boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
++              break;
++            case 11:
++              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x1, y: rightY }, { x: x1, y: y1 }, { x: x0, y: y1 }];
++              boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
++              break;
++            case 12:
++              polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: x0, y: leftY }];
++              boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
++              break;
++            case 13:
++              polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
++              boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
++              break;
++            case 14:
++              polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x0, y: leftY }];
++              boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
++              break;
++          }
+ 
+-        if (polyPts.length > 0) {
+-          this.maskGraphics.poly(polyPts);
+-          this.maskGraphics.fill({ color: 0xffffff });
++          if (polyPts.length > 0) {
++            this.maskGraphics.poly(polyPts);
++          }
+         }
+       }
++      if (runStartX !== -1) {
++        this.maskGraphics.rect(runStartX - 0.2, y0 - 0.2, runWidth + 0.4, step + 0.4);
++      }
+     }
+ 
++    // SINGLE BATCHED FILL CALL FOR ENTIRE MESH MASK!
++    this.maskGraphics.fill({ color: 0xffffff });
++
+     // =========================================================================
+     // 3. ORGANIC NATURAL CUTAWAY SHADING (Reduced contrast, soft warm umber)
+     // =========================================================================
+diff --git a/the-vivarium-web/src/weather/WeatherRenderer.ts b/the-vivarium-web/src/weather/WeatherRenderer.ts
+index 53868cf..eac8514 100644
+--- a/the-vivarium-web/src/weather/WeatherRenderer.ts
++++ b/the-vivarium-web/src/weather/WeatherRenderer.ts
+@@ -35,6 +35,7 @@ interface CloudLayer {
+ export class WeatherRenderer {
+   public container: Container;
+ 
++  private skyBaseGraphics: Graphics;
+   private skyTintGraphics: Graphics;
+   private distantMountainsGraphics: Graphics;
+   private cloudGraphics: Graphics;
+@@ -69,6 +70,7 @@ export class WeatherRenderer {
+ 
+     this.container = new Container();
+ 
++    this.skyBaseGraphics = new Graphics();
+     this.skyTintGraphics = new Graphics();
+     this.distantMountainsGraphics = new Graphics();
+     this.cloudGraphics = new Graphics();
+@@ -79,6 +81,7 @@ export class WeatherRenderer {
+     this.lightningGraphics = new Graphics();
+ 
+     // Layer stack ordering
++    this.container.addChild(this.skyBaseGraphics);
+     this.container.addChild(this.skyTintGraphics);
+     this.container.addChild(this.distantMountainsGraphics);
+     this.container.addChild(this.cloudGraphics);
+@@ -197,6 +200,7 @@ export class WeatherRenderer {
+     const state = this.weatherSystem.getWeatherState();
+     const wind = this.weatherSystem.getWind();
+ 
++    this.renderSkyBase(state, timeOfDay);
+     this.renderSkyTint(state, timeOfDay);
+     this.renderDistantMountains(state);
+     this.renderClouds(dt, state, wind.speed);
+@@ -206,6 +210,40 @@ export class WeatherRenderer {
+     this.renderLightning(state);
+   }
+ 
++  private renderSkyBase(state: ReturnType<WeatherSystem['getWeatherState']>, _timeOfDay: number): void {
++    this.skyBaseGraphics.clear();
++    // Hand-painted vibrant sky atmospheric base
++    let topColor = 0x3a86c8;
++    let botColor = 0x8ecae6;
++
++    if (state.currentWeather === 'STORMY_TEMPEST') {
++      topColor = 0x1b2838;
++      botColor = 0x3d5a80;
++    } else if (state.currentWeather === 'HEATWAVE') {
++      topColor = 0xe07a5f;
++      botColor = 0xf4a261;
++    } else if (state.currentWeather === 'AUTUMN_BREEZE') {
++      topColor = 0x457b9d;
++      botColor = 0xa8dadc;
++    } else if (state.currentWeather === 'FOGGY_MIST') {
++      topColor = 0x6c757d;
++      botColor = 0xadb5bd;
++    }
++
++    const steps = 16;
++    const h = this.viewHeight;
++    const stepH = h / steps;
++    for (let s = 0; s < steps; s++) {
++      const t = s / steps;
++      const r = Math.round(((topColor >> 16) & 0xff) * (1 - t) + ((botColor >> 16) & 0xff) * t);
++      const g = Math.round(((topColor >> 8) & 0xff) * (1 - t) + ((botColor >> 8) & 0xff) * t);
++      const b = Math.round((topColor & 0xff) * (1 - t) + (botColor & 0xff) * t);
++      const col = (r << 16) | (g << 8) | b;
++      this.skyBaseGraphics.rect(-200, s * stepH, this.viewWidth + 400, stepH + 1);
++      this.skyBaseGraphics.fill({ color: col });
++    }
++  }
++
+   private renderSkyTint(state: ReturnType<WeatherSystem['getWeatherState']>, _timeOfDay: number): void {
+     this.skyTintGraphics.clear();
+ 
