@@ -436,6 +436,15 @@ export const WorldIntegrationScene: React.FC = () => {
         container.addEventListener('contextmenu', (e) => e.preventDefault());
       }
 
+      // Expose debug handles on window for automated QA and profiling
+      (window as unknown as Record<string, unknown>).__TERRAIN_RENDERER__ = terrainRenderer;
+      (window as unknown as Record<string, unknown>).__TERRAIN_DATA__ = terrainData;
+      (window as unknown as Record<string, unknown>).__CAMERA__ = camera;
+      (window as unknown as Record<string, unknown>).__AQUATIC_RENDERER__ = aquaticRenderer;
+      (window as unknown as Record<string, unknown>).__AQUATIC_SYSTEM__ = aquaticSystem;
+      (window as unknown as Record<string, unknown>).__WEATHER_RENDERER__ = weatherRenderer;
+      (window as unknown as Record<string, unknown>).__WEATHER_SYSTEM__ = weatherSystem;
+
       // Main Loop
       const loop = (currentTime: number) => {
         const dt = Math.min(0.1, (currentTime - lastTime) / 1000);

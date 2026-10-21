@@ -14,13 +14,13 @@ export class CameraController {
   zoom: number = 0.82;
   targetZoom: number = 0.82;
   minZoom: number = 0.45;
-  maxZoom: number = 2.4;
+  maxZoom: number = 4.5;
 
   // World boundary constraints
-  readonly worldMinX: number = 0;
-  readonly worldMaxX: number = 1920;
-  readonly worldMinY: number = 0;
-  readonly worldMaxY: number = 1440; // 640 surface + 800 subterranean
+  readonly worldMinX: number = -1600;
+  readonly worldMaxX: number = 2400;
+  readonly worldMinY: number = -1000;
+  readonly worldMaxY: number = 1600; // 640 surface + 800 subterranean
 
   // Drag pan state
   isDragging: boolean = false;

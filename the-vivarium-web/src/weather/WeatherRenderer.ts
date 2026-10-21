@@ -35,6 +35,7 @@ interface CloudLayer {
 export class WeatherRenderer {
   public container: Container;
 
+  private skyBaseGraphics: Graphics;
   private skyTintGraphics: Graphics;
   private distantMountainsGraphics: Graphics;
   private cloudGraphics: Graphics;
@@ -69,6 +70,7 @@ export class WeatherRenderer {
 
     this.container = new Container();
 
+    this.skyBaseGraphics = new Graphics();
     this.skyTintGraphics = new Graphics();
     this.distantMountainsGraphics = new Graphics();
     this.cloudGraphics = new Graphics();
@@ -79,6 +81,7 @@ export class WeatherRenderer {
     this.lightningGraphics = new Graphics();
 
     // Layer stack ordering
+    this.container.addChild(this.skyBaseGraphics);
     this.container.addChild(this.skyTintGraphics);
     this.container.addChild(this.distantMountainsGraphics);
     this.container.addChild(this.cloudGraphics);
@@ -197,6 +200,7 @@ export class WeatherRenderer {
     const state = this.weatherSystem.getWeatherState();
     const wind = this.weatherSystem.getWind();
 
+    this.renderSkyBase(state, timeOfDay);
     this.renderSkyTint(state, timeOfDay);
     this.renderDistantMountains(state);
     this.renderClouds(dt, state, wind.speed);
@@ -204,6 +208,40 @@ export class WeatherRenderer {
     this.renderFallingLeaves(dt, wind.speed, state.currentWeather);
     this.renderPrecipitation(dt, state, wind);
     this.renderLightning(state);
+  }
+
+  private renderSkyBase(state: ReturnType<WeatherSystem['getWeatherState']>, _timeOfDay: number): void {
+    this.skyBaseGraphics.clear();
+    // Hand-painted vibrant sky atmospheric base
+    let topColor = 0x3a86c8;
+    let botColor = 0x8ecae6;
+
+    if (state.currentWeather === 'STORMY_TEMPEST') {
+      topColor = 0x1b2838;
+      botColor = 0x3d5a80;
+    } else if (state.currentWeather === 'HEATWAVE') {
+      topColor = 0xe07a5f;
+      botColor = 0xf4a261;
+    } else if (state.currentWeather === 'AUTUMN_BREEZE') {
+      topColor = 0x457b9d;
+      botColor = 0xa8dadc;
+    } else if (state.currentWeather === 'FOGGY_MIST') {
+      topColor = 0x6c757d;
+      botColor = 0xadb5bd;
+    }
+
+    const steps = 16;
+    const h = this.viewHeight;
+    const stepH = h / steps;
+    for (let s = 0; s < steps; s++) {
+      const t = s / steps;
+      const r = Math.round(((topColor >> 16) & 0xff) * (1 - t) + ((botColor >> 16) & 0xff) * t);
+      const g = Math.round(((topColor >> 8) & 0xff) * (1 - t) + ((botColor >> 8) & 0xff) * t);
+      const b = Math.round((topColor & 0xff) * (1 - t) + (botColor & 0xff) * t);
+      const col = (r << 16) | (g << 8) | b;
+      this.skyBaseGraphics.rect(-200, s * stepH, this.viewWidth + 400, stepH + 1);
+      this.skyBaseGraphics.fill({ color: col });
+    }
   }
 
   private renderSkyTint(state: ReturnType<WeatherSystem['getWeatherState']>, _timeOfDay: number): void {

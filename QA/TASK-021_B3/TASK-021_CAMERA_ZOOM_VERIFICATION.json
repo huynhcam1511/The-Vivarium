@@ -1,0 +1,48 @@
+{
+  "verified": true,
+  "zoomLevels": {
+    "zoom1x": {
+      "zoom": 1,
+      "stageScale": 1,
+      "stagePos": {
+        "x": 800,
+        "y": 680
+      },
+      "targetObject": {
+        "worldX": 0,
+        "worldY": -180,
+        "expectedSizeOnScreen": 1
+      }
+    },
+    "zoom2x": {
+      "zoom": 2,
+      "stageScale": 2,
+      "stagePos": {
+        "x": 800,
+        "y": 860
+      },
+      "targetObject": {
+        "worldX": 0,
+        "worldY": -180,
+        "expectedSizeOnScreen": 2
+      }
+    },
+    "zoom4x": {
+      "zoom": 4,
+      "stageScale": 4,
+      "stagePos": {
+        "x": 800,
+        "y": 1220
+      },
+      "targetObject": {
+        "worldX": 0,
+        "worldY": -180,
+        "expectedSizeOnScreen": 4
+      }
+    }
+  },
+  "ratioCheck": {
+    "zoom2x_to_1x": 2,
+    "zoom4x_to_1x": 4
+  }
+}

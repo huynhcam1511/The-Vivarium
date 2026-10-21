@@ -79,17 +79,17 @@ export class OrganicTerrainRenderer {
     }
   }
 
-  setUndergroundStrata(clayTex: Texture, peatTex: Texture, pebbleTex?: Texture): void {
+  setUndergroundStrata(clayTex: Texture, peatTex: Texture, pebbleTex?: Texture, blendMaskTex?: Texture): void {
     if (!this.clayTilingLayer) {
       this.clayTilingLayer = new TilingSprite({
         texture: clayTex,
         width: 2400,
-        height: 320,
+        height: 380,
       });
       this.clayTilingLayer.anchor.set(0.5, 0.0);
-      this.clayTilingLayer.position.set(0, 180); // Clay strata below loam
+      this.clayTilingLayer.position.set(0, 160); // Clay strata below loam
       this.clayTilingLayer.tileScale.set(0.5, 0.5);
-      this.clayTilingLayer.alpha = 0.55;
+      this.clayTilingLayer.alpha = 0.52;
       this.soilContainer.addChild(this.clayTilingLayer);
     }
 
@@ -97,13 +97,27 @@ export class OrganicTerrainRenderer {
       this.peatTilingLayer = new TilingSprite({
         texture: peatTex,
         width: 2400,
-        height: 400,
+        height: 480,
       });
       this.peatTilingLayer.anchor.set(0.5, 0.0);
-      this.peatTilingLayer.position.set(0, 480); // Deep bedrock peat strata
+      this.peatTilingLayer.position.set(0, 440); // Deep bedrock peat strata
       this.peatTilingLayer.tileScale.set(0.5, 0.5);
-      this.peatTilingLayer.alpha = 0.70;
+      this.peatTilingLayer.alpha = 0.68;
       this.soilContainer.addChild(this.peatTilingLayer);
+    }
+
+    // Organic transition blend layer at clay/peat boundary (Y: 420 - 480)
+    if (blendMaskTex) {
+      const blendLayer = new TilingSprite({
+        texture: blendMaskTex,
+        width: 2400,
+        height: 120,
+      });
+      blendLayer.anchor.set(0.5, 0.5);
+      blendLayer.position.set(0, 445);
+      blendLayer.tileScale.set(0.65, 0.65);
+      blendLayer.alpha = 0.42;
+      this.soilContainer.addChild(blendLayer);
     }
 
     if (pebbleTex && !this.pebbleTilingLayer) {
@@ -115,15 +129,11 @@ export class OrganicTerrainRenderer {
       this.pebbleTilingLayer.anchor.set(0.5, 0.0);
       this.pebbleTilingLayer.position.set(12, 120);
       this.pebbleTilingLayer.tileScale.set(0.45, 0.45);
-      this.pebbleTilingLayer.alpha = 0.35;
+      this.pebbleTilingLayer.alpha = 0.32;
       this.soilContainer.addChild(this.pebbleTilingLayer);
     }
   }
 
-  /**
-   * High-Performance Marching Squares Mesh Rebuild
-   * Supports dirty-region optimization to eliminate frame time spikes (< 1.5ms per dig)
-   */
   rebuildTerrainMesh(showDebugGrid: boolean = false, dirtyBox?: { minX: number; maxX: number; minY: number; maxY: number }): void {
     const data = this.terrainData;
     const originX = data.originX;
@@ -222,12 +232,21 @@ export class OrganicTerrainRenderer {
     this.maskGraphics.clear();
     const boundarySegments: { x1: number; y1: number; x2: number; y2: number }[] = [];
 
-    // Marching Squares polygon generation
+    const lerp = (v0: number, v1: number) => {
+      const denom = v1 - v0;
+      if (Math.abs(denom) < 0.0001) return 0.5;
+      return Math.max(0.0, Math.min(1.0, (iso - v0) / denom));
+    };
+
+    // HIGH PERFORMANCE RUN-LENGTH ENCODED MARCHING SQUARES
     for (let j = 0; j < subRows; j++) {
       const y0 = originY + j * step;
       const y1 = y0 + step;
       const rowIdx = j * (subCols + 1);
       const nextRowIdx = rowIdx + (subCols + 1);
+
+      let runStartX = -1;
+      let runWidth = 0;
 
       for (let i = 0; i < subCols; i++) {
         const x0 = originX + i * step;
@@ -244,100 +263,106 @@ export class OrganicTerrainRenderer {
         const bBL = dBL >= iso ? 1 : 0;
         const caseIdx = (bTL << 3) | (bTR << 2) | (bBR << 1) | bBL;
 
-        if (caseIdx === 0) continue;
-
         if (caseIdx === 15) {
-          this.maskGraphics.rect(x0 - 0.2, y0 - 0.2, step + 0.4, step + 0.4);
-          this.maskGraphics.fill({ color: 0xffffff });
-          continue;
-        }
+          if (runStartX === -1) {
+            runStartX = x0;
+            runWidth = step;
+          } else {
+            runWidth += step;
+          }
+        } else {
+          if (runStartX !== -1) {
+            this.maskGraphics.rect(runStartX - 0.2, y0 - 0.2, runWidth + 0.4, step + 0.4);
+            runStartX = -1;
+            runWidth = 0;
+          }
 
-        const lerp = (v0: number, v1: number) => {
-          const denom = v1 - v0;
-          if (Math.abs(denom) < 0.0001) return 0.5;
-          return Math.max(0.0, Math.min(1.0, (iso - v0) / denom));
-        };
+          if (caseIdx === 0) continue;
 
-        const topX = x0 + step * lerp(dTL, dTR);
-        const rightY = y0 + step * lerp(dTR, dBR);
-        const bottomX = x0 + step * lerp(dBL, dBR);
-        const leftY = y0 + step * lerp(dTL, dBL);
+          const topX = x0 + step * lerp(dTL, dTR);
+          const rightY = y0 + step * lerp(dTR, dBR);
+          const bottomX = x0 + step * lerp(dBL, dBR);
+          const leftY = y0 + step * lerp(dTL, dBL);
 
-        let polyPts: { x: number; y: number }[] = [];
+          let polyPts: { x: number; y: number }[] = [];
 
-        switch (caseIdx) {
-          case 1:
-            polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
-            boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
-            break;
-          case 2:
-            polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
-            boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
-            break;
-          case 3:
-            polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: x1, y: rightY }, { x: x1, y: y1 }];
-            boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
-            break;
-          case 4:
-            polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
-            boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
-            break;
-          case 5:
-            polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
+          switch (caseIdx) {
+            case 1:
+              polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
+              boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
+              break;
+            case 2:
+              polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
+              boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
+              break;
+            case 3:
+              polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: x1, y: rightY }, { x: x1, y: y1 }];
+              boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
+              break;
+            case 4:
+              polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
+              boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
+              break;
+            case 5:
+              polyPts = [{ x: x0, y: y1 }, { x: x0, y: leftY }, { x: bottomX, y: y1 }];
+              this.maskGraphics.poly(polyPts);
+              polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
+              boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
+              boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
+              break;
+            case 6:
+              polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x1, y: y1 }];
+              boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
+              break;
+            case 7:
+              polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }, { x: x0, y: y1 }, { x: x1, y: y1 }];
+              boundarySegments.push({ x1: topX, y1: y0, x2: x0, y2: leftY });
+              break;
+            case 8:
+              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
+              boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
+              break;
+            case 9:
+              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
+              boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
+              break;
+            case 10:
+              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
+              this.maskGraphics.poly(polyPts);
+              polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
+              boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
+              boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
+              break;
+            case 11:
+              polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x1, y: rightY }, { x: x1, y: y1 }, { x: x0, y: y1 }];
+              boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
+              break;
+            case 12:
+              polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: x0, y: leftY }];
+              boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
+              break;
+            case 13:
+              polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
+              boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
+              break;
+            case 14:
+              polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x0, y: leftY }];
+              boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
+              break;
+          }
+
+          if (polyPts.length > 0) {
             this.maskGraphics.poly(polyPts);
-            this.maskGraphics.fill({ color: 0xffffff });
-            polyPts = [{ x: x1, y: y0 }, { x: x1, y: rightY }, { x: topX, y: y0 }];
-            boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
-            boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
-            break;
-          case 6:
-            polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x1, y: y1 }];
-            boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
-            break;
-          case 7:
-            polyPts = [{ x: x1, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }, { x: x0, y: y1 }, { x: x1, y: y1 }];
-            boundarySegments.push({ x1: topX, y1: y0, x2: x0, y2: leftY });
-            break;
-          case 8:
-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
-            boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
-            break;
-          case 9:
-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
-            boundarySegments.push({ x1: topX, y1: y0, x2: bottomX, y2: y1 });
-            break;
-          case 10:
-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x0, y: leftY }];
-            this.maskGraphics.poly(polyPts);
-            this.maskGraphics.fill({ color: 0xffffff });
-            polyPts = [{ x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x1, y: rightY }];
-            boundarySegments.push({ x1: x0, y1: leftY, x2: topX, y2: y0 });
-            boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
-            break;
-          case 11:
-            polyPts = [{ x: x0, y: y0 }, { x: topX, y: y0 }, { x: x1, y: rightY }, { x: x1, y: y1 }, { x: x0, y: y1 }];
-            boundarySegments.push({ x1: topX, y1: y0, x2: x1, y2: rightY });
-            break;
-          case 12:
-            polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: x0, y: leftY }];
-            boundarySegments.push({ x1: x0, y1: leftY, x2: x1, y2: rightY });
-            break;
-          case 13:
-            polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: rightY }, { x: bottomX, y: y1 }, { x: x0, y: y1 }];
-            boundarySegments.push({ x1: bottomX, y1: y1, x2: x1, y2: rightY });
-            break;
-          case 14:
-            polyPts = [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: bottomX, y: y1 }, { x: x0, y: leftY }];
-            boundarySegments.push({ x1: x0, y1: leftY, x2: bottomX, y2: y1 });
-            break;
-        }
-
-        if (polyPts.length > 0) {
-          this.maskGraphics.poly(polyPts);
-          this.maskGraphics.fill({ color: 0xffffff });
+          }
         }
       }
+      if (runStartX !== -1) {
+        this.maskGraphics.rect(runStartX - 0.2, y0 - 0.2, runWidth + 0.4, step + 0.4);
+      }
     }
+
+    // SINGLE BATCHED FILL CALL FOR ENTIRE MESH MASK!
+    this.maskGraphics.fill({ color: 0xffffff });
 
     // =========================================================================
     // 3. ORGANIC NATURAL CUTAWAY SHADING (Reduced contrast, soft warm umber)

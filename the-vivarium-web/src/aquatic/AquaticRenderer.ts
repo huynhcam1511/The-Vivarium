@@ -33,6 +33,7 @@ export class AquaticRenderer {
   private fernTex: Texture | null = null;
 
   private sim: AquaticSystem;
+  private lakeBasinRendered: boolean = false;
 
   constructor(sim: AquaticSystem) {
     this.sim = sim;
@@ -147,8 +148,9 @@ export class AquaticRenderer {
 
   update(dt: number): void {
     this.renderWaterfall(dt);
-    if (this.sim.timeElapsed < 0.1 || Math.abs(this.sim.waterLevelOffset) > 0.05) {
+    if (!this.lakeBasinRendered) {
       this.renderLakeBasinAndSediment();
+      this.lakeBasinRendered = true;
     }
     this.renderSubmergedFlora();
     this.renderWaterColumns();
