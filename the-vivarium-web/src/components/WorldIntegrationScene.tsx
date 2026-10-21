@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Application, Container, Sprite, Assets } from 'pixi.js';
+import { Application, Container, Sprite, Assets, Graphics } from 'pixi.js';
 import { CameraController } from '../engine/CameraController';
 import { OrganicTerrainData } from '../engine/OrganicTerrainData';
 import { OrganicTerrainRenderer } from '../engine/OrganicTerrainRenderer';
@@ -117,8 +117,8 @@ export const WorldIntegrationScene: React.FC = () => {
 
       // 1. SKY & DISTANT HORIZON LAYER (Behind everything)
       const weatherSystem = weatherSystemRef.current;
-      const weatherRenderer = new WeatherRenderer(weatherSystem, 2600, 1200);
-      weatherRenderer.container.position.set(-1300, -700);
+      const weatherRenderer = new WeatherRenderer(weatherSystem, 3200, 1600);
+      weatherRenderer.container.position.set(-1600, -900);
       worldStage.addChild(weatherRenderer.container);
 
       // 2. SUBTERRANEAN ORGANIC TERRAIN & CAVE CAVITIES
@@ -136,29 +136,67 @@ export const WorldIntegrationScene: React.FC = () => {
       }
       terrainRenderer.rebuildTerrainMesh(false);
 
-      // 3. ANCIENT OAK 4-LAYER ASSEMBLY & V5 PROTOTYPE
+      // 3. ANCIENT OAK DUAL-PASS SANDWICH ASSEMBLY (V5 & V2)
+      // Pass 1: Roots placed BEHIND solid soil, inside the excavated cavity group
+      // Pass 2: Trunk Buttress placed IN FRONT of solid soil
       const trunkGroundY = terrainData.getSurfaceY(0);
 
+      // Root layer group placed right behind terrain mask
+      const rootBackGroup = new Container();
+      worldStage.addChildAt(rootBackGroup, worldStage.getChildIndex(terrainRenderer.container));
+
+      // Trunk & Foliage front group placed in front of terrain
+      const trunkFrontGroup = new Container();
+      worldStage.addChild(trunkFrontGroup);
+
       try {
-        const rootsTex = await Assets.load('/assets/source/env_tree_root_deep_cluster_v2.png');
-        const trunkTex = await Assets.load('/assets/source/env_tree_ancient_trunk_base_v2.png');
-        const boughTex = await Assets.load('/assets/source/env_tree_bough_main_moss_v2.png');
-        const canopyTex = await Assets.load('/assets/source/env_foliage_canopy_clump_01_v2.png');
+        const unifiedV5 = await Assets.load('/assets/qa_temp_v5/env_tree_ancient_unified_v5.png').catch(() => null);
+        const rootsTex = await Assets.load('/assets/source/env_tree_root_deep_cluster_v2.png').catch(() => null);
+        const trunkTex = await Assets.load('/assets/source/env_tree_ancient_trunk_base_v2.png').catch(() => null);
+        const boughTex = await Assets.load('/assets/source/env_tree_bough_main_moss_v2.png').catch(() => null);
+        const canopyTex = await Assets.load('/assets/source/env_foliage_canopy_clump_01_v2.png').catch(() => null);
 
-        if (rootsTex) {
-          const rootsSpr = new Sprite(rootsTex);
-          rootsSpr.anchor.set(0.5, 0.0);
-          rootsSpr.scale.set(0.5);
-          rootsSpr.position.set(0, trunkGroundY - 4);
-          worldStage.addChild(rootsSpr);
-        }
+        if (unifiedV5) {
+          // === DUAL-PASS SANDWICH RENDERING WITH DYNAMIC MASKING (TASK-017 V5 SPEC) ===
+          // Pass 1: Root Spr (Z: 30) - Clipped below groundline, hidden behind solid soil
+          const rootSpr = new Sprite(unifiedV5);
+          rootSpr.anchor.set(0.5, 0.55);
+          rootSpr.scale.set(0.5);
+          rootSpr.position.set(0, trunkGroundY);
 
-        if (trunkTex) {
-          const trunkSpr = new Sprite(trunkTex);
-          trunkSpr.anchor.set(0.5, 1.0);
+          const rootMask = new Graphics();
+          rootMask.rect(-600, trunkGroundY - 8, 1200, 1000).fill({ color: 0xffffff });
+          rootSpr.mask = rootMask;
+          rootSpr.addChild(rootMask);
+          rootBackGroup.addChild(rootSpr);
+
+          // Pass 2: Trunk Spr (Z: 45) - Clipped above groundline, placed in front of terrain
+          const trunkSpr = new Sprite(unifiedV5);
+          trunkSpr.anchor.set(0.5, 0.55);
           trunkSpr.scale.set(0.5);
           trunkSpr.position.set(0, trunkGroundY);
-          worldStage.addChild(trunkSpr);
+
+          const trunkMask = new Graphics();
+          trunkMask.rect(-600, trunkGroundY - 950, 1200, 962).fill({ color: 0xffffff });
+          trunkSpr.mask = trunkMask;
+          trunkSpr.addChild(trunkMask);
+          trunkFrontGroup.addChild(trunkSpr);
+        } else {
+          // Fallback to V2 4-layer assembly
+          if (rootsTex) {
+            const rootsSpr = new Sprite(rootsTex);
+            rootsSpr.anchor.set(0.5, 0.0);
+            rootsSpr.scale.set(0.5);
+            rootsSpr.position.set(0, trunkGroundY - 4);
+            rootBackGroup.addChild(rootsSpr);
+          }
+          if (trunkTex) {
+            const trunkSpr = new Sprite(trunkTex);
+            trunkSpr.anchor.set(0.5, 1.0);
+            trunkSpr.scale.set(0.5);
+            trunkSpr.position.set(0, trunkGroundY);
+            trunkFrontGroup.addChild(trunkSpr);
+          }
         }
 
         if (boughTex) {
@@ -166,7 +204,7 @@ export const WorldIntegrationScene: React.FC = () => {
           boughSpr.anchor.set(0.15, 0.65);
           boughSpr.scale.set(0.5);
           boughSpr.position.set(-10, trunkGroundY - 285);
-          worldStage.addChild(boughSpr);
+          trunkFrontGroup.addChild(boughSpr);
         }
 
         if (canopyTex) {
@@ -174,7 +212,7 @@ export const WorldIntegrationScene: React.FC = () => {
           canopySpr.anchor.set(0.5, 0.5);
           canopySpr.scale.set(0.5);
           canopySpr.position.set(80, trunkGroundY - 410);
-          worldStage.addChild(canopySpr);
+          trunkFrontGroup.addChild(canopySpr);
         }
       } catch (e) {
         console.warn('Oak assets load fallback:', e);
@@ -235,6 +273,10 @@ export const WorldIntegrationScene: React.FC = () => {
       const aquaticRenderer = new AquaticRenderer(aquaticSystem);
       worldStage.addChild(aquaticRenderer.container);
 
+      // Interactive Dig/Fill cursor preview indicator
+      const previewIndicator = new Graphics();
+      worldStage.addChild(previewIndicator);
+
       // Event Listeners for Camera Drag / Dig-Fill
       const handlePointerDown = (e: PointerEvent) => {
         if (e.button === 1 || e.button === 2) {
@@ -258,10 +300,40 @@ export const WorldIntegrationScene: React.FC = () => {
 
       const handlePointerMove = (e: PointerEvent) => {
         camera.handleMouseMove(e.clientX, e.clientY);
+
+        // Smart Selection & Preview: update preview indicator
+        previewIndicator.clear();
+        if (currentToolRef.current === 'DIG' || currentToolRef.current === 'FILL') {
+          const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
+          const cellX = Math.floor((worldPos.x + 960) / 32);
+          const cellY = Math.floor((worldPos.y + 200) / 32);
+
+          if (cellX >= 0 && cellX < terrainData.cols && cellY >= 0 && cellY < terrainData.rows) {
+            const wx = cellX * 32 - 960;
+            const wy = cellY * 32 - 200;
+            const isDig = currentToolRef.current === 'DIG';
+
+            previewIndicator.roundRect(wx + 1, wy + 1, 30, 30, 4);
+            previewIndicator.stroke({
+              color: isDig ? 0xffb703 : 0x06d6a0,
+              width: 2.0,
+              alpha: 0.9,
+            });
+            previewIndicator.roundRect(wx + 2, wy + 2, 28, 28, 3);
+            previewIndicator.fill({
+              color: isDig ? 0xffb703 : 0x06d6a0,
+              alpha: 0.25,
+            });
+          }
+        }
       };
 
       const handlePointerUp = () => {
         camera.handleMouseUp();
+      };
+
+      const handlePointerLeave = () => {
+        previewIndicator.clear();
       };
 
       const handleWheel = (e: WheelEvent) => {
@@ -274,6 +346,7 @@ export const WorldIntegrationScene: React.FC = () => {
         container.addEventListener('pointerdown', handlePointerDown);
         window.addEventListener('pointermove', handlePointerMove);
         window.addEventListener('pointerup', handlePointerUp);
+        container.addEventListener('pointerleave', handlePointerLeave);
         container.addEventListener('wheel', handleWheel, { passive: false });
         container.addEventListener('contextmenu', (e) => e.preventDefault());
       }
@@ -315,11 +388,12 @@ export const WorldIntegrationScene: React.FC = () => {
         weatherRenderer.update(effectiveDt);
         camera.update(effectiveDt);
 
-        // 4. Update Telemetry
+        // 4. Update Telemetry (Using 0.8s moving window for accurate, stable FPS measurement)
         frameCount++;
         fpsTimer += dt;
-        if (fpsTimer >= 0.25) {
+        if (fpsTimer >= 0.8) {
           const st = weatherSystem.getWeatherState();
+          const measuredFps = Math.min(60, Math.round(frameCount / fpsTimer));
           setTelemetry({
             weather: st.currentWeather,
             temperature: st.temperature,
@@ -330,7 +404,7 @@ export const WorldIntegrationScene: React.FC = () => {
             waterLevel: aquaticSystem.getWaterLevel(),
             waterOffset: aquaticSystem.waterLevelOffset,
             waterClarity: aquaticSystem.waterClarity,
-            fps: Math.round(frameCount / fpsTimer),
+            fps: measuredFps,
             cameraPos: `X: ${camera.x.toFixed(0)}, Y: ${camera.y.toFixed(0)}`,
             cameraZoom: camera.zoom,
             digQueueCount: terrainData.getExcavatedCount(),
