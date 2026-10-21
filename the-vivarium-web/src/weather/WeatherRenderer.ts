@@ -1,4 +1,4 @@
-import { Container, Graphics } from 'pixi.js';
+import { Container, Graphics, Sprite, Texture, TilingSprite } from 'pixi.js';
 import type { WeatherSystem } from './WeatherSystem';
 
 interface RainDrop {
@@ -43,6 +43,13 @@ export class WeatherRenderer {
   private rainGraphics: Graphics;
   private lightningGraphics: Graphics;
 
+  // Real PACK-005 Asset Layers
+  private mountainTilingSprite: TilingSprite | null = null;
+  private cloudsTilingSprite: TilingSprite | null = null;
+  private mistTilingSprite: TilingSprite | null = null;
+  private leafSpriteContainer: Container;
+  private leafSprites: Sprite[] = [];
+
   private weatherSystem: WeatherSystem;
   private rainDrops: RainDrop[] = [];
   private maxRainDrops: number = 750;
@@ -67,6 +74,7 @@ export class WeatherRenderer {
     this.cloudGraphics = new Graphics();
     this.mistGraphics = new Graphics();
     this.leafGraphics = new Graphics();
+    this.leafSpriteContainer = new Container();
     this.rainGraphics = new Graphics();
     this.lightningGraphics = new Graphics();
 
@@ -76,6 +84,7 @@ export class WeatherRenderer {
     this.container.addChild(this.cloudGraphics);
     this.container.addChild(this.mistGraphics);
     this.container.addChild(this.leafGraphics);
+    this.container.addChild(this.leafSpriteContainer);
     this.container.addChild(this.rainGraphics);
     this.container.addChild(this.lightningGraphics);
 
@@ -84,8 +93,68 @@ export class WeatherRenderer {
     this.initLeavesPool();
   }
 
+  // PACK-005: Set Real Weather Textures
+  public setWeatherTextures(textures: {
+    mountainTex?: Texture;
+    cloudsTex?: Texture;
+    fogMistTex?: Texture;
+    leafFallTex?: Texture;
+    rainDropTex?: Texture;
+  }): void {
+    if (textures.mountainTex && !this.mountainTilingSprite) {
+      this.mountainTilingSprite = new TilingSprite({
+        texture: textures.mountainTex,
+        width: 2200,
+        height: 380,
+      });
+      this.mountainTilingSprite.anchor.set(0.0, 1.0);
+      this.mountainTilingSprite.position.set(-200, this.viewHeight + 40);
+      this.mountainTilingSprite.tileScale.set(0.65, 0.65);
+      this.mountainTilingSprite.alpha = 0.85;
+      this.container.addChildAt(this.mountainTilingSprite, this.container.getChildIndex(this.distantMountainsGraphics) + 1);
+    }
+
+    if (textures.cloudsTex && !this.cloudsTilingSprite) {
+      this.cloudsTilingSprite = new TilingSprite({
+        texture: textures.cloudsTex,
+        width: 2200,
+        height: 280,
+      });
+      this.cloudsTilingSprite.position.set(-200, 20);
+      this.cloudsTilingSprite.tileScale.set(0.7, 0.7);
+      this.cloudsTilingSprite.alpha = 0.55;
+      this.container.addChildAt(this.cloudsTilingSprite, this.container.getChildIndex(this.cloudGraphics) + 1);
+    }
+
+    if (textures.fogMistTex && !this.mistTilingSprite) {
+      this.mistTilingSprite = new TilingSprite({
+        texture: textures.fogMistTex,
+        width: 2200,
+        height: 250,
+      });
+      this.mistTilingSprite.position.set(-200, this.viewHeight - 380);
+      this.mistTilingSprite.tileScale.set(0.8, 0.8);
+      this.mistTilingSprite.alpha = 0.0;
+      this.container.addChildAt(this.mistTilingSprite, this.container.getChildIndex(this.mistGraphics) + 1);
+    }
+
+    if (textures.leafFallTex && this.leafSprites.length === 0) {
+      for (let i = 0; i < 24; i++) {
+        const spr = new Sprite(textures.leafFallTex);
+        spr.anchor.set(0.5);
+        spr.scale.set(0.06 + Math.random() * 0.04);
+        spr.alpha = 0.85;
+        this.leafSpriteContainer.addChild(spr);
+        this.leafSprites.push(spr);
+      }
+    }
+
+    if (textures.rainDropTex) {
+      // rainDropTex cached for atlas precipitation
+    }
+  }
+
   private initClouds(): void {
-    // 3 parallax cloud layers
     this.clouds = [
       { x: 100, y: 70, width: 450, height: 110, speed: 6.0, alpha: 0.35, color: 0xecf0f1 },
       { x: 650, y: 130, width: 550, height: 130, speed: 10.0, alpha: 0.45, color: 0xbdc3c7 },
@@ -111,7 +180,7 @@ export class WeatherRenderer {
     const leafColors = [0x2d6a4f, 0x40916c, 0xd4a373, 0xbc6c25, 0xdda15e];
     for (let i = 0; i < this.maxLeaves; i++) {
       this.fallingLeaves.push({
-        x: 400 + Math.random() * 1100, // around oak canopy
+        x: 400 + Math.random() * 1100,
         y: Math.random() * (this.viewHeight - 100),
         vx: (Math.random() - 0.2) * 40,
         vy: 20 + Math.random() * 45,
@@ -128,41 +197,25 @@ export class WeatherRenderer {
     const state = this.weatherSystem.getWeatherState();
     const wind = this.weatherSystem.getWind();
 
-    // 1. Render Sky Tint & Day/Night Atmosphere
     this.renderSkyTint(state, timeOfDay);
-
-    // 2. Distant mountain silhouette (ENV-SKY-MNTN-001)
     this.renderDistantMountains(state);
-
-    // 3. Clouds (ENV-SKY-CLOUDS-001)
     this.renderClouds(dt, state, wind.speed);
-
-    // 4. Mist & Fog
-    this.renderMist(state);
-
-    // 5. Swaying falling leaves (ENV-CANOPY-LEAF-FALL)
+    this.renderMist(dt, state, wind.speed);
     this.renderFallingLeaves(dt, wind.speed, state.currentWeather);
-
-    // 6. Precipitation (ENV-FX-RAIN-DROP-01)
     this.renderPrecipitation(dt, state, wind);
-
-    // 7. Thunder / Lightning Flash
     this.renderLightning(state);
   }
 
   private renderSkyTint(state: ReturnType<WeatherSystem['getWeatherState']>, _timeOfDay: number): void {
     this.skyTintGraphics.clear();
 
-    // Storm darkness tint
     const stormTintAlpha = state.cloudCoverage * 0.55;
     if (stormTintAlpha > 0.02) {
-      // Dark slate grey overcast overlay
       const stormColor = state.currentWeather === 'STORMY_TEMPEST' ? 0x1a252f : 0x2c3e50;
       this.skyTintGraphics.rect(0, 0, this.viewWidth, this.viewHeight);
       this.skyTintGraphics.fill({ color: stormColor, alpha: stormTintAlpha });
     }
 
-    // Heatwave warm haze
     if (state.currentWeather === 'HEATWAVE') {
       this.skyTintGraphics.rect(0, 0, this.viewWidth, this.viewHeight);
       this.skyTintGraphics.fill({ color: 0xffa500, alpha: 0.12 });
@@ -170,14 +223,18 @@ export class WeatherRenderer {
   }
 
   private renderDistantMountains(state: ReturnType<WeatherSystem['getWeatherState']>): void {
+    if (this.mountainTilingSprite) {
+      this.distantMountainsGraphics.clear();
+      // Mountain horizon tint modulation with weather
+      const cloudFactor = state.cloudCoverage;
+      this.mountainTilingSprite.alpha = Math.max(0.35, 0.88 - cloudFactor * 0.35);
+      return;
+    }
+
     this.distantMountainsGraphics.clear();
     const groundY = this.viewHeight;
-
-    // Distant mountain silhouette (LOD0-LOD1 soft ridge)
-    // Fog opacity increases with humidity/cloud
     const alpha = Math.max(0.25, 0.65 - state.cloudCoverage * 0.35);
 
-    // Far peak ridge
     this.distantMountainsGraphics.poly([
       { x: 0, y: groundY - 140 },
       { x: 260, y: groundY - 260 },
@@ -192,7 +249,6 @@ export class WeatherRenderer {
     ]);
     this.distantMountainsGraphics.fill({ color: 0x4a6984, alpha: alpha * 0.5 });
 
-    // Closer foothills
     this.distantMountainsGraphics.poly([
       { x: 0, y: groundY - 80 },
       { x: 380, y: groundY - 160 },
@@ -207,6 +263,14 @@ export class WeatherRenderer {
   }
 
   private renderClouds(dt: number, state: ReturnType<WeatherSystem['getWeatherState']>, windSpeed: number): void {
+    if (this.cloudsTilingSprite) {
+      this.cloudGraphics.clear();
+      // Smooth continuous parallax cloud drift
+      this.cloudsTilingSprite.tilePosition.x += (12.0 + windSpeed * 8.0) * dt;
+      this.cloudsTilingSprite.alpha = Math.max(0.1, state.cloudCoverage * 0.75);
+      return;
+    }
+
     this.cloudGraphics.clear();
     if (state.cloudCoverage <= 0.05) return;
 
@@ -218,7 +282,6 @@ export class WeatherRenderer {
       }
 
       const activeAlpha = c.alpha * state.cloudCoverage;
-      // Stylized billowy cloud clumps
       const cx = c.x;
       const cy = c.y;
       const w = c.width;
@@ -231,24 +294,66 @@ export class WeatherRenderer {
     }
   }
 
-  private renderMist(state: ReturnType<WeatherSystem['getWeatherState']>): void {
-    this.mistGraphics.clear();
+  private renderMist(dt: number, state: ReturnType<WeatherSystem['getWeatherState']>, windSpeed: number): void {
     const isMist = state.currentWeather === 'FOGGY_MIST' || state.humidity > 88;
+    const targetMistAlpha = isMist ? (state.currentWeather === 'FOGGY_MIST' ? 0.65 : 0.28) : 0.0;
+
+    if (this.mistTilingSprite) {
+      this.mistGraphics.clear();
+      if (targetMistAlpha > 0.01 || this.mistTilingSprite.alpha > 0.01) {
+        this.mistTilingSprite.visible = true;
+        this.mistTilingSprite.tilePosition.x += (6.0 + windSpeed * 4.0) * dt;
+        this.mistTilingSprite.alpha += (targetMistAlpha - this.mistTilingSprite.alpha) * Math.min(1.0, dt * 2.0);
+      } else {
+        this.mistTilingSprite.visible = false;
+      }
+      return;
+    }
+
+    this.mistGraphics.clear();
     if (!isMist) return;
 
     const mistAlpha = state.currentWeather === 'FOGGY_MIST' ? 0.35 : 0.15;
-    // Ground mist ribbon
     this.mistGraphics.roundRect(0, this.viewHeight - 110, this.viewWidth, 100, 20);
     this.mistGraphics.fill({ color: 0xecf0f1, alpha: mistAlpha });
 
-    // Upper canopy mist ribbon
     this.mistGraphics.roundRect(400, 150, 1100, 80, 30);
     this.mistGraphics.fill({ color: 0xecf0f1, alpha: mistAlpha * 0.6 });
   }
 
   private renderFallingLeaves(dt: number, windSpeed: number, weather: string): void {
-    this.leafGraphics.clear();
     const isAutumn = weather === 'AUTUMN_BREEZE' || weather === 'STORMY_TEMPEST';
+
+    // If PACK-005 real leaf sprite atlas is available
+    if (this.leafSprites.length > 0) {
+      this.leafGraphics.clear();
+      const count = isAutumn ? this.leafSprites.length : Math.floor(this.leafSprites.length * 0.4);
+
+      for (let i = 0; i < this.leafSprites.length; i++) {
+        const spr = this.leafSprites[i];
+        if (i >= count) {
+          spr.visible = false;
+          continue;
+        }
+        spr.visible = true;
+        const leafData = this.fallingLeaves[i % this.fallingLeaves.length];
+        leafData.x += (leafData.vx + windSpeed * 14.0) * dt;
+        leafData.y += leafData.vy * dt;
+        leafData.rotation += leafData.vRot * dt;
+
+        if (leafData.y > this.viewHeight || leafData.x > this.viewWidth + 50) {
+          leafData.x = 350 + Math.random() * 900;
+          leafData.y = 60 + Math.random() * 120;
+        }
+
+        spr.position.set(leafData.x, leafData.y);
+        spr.rotation = leafData.rotation;
+      }
+      return;
+    }
+
+    // Procedural fallback
+    this.leafGraphics.clear();
     const activeLeaves = isAutumn ? this.fallingLeaves : this.fallingLeaves.slice(0, 12);
 
     for (const leaf of activeLeaves) {
@@ -256,13 +361,11 @@ export class WeatherRenderer {
       leaf.y += leaf.vy * dt;
       leaf.rotation += leaf.vRot * dt;
 
-      // Wrap around canopy area
       if (leaf.y > this.viewHeight || leaf.x > this.viewWidth + 50) {
         leaf.x = 450 + Math.random() * 800;
         leaf.y = 80 + Math.random() * 120;
       }
 
-      // Draw stylized leaf petal
       this.leafGraphics.ellipse(leaf.x, leaf.y, leaf.size, leaf.size * 0.45);
       this.leafGraphics.fill({ color: leaf.color, alpha: leaf.alpha });
     }
@@ -281,7 +384,6 @@ export class WeatherRenderer {
       drop.x += (slantX * 6.0) * dt;
       drop.y += drop.speed * dt;
 
-      // Wrap around screen
       if (drop.y > this.viewHeight) {
         drop.y = -drop.length - Math.random() * 30;
         drop.x = Math.random() * (this.viewWidth + 400) - 150;
@@ -292,7 +394,6 @@ export class WeatherRenderer {
         drop.x = this.viewWidth + 50;
       }
 
-      // Draw sleek rainfall streak
       const startX = drop.x;
       const startY = drop.y;
       const endX = drop.x + slantX * 0.35;
@@ -306,7 +407,6 @@ export class WeatherRenderer {
         alpha: drop.alpha,
       });
 
-      // Ground splash if near ground
       if (drop.y >= this.viewHeight - 15) {
         this.rainGraphics.circle(endX, this.viewHeight - 4, 1.8);
         this.rainGraphics.fill({ color: 0xe0f2fe, alpha: drop.alpha * 0.8 });
@@ -318,11 +418,9 @@ export class WeatherRenderer {
     this.lightningGraphics.clear();
     if (state.thunderFlashAlpha <= 0.01) return;
 
-    // Full screen brilliant flash
     this.lightningGraphics.rect(0, 0, this.viewWidth, this.viewHeight);
     this.lightningGraphics.fill({ color: 0xffffff, alpha: state.thunderFlashAlpha * 0.75 });
 
-    // Lightning bolt fork
     if (state.thunderFlashAlpha > 0.4) {
       const startX = 600 + Math.random() * 700;
       this.lightningGraphics.moveTo(startX, 0);

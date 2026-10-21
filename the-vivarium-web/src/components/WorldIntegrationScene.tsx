@@ -121,16 +121,46 @@ export const WorldIntegrationScene: React.FC = () => {
       weatherRenderer.container.position.set(-1600, -900);
       worldStage.addChild(weatherRenderer.container);
 
+      // Load PACK-005 Real Weather Textures
+      try {
+        const [mountainTex, cloudsTex, fogMistTex, leafFallTex, rainDropTex] = await Promise.all([
+          Assets.load('/assets/environment/weather/env_sky_mountain_001.png').catch(() => null),
+          Assets.load('/assets/environment/weather/env_sky_clouds_001.png').catch(() => null),
+          Assets.load('/assets/environment/weather/env_fx_fog_mist.png').catch(() => null),
+          Assets.load('/assets/environment/weather/env_canopy_leaf_fall.png').catch(() => null),
+          Assets.load('/assets/environment/weather/env_fx_rain_drop_01.png').catch(() => null),
+        ]);
+        weatherRenderer.setWeatherTextures({
+          mountainTex,
+          cloudsTex,
+          fogMistTex,
+          leafFallTex,
+          rainDropTex,
+        });
+      } catch (e) {
+        console.warn('Weather textures load fallback:', e);
+      }
+
       // 2. SUBTERRANEAN ORGANIC TERRAIN & CAVE CAVITIES
       const terrainData = terrainDataRef.current;
       const terrainRenderer = new OrganicTerrainRenderer(terrainData);
       terrainRendererRef.current = terrainRenderer;
       worldStage.addChild(terrainRenderer.container);
 
-      // Try load soil texture
+      // Try load soil & PACK-003 strata textures
       try {
         const soilTex = await Assets.load('/assets/terrain/terrain_soil_dark_loam_v2.png');
         if (soilTex) terrainRenderer.setSoilTexture(soilTex);
+
+        // Load PACK-003 Stratified textures (Clay, Peat, Pebble)
+        const [clayTex, peatTex, pebbleTex] = await Promise.all([
+          Assets.load('/assets/environment/underground/env_terrain_clay_512.png').catch(() => null),
+          Assets.load('/assets/environment/underground/env_terrain_peat_512.png').catch(() => null),
+          Assets.load('/assets/environment/underground/env_pebble_embedded.png').catch(() => null),
+        ]);
+        if (clayTex && peatTex) {
+          terrainRenderer.setUndergroundStrata(clayTex, peatTex, pebbleTex);
+        }
       } catch (e) {
         console.warn('Soil texture fallback:', e);
       }
@@ -287,40 +317,84 @@ export const WorldIntegrationScene: React.FC = () => {
       const aquaticRenderer = new AquaticRenderer(aquaticSystem);
       worldStage.addChild(aquaticRenderer.container);
 
+      // Load PACK-004 Real Aquatic Textures
+      try {
+        const [mudTex, waterfallStreamTex, bluebellTex, mossTex, fernTex] = await Promise.all([
+          Assets.load('/assets/environment/aquatic/env_lake_bottom_mud.png').catch(() => null),
+          Assets.load('/assets/environment/aquatic/env_waterfall_stream.png').catch(() => null),
+          Assets.load('/assets/environment/aquatic/env_flower_bluebell.png').catch(() => null),
+          Assets.load('/assets/environment/aquatic/env_moss_patch.png').catch(() => null),
+          Assets.load('/assets/environment/aquatic/env_fern_cluster.png').catch(() => null),
+        ]);
+        aquaticRenderer.setAquaticTextures({
+          mudTex,
+          waterfallStreamTex,
+          bluebellTex,
+          mossTex,
+          fernTex,
+        });
+      } catch (e) {
+        console.warn('Aquatic textures load fallback:', e);
+      }
+
       // Interactive Dig/Fill cursor preview indicator
       const previewIndicator = new Graphics();
       worldStage.addChild(previewIndicator);
 
-      // Event Listeners for Camera Drag / Dig-Fill
+      // Event Listeners for Camera Drag / Dig-Fill (Optimized Dirty-Region Rebuild & Precise 32px Grid Alignment)
+      let isMouseDown = false;
+      let lastDragTime = 0;
+
+      const performDigFillAt = (worldPos: { x: number; y: number }) => {
+        const r = 28;
+        const dirtyBox = {
+          minX: worldPos.x - r - 10,
+          maxX: worldPos.x + r + 10,
+          minY: worldPos.y - r - 10,
+          maxY: worldPos.y + r + 10,
+        };
+        if (currentToolRef.current === 'DIG') {
+          terrainData.digRadius(worldPos.x, worldPos.y, r);
+          terrainRenderer.rebuildTerrainMesh(false, dirtyBox);
+        } else if (currentToolRef.current === 'FILL') {
+          terrainData.fillRadius(worldPos.x, worldPos.y, r);
+          terrainRenderer.rebuildTerrainMesh(false, dirtyBox);
+        }
+      };
+
       const handlePointerDown = (e: PointerEvent) => {
         if (e.button === 1 || e.button === 2) {
           camera.handleMouseDown(e.clientX, e.clientY, e.button);
         } else if (e.button === 0) {
-          // World click for Dig / Fill
+          isMouseDown = true;
           const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
-          if (currentToolRef.current === 'DIG') {
-            terrainData.digRadius(worldPos.x, worldPos.y, 28);
-            terrainRenderer.rebuildTerrainMesh(false);
-          } else if (currentToolRef.current === 'FILL') {
-            terrainData.fillRadius(worldPos.x, worldPos.y, 28);
-            terrainRenderer.rebuildTerrainMesh(false);
-          }
+          performDigFillAt(worldPos);
         }
       };
 
       const handlePointerMove = (e: PointerEvent) => {
         camera.handleMouseMove(e.clientX, e.clientY);
 
-        // Smart Selection & Preview: update preview indicator
+        const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
+
+        // Continuous drag dig/fill support (throttled to 45ms for buttery smooth 60fps)
+        if (isMouseDown && (currentToolRef.current === 'DIG' || currentToolRef.current === 'FILL')) {
+          const now = performance.now();
+          if (now - lastDragTime > 45) {
+            lastDragTime = now;
+            performDigFillAt(worldPos);
+          }
+        }
+
+        // Smart Selection & Preview: calibrated exactly to terrain grid origin (-1200, 0)
         previewIndicator.clear();
         if (currentToolRef.current === 'DIG' || currentToolRef.current === 'FILL') {
-          const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
-          const cellX = Math.floor((worldPos.x + 960) / 32);
-          const cellY = Math.floor((worldPos.y + 200) / 32);
+          const cellX = Math.floor((worldPos.x - terrainData.originX) / terrainData.cellSize);
+          const cellY = Math.floor((worldPos.y - terrainData.originY) / terrainData.cellSize);
 
           if (cellX >= 0 && cellX < terrainData.cols && cellY >= 0 && cellY < terrainData.rows) {
-            const wx = cellX * 32 - 960;
-            const wy = cellY * 32 - 200;
+            const wx = terrainData.originX + cellX * terrainData.cellSize;
+            const wy = terrainData.originY + cellY * terrainData.cellSize;
             const isDig = currentToolRef.current === 'DIG';
 
             previewIndicator.roundRect(wx + 1, wy + 1, 30, 30, 4);
@@ -339,6 +413,7 @@ export const WorldIntegrationScene: React.FC = () => {
       };
 
       const handlePointerUp = () => {
+        isMouseDown = false;
         camera.handleMouseUp();
       };
 
