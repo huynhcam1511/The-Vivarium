@@ -164,20 +164,34 @@ export const WorldIntegrationScene: React.FC = () => {
           rootSpr.scale.set(0.5);
           rootSpr.position.set(0, trunkGroundY);
 
+          // Pass 1: Root Spr (Z: 30) - Clipped below undulating ground surface contour
+          // Hidden behind solid soil, exposed only when cavity is excavated
           const rootMask = new Graphics();
-          rootMask.rect(-600, trunkGroundY - 8, 1200, 1000).fill({ color: 0xffffff });
+          const rootMaskPts: { x: number; y: number }[] = [];
+          rootMaskPts.push({ x: -600, y: trunkGroundY + 1200 });
+          for (let mx = -600; mx <= 600; mx += 16) {
+            rootMaskPts.push({ x: mx, y: terrainData.getSurfaceY(mx) - 6 });
+          }
+          rootMaskPts.push({ x: 600, y: trunkGroundY + 1200 });
+          rootMask.poly(rootMaskPts).fill({ color: 0xffffff });
           rootSpr.mask = rootMask;
           rootSpr.addChild(rootMask);
           rootBackGroup.addChild(rootSpr);
 
-          // Pass 2: Trunk Spr (Z: 45) - Clipped above groundline, placed in front of terrain
+          // Pass 2: Trunk Spr (Z: 45) - Clipped above undulating groundline with natural root buttress flare
           const trunkSpr = new Sprite(unifiedV5);
           trunkSpr.anchor.set(0.5, 0.55);
           trunkSpr.scale.set(0.5);
           trunkSpr.position.set(0, trunkGroundY);
 
           const trunkMask = new Graphics();
-          trunkMask.rect(-600, trunkGroundY - 950, 1200, 962).fill({ color: 0xffffff });
+          const trunkMaskPts: { x: number; y: number }[] = [];
+          trunkMaskPts.push({ x: -600, y: trunkGroundY - 1200 });
+          trunkMaskPts.push({ x: 600, y: trunkGroundY - 1200 });
+          for (let mx = 600; mx >= -600; mx -= 16) {
+            trunkMaskPts.push({ x: mx, y: terrainData.getSurfaceY(mx) + 10 });
+          }
+          trunkMask.poly(trunkMaskPts).fill({ color: 0xffffff });
           trunkSpr.mask = trunkMask;
           trunkSpr.addChild(trunkMask);
           trunkFrontGroup.addChild(trunkSpr);
@@ -284,15 +298,11 @@ export const WorldIntegrationScene: React.FC = () => {
         } else if (e.button === 0) {
           // World click for Dig / Fill
           const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
-          // Convert to terrain grid coord (origin at Y = 0)
-          const cellX = Math.floor((worldPos.x + 960) / 32);
-          const cellY = Math.floor((worldPos.y + 200) / 32);
-
           if (currentToolRef.current === 'DIG') {
-            terrainData.setSolid(cellX, cellY, false);
+            terrainData.digRadius(worldPos.x, worldPos.y, 28);
             terrainRenderer.rebuildTerrainMesh(false);
           } else if (currentToolRef.current === 'FILL') {
-            terrainData.setSolid(cellX, cellY, true);
+            terrainData.fillRadius(worldPos.x, worldPos.y, 28);
             terrainRenderer.rebuildTerrainMesh(false);
           }
         }

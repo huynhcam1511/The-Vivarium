@@ -73,9 +73,25 @@ export class AquaticRenderer {
     const width = this.sim.config.waterfallWidth;
 
     this.waterfallBackdropGraphics.clear();
-    // Dark wet gorge rock behind waterfall
-    this.waterfallBackdropGraphics.roundRect(wfX - width * 0.7, topY - 10, width * 1.4, botY - topY + 20, 8);
-    this.waterfallBackdropGraphics.fill({ color: 0x1a2634, alpha: 0.95 });
+    // Natural eroded wet gorge rock contour behind waterfall (soft organic taper instead of rigid box)
+    const gorgePts: { x: number; y: number }[] = [];
+    const gSteps = 16;
+    for (let s = 0; s <= gSteps; s++) {
+      const t = s / gSteps;
+      const y = topY - 10 + (botY - topY + 22) * t;
+      const taper = Math.sin(t * Math.PI) * (width * 0.25);
+      const x = wfX - width * 0.65 - taper + Math.sin(t * 8) * 3;
+      gorgePts.push({ x, y });
+    }
+    for (let s = gSteps; s >= 0; s--) {
+      const t = s / gSteps;
+      const y = topY - 10 + (botY - topY + 22) * t;
+      const taper = Math.sin(t * Math.PI) * (width * 0.25);
+      const x = wfX + width * 0.65 + taper - Math.sin(t * 8) * 3;
+      gorgePts.push({ x, y });
+    }
+    this.waterfallBackdropGraphics.poly(gorgePts);
+    this.waterfallBackdropGraphics.fill({ color: 0x18222d, alpha: 0.88 });
 
     this.waterfallStreamGraphics.clear();
     // Cascading water body with animated turbulent flow lines
@@ -97,9 +113,23 @@ export class AquaticRenderer {
       });
     }
 
-    // Sheer outer veil
-    this.waterfallStreamGraphics.roundRect(wfX - width * 0.45, topY, width * 0.9, botY - topY, 4);
-    this.waterfallStreamGraphics.fill({ color: 0x2a6f97, alpha: 0.35 });
+    // Sheer outer mist & water veil with soft tapering drape
+    const veilPts: { x: number; y: number }[] = [];
+    const vSteps = 12;
+    for (let s = 0; s <= vSteps; s++) {
+      const t = s / vSteps;
+      const y = topY + (botY - topY) * t;
+      const flare = Math.sin(t * Math.PI * 0.8) * (width * 0.15);
+      veilPts.push({ x: wfX - width * 0.42 - flare, y });
+    }
+    for (let s = vSteps; s >= 0; s--) {
+      const t = s / vSteps;
+      const y = topY + (botY - topY) * t;
+      const flare = Math.sin(t * Math.PI * 0.8) * (width * 0.15);
+      veilPts.push({ x: wfX + width * 0.42 + flare, y });
+    }
+    this.waterfallStreamGraphics.poly(veilPts);
+    this.waterfallStreamGraphics.fill({ color: 0x2a6f97, alpha: 0.30 });
   }
 
   // 2. RENDER LAKE BASIN & SEDIMENT MUD LAYER
@@ -108,7 +138,6 @@ export class AquaticRenderer {
     const maxX = this.sim.config.basinMaxX;
     const baseY = this.sim.config.surfaceBaseY;
     const maxDepth = this.sim.config.maxDepth;
-    const bottomY = baseY + maxDepth;
 
     this.lakeSedimentMudGraphics.clear();
 
@@ -127,8 +156,14 @@ export class AquaticRenderer {
       sedimentPoints.push({ x, y });
     }
     sedimentPoints.push({ x: maxX, y: baseY });
-    sedimentPoints.push({ x: maxX + 10, y: bottomY + 40 });
-    sedimentPoints.push({ x: minX - 10, y: bottomY + 40 });
+    // Smooth natural subterranean sediment bedrock curve that merges gently with surrounding earth
+    for (let s = steps; s >= 0; s--) {
+      const t = s / steps;
+      const x = minX + (maxX - minX) * t;
+      const depthFactor = Math.sin(t * Math.PI);
+      const y = baseY + 36 + depthFactor * (maxDepth - 6);
+      sedimentPoints.push({ x, y });
+    }
 
     this.lakeSedimentMudGraphics.poly(sedimentPoints);
     this.lakeSedimentMudGraphics.fill({ color: 0x1f1610 }); // Rich organic lake bottom mud
