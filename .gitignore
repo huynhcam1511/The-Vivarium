@@ -6,3 +6,6 @@ export_presets.cfg
 dist/
 *.exe
 *.pck
+
+.worktrees/
+

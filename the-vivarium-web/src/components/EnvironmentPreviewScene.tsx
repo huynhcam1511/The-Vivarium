@@ -156,12 +156,22 @@ export const EnvironmentPreviewScene: React.FC = () => {
       const soilPath = '/assets/terrain/terrain_soil_dark_loam_v2.png';
       const antPath = '/assets/source/char_ant_worker_idle_v2.png';
 
+      // PACK-002-B1 Assets
+      const grassStripPath = '/assets/environment/ground/env_terrain_surface_grass.png';
+      const tuftPath = '/assets/environment/vegetation/env_grass_tuft_green.png';
+      const cloverPath = '/assets/environment/vegetation/env_flower_clover_white.png';
+      const daisyPath = '/assets/environment/vegetation/env_flower_daisy_golden.png';
+
       let texTrunk: any = null;
       let texBough: any = null;
       let texFoliage: any = null;
       let texRoots: any = null;
       let texSoil: any = null;
       let texAnt: any = null;
+      let texGrassStrip: any = null;
+      let texTuft: any = null;
+      let texClover: any = null;
+      let texDaisy: any = null;
 
       try {
         texTrunk = await Assets.load(trunkPath);
@@ -170,6 +180,10 @@ export const EnvironmentPreviewScene: React.FC = () => {
         texRoots = await Assets.load(rootsPath);
         texSoil = await Assets.load(soilPath);
         texAnt = await Assets.load(antPath);
+        texGrassStrip = await Assets.load(grassStripPath);
+        texTuft = await Assets.load(tuftPath);
+        texClover = await Assets.load(cloverPath);
+        texDaisy = await Assets.load(daisyPath);
       } catch (err) {
         console.warn('Asset loading error in environment preview:', err);
       }
@@ -242,6 +256,74 @@ export const EnvironmentPreviewScene: React.FC = () => {
         foliageSprite2.position.set(-160, 40);
         foliageSprite2.alpha = 0.90;
         canopyContainer.addChild(foliageSprite2);
+      }
+
+      // ====================================================================
+      // 4E. PACK-002-B1: GROUND SURFACE & VEGETATION (Z: 50 Grass Strip, Z: 52 Tuft, Z: 55 Flowers)
+      // ====================================================================
+      const vegetationContainer = new Container();
+      worldContainer.addChild(vegetationContainer);
+
+      // 1. Tiling grass strips along undulating surface (Z: 50)
+      if (texGrassStrip) {
+        // We place segments from X = -1024 to X = 1024
+        // Logic width: 512 * 0.5 = 256px per tile
+        const stripLogicWidth = 256;
+        for (let sx = -1024; sx <= 1024; sx += stripLogicWidth) {
+          const sy = terrainData.getSurfaceY(sx + stripLogicWidth * 0.5);
+          const stripSprite = new Sprite(texGrassStrip);
+          stripSprite.anchor.set(0.5, 0.35); // 0.35 aligns the root/dirt transition with surface profile
+          stripSprite.scale.set(0.5);
+          stripSprite.position.set(sx + stripLogicWidth * 0.5, sy);
+          vegetationContainer.addChild(stripSprite);
+        }
+      }
+
+      // 2. Clustered grass tufts and meadow wildflowers (Z: 52 tufts, Z: 55 flowers)
+      if (texTuft || texClover || texDaisy) {
+        const decorPoints = [
+          // Left meadow
+          { x: -550, type: 'clover', scale: 0.5, flip: false },
+          { x: -520, type: 'tuft', scale: 0.5, flip: false },
+          { x: -480, type: 'daisy', scale: 0.48, flip: true },
+          { x: -350, type: 'tuft', scale: 0.52, flip: true },
+          { x: -310, type: 'clover', scale: 0.46, flip: false },
+          { x: -210, type: 'daisy', scale: 0.5, flip: false },
+          { x: -160, type: 'tuft', scale: 0.48, flip: false },
+
+          // Around oak trunk base & roots (X = -90 to +90)
+          { x: -95, type: 'tuft', scale: 0.54, flip: false },
+          { x: -70, type: 'clover', scale: 0.45, flip: false },
+          { x: 75, type: 'tuft', scale: 0.52, flip: true },
+          { x: 105, type: 'daisy', scale: 0.48, flip: false },
+
+          // Right meadow near worker ant (ant is at X = 180)
+          { x: 140, type: 'tuft', scale: 0.5, flip: false },
+          { x: 215, type: 'clover', scale: 0.5, flip: true },
+          { x: 250, type: 'daisy', scale: 0.52, flip: false },
+          { x: 340, type: 'tuft', scale: 0.48, flip: true },
+          { x: 380, type: 'daisy', scale: 0.46, flip: false },
+          { x: 420, type: 'clover', scale: 0.5, flip: false },
+          { x: 520, type: 'tuft', scale: 0.52, flip: false },
+          { x: 560, type: 'daisy', scale: 0.5, flip: true },
+        ];
+
+        decorPoints.forEach((pt) => {
+          const py = terrainData.getSurfaceY(pt.x);
+          let tex = null;
+          if (pt.type === 'tuft') tex = texTuft;
+          else if (pt.type === 'clover') tex = texClover;
+          else if (pt.type === 'daisy') tex = texDaisy;
+
+          if (tex) {
+            const spr = new Sprite(tex);
+            spr.anchor.set(0.5, 0.95); // Plant roots into soil line
+            spr.scale.set(pt.scale);
+            if (pt.flip) spr.scale.x = -pt.scale;
+            spr.position.set(pt.x, py + 3);
+            vegetationContainer.addChild(spr);
+          }
+        });
       }
 
       // ====================================================================
@@ -487,39 +569,12 @@ export const EnvironmentPreviewScene: React.FC = () => {
           </button>
           <button
             onClick={() => {
-              setZoomLevel(1.6);
-              setCameraPos({ x: -450, y: -260 });
-            }}
-            className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-amber-300 transition-all"
-          >
-            🕳️ Hang & Buồng (1.6x)
-          </button>
-          <button
-            onClick={() => {
-              setZoomLevel(1.8);
-              setCameraPos({ x: -480, y: -260 });
-            }}
-            className="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/30 transition-all"
-          >
-            🧪 Test Dig/Fill (Task-014)
-          </button>
-          <button
-            onClick={() => {
               setZoomLevel(2.0);
               setCameraPos({ x: -20, y: 120 });
             }}
             className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-emerald-300 transition-all"
           >
             🌱 Gốc & Mặt Đất (2x)
-          </button>
-          <button
-            onClick={() => {
-              setZoomLevel(2.0);
-              setCameraPos({ x: -750, y: -450 });
-            }}
-            className="px-2.5 py-1 rounded-xl bg-amber-500/25 hover:bg-amber-500/40 text-amber-300 border border-amber-500/30 transition-all"
-          >
-            👑 Buồng Chúa (2x)
           </button>
           <button
             onClick={() => {
@@ -532,12 +587,39 @@ export const EnvironmentPreviewScene: React.FC = () => {
           </button>
           <button
             onClick={() => {
-              setZoomLevel(3.2);
-              setCameraPos({ x: -1280, y: -720 });
+              setZoomLevel(2.5);
+              setCameraPos({ x: -380, y: 320 });
             }}
-            className="px-2.5 py-1 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/40 transition-all"
+            className="px-2.5 py-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/30 transition-all"
           >
-            🔍 Vách Hang (3.2x)
+            🌼 Thảm Thực Vật B1 (2.5x)
+          </button>
+          <button
+            onClick={() => {
+              setZoomLevel(4.0);
+              setCameraPos({ x: -750, y: 480 });
+            }}
+            className="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/30 transition-all"
+          >
+            🌸 Cận Cảnh Cỏ & Hoa B1 (4x)
+          </button>
+          <button
+            onClick={() => {
+              setZoomLevel(4.0);
+              setCameraPos({ x: -1024, y: 480 });
+            }}
+            className="px-2.5 py-1 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/30 transition-all"
+          >
+            🔍 Mối Nối Dải Cỏ (4x)
+          </button>
+          <button
+            onClick={() => {
+              setZoomLevel(1.6);
+              setCameraPos({ x: -450, y: -260 });
+            }}
+            className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-amber-300 transition-all"
+          >
+            🕳️ Hang & Buồng (1.6x)
           </button>
         </div>
 
