@@ -1,0 +1,46 @@
+{
+  "env_terrain_clay_512.png": {
+    "source": "kết_cấu_đất_sét_khô_ẩm_tự_nhiên.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "RGB",
+    "sha256": "2aedbb32a5baced0a2347ab523c1c7500e86456da2122086cf51124f3c777a76",
+    "max_edge_difference_horizontal": 0,
+    "max_edge_difference_vertical": 0
+  },
+  "env_terrain_peat_512.png": {
+    "source": "kết_cấu_đất_than_bùn_ẩm_đậm_màu.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "RGB",
+    "sha256": "3ec298370f5152c173966475708fde2a9fca218a52f1b76479702f261361f129",
+    "max_edge_difference_horizontal": 0,
+    "max_edge_difference_vertical": 0
+  },
+  "env_mask_organic_blend.png": {
+    "source": "kết_cấu_mây_đá_đơn_sắc_trừu_tượng.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "L",
+    "sha256": "98d44b0d90e598f9150ee621aa6e4f8e9238bf8e8eeaec856997d8f98dec9527",
+    "max_edge_difference_horizontal": 0,
+    "max_edge_difference_vertical": 0
+  },
+  "env_pebble_embedded.png": {
+    "source": "cụm_đá_sỏi_trên_nền_trong_suốt.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "RGBA",
+    "sha256": "11b8d776baad6be555279351bbc98bad30b02f6b2859c54675ffc9d90f8f5e4d",
+    "alpha_zero_percent": 84.57,
+    "alpha_partial_percent": 15.1
+  }
+}
