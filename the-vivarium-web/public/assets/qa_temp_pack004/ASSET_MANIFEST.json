@@ -1,0 +1,73 @@
+{
+  "task": "019",
+  "status": "ART CANDIDATE — QA REQUIRED",
+  "files": [
+    {
+      "filename": "env_flower_bluebell.png",
+      "size": [
+        128,
+        128
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        255
+      ],
+      "sha256": "3e1656cd8da3c7a90f03afa0c1e9d9a372554df5d13a056e6ef0bb0b778f151f",
+      "spec": "RGBA,128x128,pivot(0.5,1),prototype"
+    },
+    {
+      "filename": "env_moss_patch.png",
+      "size": [
+        128,
+        128
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        255
+      ],
+      "sha256": "a0202e855249b094f3d981455798caa7ddb32f4bda29ba1d66ba8e78769abafa",
+      "spec": "RGBA,128x128,pivot(0.5,0.5),prototype"
+    },
+    {
+      "filename": "env_fern_cluster.png",
+      "size": [
+        128,
+        128
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        255
+      ],
+      "sha256": "0285e4890be9be8b1d69102d178482a8a4941fbdc62b34a7acfb265d718b5424",
+      "spec": "RGBA,128x128,pivot(0.5,1),prototype"
+    },
+    {
+      "filename": "env_lake_bottom_mud.png",
+      "size": [
+        768,
+        128
+      ],
+      "mode": "RGB",
+      "alpha_minmax": null,
+      "sha256": "b6b0354f3f4ba3e5902bb60fb610c9fb42816bac91e75eb1bfa60eeca564a4c6",
+      "spec": "RGB,768x128,NOT guaranteed seamless"
+    },
+    {
+      "filename": "env_waterfall_stream.png",
+      "size": [
+        128,
+        2640
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        255
+      ],
+      "sha256": "e8cdb97add50633c945786d14b7c7a53d87b3aaf381d7c63957e18d32a4e79f5",
+      "spec": "RGBA,128x2640,6 frames 128x440,verify animation"
+    }
+  ]
+}

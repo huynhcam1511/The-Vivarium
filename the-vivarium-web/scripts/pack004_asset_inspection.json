@@ -1,0 +1,183 @@
+{
+  "env_flower_bluebell.png": {
+    "width": 128,
+    "height": 128,
+    "minAlpha": 0,
+    "maxAlpha": 255,
+    "hasAlphaChannel": true,
+    "zeroAlphaPixels": 9101,
+    "semiAlphaPixels": 6343,
+    "fullAlphaPixels": 940,
+    "bbox": {
+      "minX": 9,
+      "maxX": 118,
+      "minY": 5,
+      "maxY": 123,
+      "w": 110,
+      "h": 119
+    },
+    "avgColor": [
+      109,
+      111,
+      85
+    ],
+    "seamDiffLeftRight": 0,
+    "seamDiffTopBottom": 0
+  },
+  "env_moss_patch.png": {
+    "width": 128,
+    "height": 128,
+    "minAlpha": 0,
+    "maxAlpha": 255,
+    "hasAlphaChannel": true,
+    "zeroAlphaPixels": 12040,
+    "semiAlphaPixels": 4152,
+    "fullAlphaPixels": 192,
+    "bbox": {
+      "minX": 4,
+      "maxX": 123,
+      "minY": 76,
+      "maxY": 123,
+      "w": 120,
+      "h": 48
+    },
+    "avgColor": [
+      100,
+      94,
+      22
+    ],
+    "seamDiffLeftRight": 0,
+    "seamDiffTopBottom": 0
+  },
+  "env_fern_cluster.png": {
+    "width": 128,
+    "height": 128,
+    "minAlpha": 0,
+    "maxAlpha": 255,
+    "hasAlphaChannel": true,
+    "zeroAlphaPixels": 8624,
+    "semiAlphaPixels": 7090,
+    "fullAlphaPixels": 670,
+    "bbox": {
+      "minX": 4,
+      "maxX": 123,
+      "minY": 23,
+      "maxY": 123,
+      "w": 120,
+      "h": 101
+    },
+    "avgColor": [
+      109,
+      115,
+      34
+    ],
+    "seamDiffLeftRight": 0,
+    "seamDiffTopBottom": 0
+  },
+  "env_lake_bottom_mud.png": {
+    "width": 768,
+    "height": 128,
+    "minAlpha": 255,
+    "maxAlpha": 255,
+    "hasAlphaChannel": false,
+    "zeroAlphaPixels": 0,
+    "semiAlphaPixels": 0,
+    "fullAlphaPixels": 98304,
+    "bbox": {
+      "minX": 0,
+      "maxX": 767,
+      "minY": 0,
+      "maxY": 127,
+      "w": 768,
+      "h": 128
+    },
+    "avgColor": [
+      100,
+      79,
+      38
+    ],
+    "seamDiffLeftRight": 5.6,
+    "seamDiffTopBottom": 9.2
+  },
+  "env_waterfall_stream.png": {
+    "width": 128,
+    "height": 2640,
+    "minAlpha": 0,
+    "maxAlpha": 255,
+    "hasAlphaChannel": true,
+    "zeroAlphaPixels": 261443,
+    "semiAlphaPixels": 75514,
+    "fullAlphaPixels": 963,
+    "bbox": {
+      "minX": 4,
+      "maxX": 123,
+      "minY": 150,
+      "maxY": 2487,
+      "w": 120,
+      "h": 2338
+    },
+    "avgColor": [
+      112,
+      131,
+      133
+    ],
+    "seamDiffLeftRight": 0,
+    "seamDiffTopBottom": 0
+  },
+  "waterfall_frames": [
+    {
+      "frame": 0,
+      "nonZeroPixels": 11268,
+      "avgRGB": [
+        111,
+        129,
+        130
+      ]
+    },
+    {
+      "frame": 1,
+      "nonZeroPixels": 11493,
+      "avgRGB": [
+        112,
+        131,
+        133
+      ]
+    },
+    {
+      "frame": 2,
+      "nonZeroPixels": 11476,
+      "avgRGB": [
+        113,
+        132,
+        136
+      ]
+    },
+    {
+      "frame": 3,
+      "nonZeroPixels": 11158,
+      "avgRGB": [
+        114,
+        133,
+        136
+      ]
+    },
+    {
+      "frame": 4,
+      "nonZeroPixels": 11235,
+      "avgRGB": [
+        113,
+        132,
+        134
+      ]
+    },
+    {
+      "frame": 5,
+      "nonZeroPixels": 11044,
+      "avgRGB": [
+        109,
+        129,
+        131
+      ]
+    }
+  ]
+}
