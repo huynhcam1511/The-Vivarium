@@ -1,0 +1,43 @@
+{
+  "status": "CONDITIONAL_CANDIDATE_NOT_ENGINE_APPROVED",
+  "measurements": {
+    "env_tree_ancient_trunk_base_v4.png": {
+      "canvas": [
+        760,
+        800
+      ],
+      "bbox_alpha_gt_10": [
+        4,
+        20,
+        756,
+        795
+      ],
+      "alpha_zero_pct": 49.35
+    },
+    "env_tree_root_deep_cluster_v4.png": {
+      "canvas": [
+        640,
+        920
+      ],
+      "bbox_alpha_gt_10": [
+        4,
+        51,
+        636,
+        890
+      ],
+      "alpha_zero_pct": 33.37
+    }
+  },
+  "assembly": {
+    "scale": 0.5,
+    "root_draw_order": "behind_trunk",
+    "root_top_world_y": 468,
+    "trunk_bottom_world_y": 490,
+    "overlap_world_units": 22
+  },
+  "limitations": [
+    "Derived from V3 imagery, not independently painted at the joint",
+    "Geometric overlap improved; bark continuity and realism require visual/in-engine verification",
+    "Do not replace V2 without QA approval"
+  ]
+}

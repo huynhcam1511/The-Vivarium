@@ -1,0 +1,38 @@
+{
+  "asset_id": "ENV-TREE-ANCIENT-UNIFIED-V5",
+  "status": "CANDIDATE_FOR_IN_ENGINE_QA",
+  "source": "Image-generated unified oak cutout; not composited from two separate tree/root sprites.",
+  "filename": "env_tree_ancient_unified_v5.png",
+  "canvas_px": [
+    1200,
+    1680
+  ],
+  "mode": "RGBA",
+  "source_size_px": [
+    1060,
+    1484
+  ],
+  "scale_for_initial_preview": 0.5,
+  "logical_render_size_at_0_5": [
+    600,
+    840
+  ],
+  "alpha_0_percent": 37.99,
+  "alpha_partial_percent": 62.01,
+  "content_bbox_alpha_gt_10": [
+    20,
+    11,
+    1186,
+    1670
+  ],
+  "edge_touch_count": 0,
+  "source_red_low_alpha_artifact_pixels_removed": 3883,
+  "single_source_silhouette": true,
+  "qa_limitations": [
+    "Visual continuity is inherent in single source image; pixel QA does not establish correct grounding, camera perspective, or in-engine fit.",
+    "Source is 1060x1484 resized to 1200x1680; zoom 4x may soften details.",
+    "Groundline/cross-section attachment and collision/nav behavior must be evaluated in a separate QA scene.",
+    "Branch tips and some small gaps between roots may require manual alpha cleanup after in-engine review.",
+    "Not approved for production until visual and integration QA passes."
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "status": "PROTOTYPE_ONLY_NOT_APPROVED",
+  "reason": "Extracted from a composite image with checkerboard baked in; chroma-masking may remove light flower petals and leave halos. Grass strip is not guaranteed horizontally tileable. Requires visual QA in engine before approval.",
+  "assets": [
+    {
+      "file": "env_terrain_surface_grass.png",
+      "dimensions": [
+        512,
+        96
+      ],
+      "alpha_zero_pct": 32.79,
+      "alpha_partial_pct": 12.66,
+      "bbox": [
+        6,
+        4,
+        506,
+        94
+      ],
+      "source": "Extracted from presentation composite; NOT independently generated art"
+    },
+    {
+      "file": "env_grass_tuft_green.png",
+      "dimensions": [
+        128,
+        128
+      ],
+      "alpha_zero_pct": 49.68,
+      "alpha_partial_pct": 17.43,
+      "bbox": [
+        3,
+        21,
+        125,
+        126
+      ],
+      "source": "Extracted from presentation composite; NOT independently generated art"
+    },
+    {
+      "file": "env_flower_clover_white.png",
+      "dimensions": [
+        128,
+        128
+      ],
+      "alpha_zero_pct": 65.07,
+      "alpha_partial_pct": 14.82,
+      "bbox": [
+        3,
+        35,
+        125,
+        126
+      ],
+      "source": "Extracted from presentation composite; NOT independently generated art"
+    },
+    {
+      "file": "env_flower_daisy_golden.png",
+      "dimensions": [
+        128,
+        128
+      ],
+      "alpha_zero_pct": 50.96,
+      "alpha_partial_pct": 17.66,
+      "bbox": [
+        3,
+        13,
+        125,
+        126
+      ],
+      "source": "Extracted from presentation composite; NOT independently generated art"
+    }
+  ]
+}

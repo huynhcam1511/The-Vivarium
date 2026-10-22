@@ -1,0 +1,76 @@
+{
+  "asset_id": "ENV-TREE-ANCIENT-UNIFIED-V5",
+  "inspection_timestamp": "2026-10-20T21:10:49+07:00",
+  "status": "CONDITIONAL_QA_PASS_PENDING_DIRECTOR_REVIEW",
+  "file_metadata": {
+    "filename": "env_tree_ancient_unified_v5.png",
+    "filepath": "THE_VIVARIUM_TASK_017_UNIFIED_OAK_V5_QA_CANDIDATE/env_tree_ancient_unified_v5.png",
+    "canvas_dimensions_px": [1200, 1680],
+    "file_size_bytes": 3609409,
+    "pixel_format": "Format32bppArgb",
+    "channels": 4,
+    "has_alpha": true
+  },
+  "content_measurements": {
+    "content_bbox_alpha_gt_0": {
+      "min_x": 18,
+      "max_x": 1188,
+      "min_y": 9,
+      "max_y": 1679,
+      "width": 1171,
+      "height": 1671
+    },
+    "content_bbox_alpha_gt_10": {
+      "min_x": 20,
+      "max_x": 1186,
+      "min_y": 11,
+      "max_y": 1670,
+      "width": 1167,
+      "height": 1660
+    },
+    "aspect_ratio_actual": 0.7008,
+    "canvas_aspect_ratio": 0.7143,
+    "alpha_distribution": {
+      "transparent_0_pct": 37.99,
+      "semi_transparent_pct": 62.01,
+      "opaque_255_pct": 0.0,
+      "max_sampled_alpha": 254
+    },
+    "edge_touch_analysis": {
+      "top_border_pixels": 0,
+      "left_border_pixels": 0,
+      "right_border_pixels": 0,
+      "bottom_border_pixels": 13,
+      "bottom_touch_detail": "13 low-alpha pixels (A=1..3) at X=531..543 on Y=1679 (fine taproot tip)"
+    },
+    "fringe_defect_counts": {
+      "checkerboard_bleed_candidates": 1,
+      "white_halo_bleed_candidates": 783,
+      "black_rim_transition_pixels": 30732
+    }
+  },
+  "anatomical_proportions": {
+    "waist_width_px_y700": 608,
+    "flare_start_px_y800": 730,
+    "buttress_groundline_px_y924": 1020,
+    "max_root_spread_px_y1000": 1146,
+    "recommended_groundline_anchor_y": 0.55
+  },
+  "comparison_metrics": {
+    "v2_split": {
+      "method": "Two separate sprites (Trunk 760x800 + Root 640x920)",
+      "continuity": "FAIL - Noticeable horizontal seam cut and hollow gaps at buttress roots",
+      "root_depth_world_px": 193.0
+    },
+    "v4_candidate": {
+      "method": "Two separate sprites with adjusted overlap (22 world units)",
+      "continuity": "CONDITIONAL - Solves seam cut by overlaying behind buttress, but requires precision manual calibration",
+      "root_depth_world_px": 444.5
+    },
+    "v5_unified": {
+      "method": "Single monolithic continuous sprite (1200x1680)",
+      "continuity": "PASS - Complete organic trunk-to-root continuity with 0 seams or alignment drift",
+      "root_depth_world_px": 378.0
+    }
+  }
+}
