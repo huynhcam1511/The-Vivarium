@@ -1,0 +1,76 @@
+{
+  "task": "020",
+  "status": "ART CANDIDATE — QA REQUIRED",
+  "files": [
+    {
+      "filename": "env_fx_rain_drop_01.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        185
+      ],
+      "sha256": "585aa8376d93cec9a1c6f58d486cae138932b6611d10261f3b3f10ddbcfac841",
+      "spec": "RGBA 512x512 particle atlas, 8x8 cells"
+    },
+    {
+      "filename": "env_sky_clouds_001.png",
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        130
+      ],
+      "sha256": "cc0d2a551fbb286d81103a82b9593343d408fc13fafcc6620b753e1aa5730b3c",
+      "spec": "RGBA 1024x512 cloud overlay"
+    },
+    {
+      "filename": "env_sky_mountain_001.png",
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        108
+      ],
+      "sha256": "776ea3f7af2b92a50f020a48e3587ad4b29cdaeaf050d5da659739fbacce7620",
+      "spec": "RGBA 1024x512 parallax ridge"
+    },
+    {
+      "filename": "env_canopy_leaf_fall.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        238
+      ],
+      "sha256": "d729da32e4795910aaad169069c9a43dd842559c398e9622243ed190e6d2350d",
+      "spec": "RGBA 512x512 foliage atlas"
+    },
+    {
+      "filename": "env_fx_fog_mist.png",
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_minmax": [
+        0,
+        108
+      ],
+      "sha256": "a31afb6d470219074c552dcd75e097814ca379c09f85ed678ce1e1afb132e07c",
+      "spec": "RGBA 1024x512 mist overlay"
+    }
+  ]
+}

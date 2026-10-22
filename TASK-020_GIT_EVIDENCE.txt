@@ -1,0 +1,28 @@
+﻿================================================================================
+THE VIVARIUM — TASK-020 GIT EVIDENCE
+PACKAGE: PACK-005 — WEATHER & ATMOSPHERE
+================================================================================
+
+1. BRANCH & WORKTREE INFORMATION:
+--------------------------------------------------------------------------------
+Worktree Location : C:/Users/ADMIN-PC/Documents/ANTIGRAVITY/worktrees/task-020-weather
+Active Branch     : task/020-weather
+Base Commit       : 6c28a32 (6c28a32e61e477f3d047ce2acc3fd5beb4739f16)
+Task Commit       : 08a555a (08a555a86bdebf139e497a2b1fce14445bbd7225)
+Author            : Antigravity Bot <bot@antigravity.local>
+Date              : Tue Oct 20 17:58:55 2026 +0700
+Message           : feat(weather): implement PACK-005 atmospheric simulation, procedural rendering and environmental contracts (TASK-020)
+
+2. GIT STATUS AT HANDOFF:
+--------------------------------------------------------------------------------
+On branch task/020-weather Untracked files:   (use "git add <file>..." to include in what will be committed) 	TASK-020_SOURCE_PATCH.patch  nothing added to commit but untracked files present (use "git add" to track)
+
+3. COMMIT LOG (RELEVANT SEGMENT):
+--------------------------------------------------------------------------------
+08a555a feat(weather): implement PACK-005 atmospheric simulation, procedural rendering and environmental contracts (TASK-020) 6c28a32 feat: complete TASK-007 through TASK-015 - Art Direction, Ancient Oak V2 slice, Organic Terrain & Hand-Painted Subterranean Cave System 1ae6151 feat(phase4-audit): add full round-trip terrain serialization and dual screenshot validation
+
+4. STAT SUMMARY AGAINST BASE COMMIT (6c28a32..08a555a):
+--------------------------------------------------------------------------------
+ QA/TASK-020/task020_01_clear_sunny.png             | Bin 0 -> 2600024 bytes  QA/TASK-020/task020_02_gentle_rain.png             | Bin 0 -> 2619229 bytes  QA/TASK-020/task020_03_stormy_tempest.png          | Bin 0 -> 2622106 bytes  QA/TASK-020/task020_04_heatwave.png                | Bin 0 -> 2620510 bytes  QA/TASK-020/task020_05_autumn_breeze.png           | Bin 0 -> 2620866 bytes  QA/TASK-020/task020_06_foggy_mist.png              | Bin 0 -> 2622926 bytes  TASK-020_CHANGED_FILES.md                          |  41 +++  TASK-020_REPORT.md                                 |  79 +++++  TASK-020_TEST_RESULTS.md                           |  67 ++++  the-vivarium-web/scripts/capture_task020.mjs       |  84 +++++  the-vivarium-web/src/App.tsx                       |   6 +  .../src/weather/WeatherControlPanel.tsx            |  94 ++++++  the-vivarium-web/src/weather/WeatherRenderer.ts    | 339 +++++++++++++++++++++  .../src/weather/WeatherShowcaseScene.tsx           | 239 +++++++++++++++  the-vivarium-web/src/weather/WeatherSystem.test.ts |  96 ++++++  the-vivarium-web/src/weather/WeatherSystem.ts      | 252 +++++++++++++++  the-vivarium-web/src/weather/WeatherTypes.ts       |  50 +++  the-vivarium-web/tsconfig.app.json                 |   5 +-  18 files changed, 1350 insertions(+), 2 deletions(-)
+
+================================================================================
