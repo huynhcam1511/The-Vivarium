@@ -7,10 +7,16 @@ import { GameToolbar } from './components/GameToolbar';
 import { AssetPreviewScene } from './components/AssetPreviewScene';
 import { EnvironmentPreviewScene } from './components/EnvironmentPreviewScene';
 import { AquaticShowcaseScene } from './aquatic/AquaticShowcaseScene';
+import { AquaticArtQAScene } from './aquatic/AquaticArtQAScene';
 import type { ToolType, TimeSpeed } from './types';
 
 export const App: React.FC = () => {
   // Check URL parameters for standalone preview modes
+  const isArtQAMode = window.location.search.includes('mode=aquatic-art-qa');
+  if (isArtQAMode) {
+    return <AquaticArtQAScene />;
+  }
+
   const isAquaticMode = window.location.search.includes('mode=aquatic');
   if (isAquaticMode) {
     return <AquaticShowcaseScene />;
