@@ -7,10 +7,16 @@ import { GameToolbar } from './components/GameToolbar';
 import { AssetPreviewScene } from './components/AssetPreviewScene';
 import { EnvironmentPreviewScene } from './components/EnvironmentPreviewScene';
 import { WeatherShowcaseScene } from './weather/WeatherShowcaseScene';
+import { CandidateAssetsQAScene } from './weather/CandidateAssetsQAScene';
 import type { ToolType, TimeSpeed } from './types';
 
 export const App: React.FC = () => {
   // Check URL parameters for standalone preview modes
+  const isArtCandidateQAMode = window.location.search.includes('mode=art-candidate-qa');
+  if (isArtCandidateQAMode) {
+    return <CandidateAssetsQAScene />;
+  }
+
   const isWeatherMode = window.location.search.includes('mode=weather');
   if (isWeatherMode) {
     return <WeatherShowcaseScene />;
