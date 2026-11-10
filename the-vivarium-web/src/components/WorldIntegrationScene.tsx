@@ -8,6 +8,68 @@ import { AquaticRenderer } from '../aquatic/AquaticRenderer';
 import { WeatherSystem } from '../weather/WeatherSystem';
 import { WeatherRenderer } from '../weather/WeatherRenderer';
 import type { WeatherType } from '../weather/WeatherTypes';
+import { DesignationManager } from '../simulation/DesignationManager';
+import { JobQueue } from '../simulation/JobQueue';
+import { ClayMudStockpile } from '../simulation/ClayMudStockpile';
+import { TerrainPathfinder } from '../simulation/TerrainPathfinder';
+import { AntColony } from '../simulation/AntColony';
+import { ClayMudStockpileView } from '../rendering/ClayMudStockpileView';
+import { AntPlaceholderView } from '../rendering/AntPlaceholderView';
+
+function drawDashedRect(
+  g: Graphics,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  dashLen: number = 4,
+  gapLen: number = 4
+): void {
+  drawDashedSegment(g, x, y, x + w, y, dashLen, gapLen);
+  drawDashedSegment(g, x + w, y, x + w, y + h, dashLen, gapLen);
+  drawDashedSegment(g, x + w, y + h, x, y + h, dashLen, gapLen);
+  drawDashedSegment(g, x, y + h, x, y, dashLen, gapLen);
+}
+
+function drawDashedSegment(
+  g: Graphics,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  dash: number,
+  gap: number
+): void {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  if (len <= 0) return;
+  const ux = dx / len;
+  const uy = dy / len;
+
+  let dist = 0;
+  while (dist < len) {
+    const curDash = Math.min(dash, len - dist);
+    g.moveTo(x1 + ux * dist, y1 + uy * dist);
+    g.lineTo(x1 + ux * (dist + curDash), y1 + uy * (dist + curDash));
+    dist += dash + gap;
+  }
+}
+
+export interface OakBoughMountingConfig {
+  leftBough: {
+    assetId: string;
+    localSocket: { x: number; y: number }; // { x: -85, y: -320 } relative to trunk center
+    zIndex: number; // 45
+    beehiveAnchor: { x: number; y: number }; // { x: -240, y: -410 }
+  };
+  rightBough: {
+    assetId: string;
+    localSocket: { x: number; y: number }; // { x: +95, y: -310 } relative to trunk center
+    zIndex: number; // 45
+    predatorPerch: { x: number; y: number }; // { x: +320, y: -380 }
+  };
+}
 
 export const WorldIntegrationScene: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,15 +95,41 @@ export const WorldIntegrationScene: React.FC = () => {
   const aquaticRendererRef = useRef<AquaticRenderer | null>(null);
   const weatherRendererRef = useRef<WeatherRenderer | null>(null);
 
-  // Interactive Tools & Camera Preset State
-  const [currentTool, setCurrentTool] = useState<'SELECT' | 'DIG' | 'FILL'>('SELECT');
+  // Gate 2 Simulation & Rendering Subsystems
+  const designationManagerRef = useRef<DesignationManager>(new DesignationManager());
+  const jobQueueRef = useRef<JobQueue>(new JobQueue());
+  const stockpileRef = useRef<ClayMudStockpile>(new ClayMudStockpile(64, 16, { cx: 48, cy: 7 }));
+  const antColonyRef = useRef<AntColony | null>(null);
+  const stockpileViewRef = useRef<ClayMudStockpileView | null>(null);
+  const antViewRef = useRef<AntPlaceholderView | null>(null);
+
+  // Interactive Tools & Mode State
+  const [currentTool, setCurrentTool] = useState<'SELECT' | 'DIG' | 'FILL' | 'CANCEL'>('SELECT');
   const [timeSpeed, setTimeSpeed] = useState<number>(1);
   const [selectedWeather, setSelectedWeather] = useState<WeatherType>('CLEAR_SUNNY');
 
+  // DEV mode instant brush confinement: strictly confined to DEV/QA mode
+  const [isInstantBrushDevMode, setIsInstantBrushDevMode] = useState<boolean>(() => {
+    return typeof window !== 'undefined' &&
+      (window.location.search.includes('mode=dev-instant-brush') ||
+       window.location.search.includes('dev-instant-brush'));
+  });
+
   const currentToolRef = useRef(currentTool);
-  currentToolRef.current = currentTool;
   const timeSpeedRef = useRef(timeSpeed);
-  timeSpeedRef.current = timeSpeed;
+  const isInstantBrushDevModeRef = useRef(isInstantBrushDevMode);
+
+  useEffect(() => {
+    currentToolRef.current = currentTool;
+  }, [currentTool]);
+
+  useEffect(() => {
+    timeSpeedRef.current = timeSpeed;
+  }, [timeSpeed]);
+
+  useEffect(() => {
+    isInstantBrushDevModeRef.current = isInstantBrushDevMode;
+  }, [isInstantBrushDevMode]);
 
   // Real-time Telemetry state for BEFORE/AFTER proof
   const [telemetry, setTelemetry] = useState<{
@@ -211,7 +299,8 @@ export const WorldIntegrationScene: React.FC = () => {
           rootMaskPts.push({ x: 600, y: trunkGroundY + 1200 });
           rootMask.poly(rootMaskPts).fill({ color: 0xffffff });
           rootSpr.mask = rootMask;
-          rootSpr.addChild(rootMask);
+          // Parent mask to Container instead of Sprite to satisfy PixiJS v8 allowChildren constraint
+          rootBackGroup.addChild(rootMask);
           rootBackGroup.addChild(rootSpr);
 
           // Pass 2: Trunk Spr (Z: 45) - Clipped above undulating groundline with natural root buttress flare
@@ -229,7 +318,8 @@ export const WorldIntegrationScene: React.FC = () => {
           }
           trunkMask.poly(trunkMaskPts).fill({ color: 0xffffff });
           trunkSpr.mask = trunkMask;
-          trunkSpr.addChild(trunkMask);
+          // Parent mask to Container instead of Sprite to satisfy PixiJS v8 allowChildren constraint
+          trunkFrontGroup.addChild(trunkMask);
           trunkFrontGroup.addChild(trunkSpr);
         } else {
           // Fallback to V2 4-layer assembly
@@ -345,15 +435,42 @@ export const WorldIntegrationScene: React.FC = () => {
       }
       if (!active) return;
 
+      // 6. SUBTERRANEAN WORKER ANT COLONY & PHYSICAL STOCKPILE
+      const designationManager = designationManagerRef.current;
+      const jobQueue = jobQueueRef.current;
+      const stockpile = stockpileRef.current;
+      const pathfinder = new TerrainPathfinder(terrainData);
+
+      const antColony = new AntColony(terrainData, pathfinder, jobQueue, stockpile, designationManager, 12);
+      antColonyRef.current = antColony;
+
+      // Physical Clay Mud Stockpile View (placed inside subterranean layer behind solid soil)
+      const stockpileView = new ClayMudStockpileView(stockpile);
+      stockpileViewRef.current = stockpileView;
+      terrainRenderer.addSubterraneanLayer(stockpileView.container);
+
+      // Ant Placeholder View (ants crawl inside subterranean caverns)
+      const antPlaceholderView = new AntPlaceholderView();
+      antViewRef.current = antPlaceholderView;
+      terrainRenderer.addSubterraneanLayer(antPlaceholderView.antContainer);
+
+      // Designation Overlay Graphics (above terrain mesh)
+      const designationOverlayGraphics = new Graphics();
+      worldStage.addChild(designationOverlayGraphics);
+
+      // Progress Bar Overlay Graphics (above terrain mesh)
+      worldStage.addChild(antPlaceholderView.progressOverlay);
+
       // Interactive Dig/Fill cursor preview indicator
       const previewIndicator = new Graphics();
       worldStage.addChild(previewIndicator);
 
-      // Event Listeners for Camera Drag / Dig-Fill (Optimized Dirty-Region Rebuild & Precise 32px Grid Alignment)
+      // Event Listeners for Camera Drag / Dig-Fill
       let isMouseDown = false;
       let lastDragTime = 0;
 
-      const performDigFillAt = (worldPos: { x: number; y: number }) => {
+      // 1. DEV MODE ONLY: Instant Destructive/Additive Brush
+      const performInstantDevBrushAt = (worldPos: { x: number; y: number }) => {
         const r = 28;
         const dirtyBox = {
           minX: worldPos.x - r - 10,
@@ -370,13 +487,51 @@ export const WorldIntegrationScene: React.FC = () => {
         }
       };
 
+      // 2. PRODUCTION 2-LAYER PIPELINE: Apply Player Designation -> JobQueue -> Worker Execution
+      const handleApplyDesignationAt = (worldPos: { x: number; y: number }) => {
+        const tool = currentToolRef.current;
+        if (tool !== 'DIG' && tool !== 'FILL' && tool !== 'CANCEL') return;
+
+        const { cx, cy } = designationManager.worldToCell(worldPos.x, worldPos.y);
+        if (!designationManager.isWithinBounds(cx, cy)) return;
+
+        if (tool === 'DIG') {
+          if (terrainData.isSolid(cx, cy)) {
+            designationManager.addDesignation('DIG', cx, cy);
+            jobQueue.pushJob('DIG', { cx, cy });
+          }
+        } else if (tool === 'FILL') {
+          if (!terrainData.isSolid(cx, cy)) {
+            designationManager.addDesignation('FILL', cx, cy);
+            jobQueue.pushJob('FILL', { cx, cy });
+          }
+        } else if (tool === 'CANCEL') {
+          designationManager.removeDesignation(cx, cy);
+          jobQueue.cancelJobByCell(cx, cy);
+        }
+      };
+
       const handlePointerDown = (e: PointerEvent) => {
         if (e.button === 1 || e.button === 2) {
           camera.handleMouseDown(e.clientX, e.clientY, e.button);
+
+          // Right click in standard mode cancels designation
+          if (e.button === 2 && !isInstantBrushDevModeRef.current) {
+            const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
+            const { cx, cy } = designationManager.worldToCell(worldPos.x, worldPos.y);
+            if (designationManager.hasDesignation(cx, cy)) {
+              designationManager.removeDesignation(cx, cy);
+              jobQueue.cancelJobByCell(cx, cy);
+            }
+          }
         } else if (e.button === 0) {
           isMouseDown = true;
           const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
-          performDigFillAt(worldPos);
+          if (isInstantBrushDevModeRef.current) {
+            performInstantDevBrushAt(worldPos);
+          } else {
+            handleApplyDesignationAt(worldPos);
+          }
         }
       };
 
@@ -385,35 +540,40 @@ export const WorldIntegrationScene: React.FC = () => {
 
         const worldPos = camera.screenToWorld({ x: e.clientX, y: e.clientY });
 
-        // Continuous drag dig/fill support (throttled to 45ms for buttery smooth 60fps)
-        if (isMouseDown && (currentToolRef.current === 'DIG' || currentToolRef.current === 'FILL')) {
-          const now = performance.now();
-          if (now - lastDragTime > 45) {
-            lastDragTime = now;
-            performDigFillAt(worldPos);
+        if (isMouseDown) {
+          if (isInstantBrushDevModeRef.current) {
+            const now = performance.now();
+            if (now - lastDragTime > 45) {
+              lastDragTime = now;
+              performInstantDevBrushAt(worldPos);
+            }
+          } else {
+            handleApplyDesignationAt(worldPos);
           }
         }
 
-        // Smart Selection & Preview: calibrated exactly to terrain grid origin (-1200, 0)
+        // Smart Selection & Preview indicator
         previewIndicator.clear();
-        if (currentToolRef.current === 'DIG' || currentToolRef.current === 'FILL') {
-          const cellX = Math.floor((worldPos.x - terrainData.originX) / terrainData.cellSize);
-          const cellY = Math.floor((worldPos.y - terrainData.originY) / terrainData.cellSize);
+        const tool = currentToolRef.current;
+        if (tool === 'DIG' || tool === 'FILL' || tool === 'CANCEL') {
+          const { cx, cy } = designationManager.worldToCell(worldPos.x, worldPos.y);
 
-          if (cellX >= 0 && cellX < terrainData.cols && cellY >= 0 && cellY < terrainData.rows) {
-            const wx = terrainData.originX + cellX * terrainData.cellSize;
-            const wy = terrainData.originY + cellY * terrainData.cellSize;
-            const isDig = currentToolRef.current === 'DIG';
+          if (designationManager.isWithinBounds(cx, cy)) {
+            const wx = terrainData.originX + cx * terrainData.cellSize;
+            const wy = terrainData.originY + cy * terrainData.cellSize;
+            const isDig = tool === 'DIG';
+            const isCancel = tool === 'CANCEL';
+            const color = isCancel ? 0xf43f5e : isDig ? 0xf59e0b : 0x10b981;
 
             previewIndicator.roundRect(wx + 1, wy + 1, 30, 30, 4);
             previewIndicator.stroke({
-              color: isDig ? 0xffb703 : 0x06d6a0,
+              color,
               width: 2.0,
               alpha: 0.9,
             });
             previewIndicator.roundRect(wx + 2, wy + 2, 28, 28, 3);
             previewIndicator.fill({
-              color: isDig ? 0xffb703 : 0x06d6a0,
+              color,
               alpha: 0.25,
             });
           }
@@ -483,6 +643,22 @@ export const WorldIntegrationScene: React.FC = () => {
           get: () => weatherSystemRef.current,
           configurable: true,
         });
+        Object.defineProperty(window, '__DESIGNATION_MANAGER__', {
+          get: () => designationManagerRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__JOB_QUEUE__', {
+          get: () => jobQueueRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__STOCKPILE__', {
+          get: () => stockpileRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__ANT_COLONY__', {
+          get: () => antColonyRef.current,
+          configurable: true,
+        });
       }
 
       // Main Loop
@@ -516,13 +692,39 @@ export const WorldIntegrationScene: React.FC = () => {
           child.rotation = Math.sin(currentTime * 0.003 + i) * 0.04 + (wind.speed * 0.008);
         });
 
-        // 3. Update Renderers
+        // 3. Tick Subterranean Worker Ant Colony & Progress Bars
+        antColony.update(effectiveDt, (dirtyBox) => {
+          terrainRenderer.rebuildTerrainMesh(false, dirtyBox);
+        });
+        antPlaceholderView.render(antColony.ants);
+
+        // 4. Render Animated Dashed Highlights for Player Designations
+        designationOverlayGraphics.clear();
+        const designations = designationManager.getAllDesignations();
+        const pulseAlpha = 0.80 + 0.15 * Math.sin(currentTime * 0.0045);
+
+        for (const des of designations) {
+          const wx = terrainData.originX + des.cx * terrainData.cellSize;
+          const wy = terrainData.originY + des.cy * terrainData.cellSize;
+          const isDig = des.type === 'DIG';
+          const color = isDig ? 0xf59e0b : 0x10b981;
+
+          // Semitransparent interior tint
+          designationOverlayGraphics.roundRect(wx + 1, wy + 1, 30, 30, 2);
+          designationOverlayGraphics.fill({ color, alpha: 0.18 });
+
+          // High-contrast pulsing dashed outline
+          drawDashedRect(designationOverlayGraphics, wx + 1, wy + 1, 30, 30, 4, 4);
+          designationOverlayGraphics.stroke({ color, width: 2.0, alpha: pulseAlpha });
+        }
+
+        // 5. Update Renderers
         aquaticSystem.update(effectiveDt);
         aquaticRenderer.update(effectiveDt);
         weatherRenderer.update(effectiveDt);
         camera.update(effectiveDt);
 
-        // 4. Update Telemetry (Using 0.8s moving window for accurate, stable FPS measurement)
+        // 6. Update Telemetry (Using 0.8s moving window for accurate, stable FPS measurement)
         frameCount++;
         fpsTimer += dt;
         if (fpsTimer >= 0.8) {
@@ -541,7 +743,7 @@ export const WorldIntegrationScene: React.FC = () => {
             fps: measuredFps,
             cameraPos: `X: ${camera.x.toFixed(0)}, Y: ${camera.y.toFixed(0)}`,
             cameraZoom: camera.zoom,
-            digQueueCount: terrainData.getExcavatedCount(),
+            digQueueCount: designationManager.getPendingCount(),
           });
           frameCount = 0;
           fpsTimer = 0;
@@ -575,6 +777,10 @@ export const WorldIntegrationScene: React.FC = () => {
       delete (window as unknown as Record<string, unknown>).__AQUATIC_SYSTEM__;
       delete (window as unknown as Record<string, unknown>).__WEATHER_RENDERER__;
       delete (window as unknown as Record<string, unknown>).__WEATHER_SYSTEM__;
+      delete (window as unknown as Record<string, unknown>).__DESIGNATION_MANAGER__;
+      delete (window as unknown as Record<string, unknown>).__JOB_QUEUE__;
+      delete (window as unknown as Record<string, unknown>).__STOCKPILE__;
+      delete (window as unknown as Record<string, unknown>).__ANT_COLONY__;
     };
   }, []);
 
@@ -626,6 +832,10 @@ export const WorldIntegrationScene: React.FC = () => {
             <span className="font-bold text-blue-300" data-testid="telemetry-water">
               {telemetry.waterLevel.toFixed(1)}px ({telemetry.waterOffset >= 0 ? `+${telemetry.waterOffset.toFixed(1)}` : telemetry.waterOffset.toFixed(1)})
             </span>
+          </div>
+          <div>
+            <span className="text-neutral-400 mr-1">Hàng đợi:</span>
+            <span className="font-bold text-amber-300" data-testid="telemetry-dig-queue">{telemetry.digQueueCount}</span>
           </div>
           <div>
             <span className="text-neutral-400 mr-1">Gió:</span>
@@ -691,7 +901,7 @@ export const WorldIntegrationScene: React.FC = () => {
 
       {/* Bottom Floating Control Bar: Tools, Camera & Speed */}
       <div className="fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between p-2 rounded-2xl bg-neutral-900/90 backdrop-blur-md border border-white/10 shadow-2xl text-white text-xs">
-        {/* Tools: Dig / Fill */}
+        {/* Tools: Dig / Fill / Cancel & Dev Mode Toggle */}
         <div className="flex items-center gap-2">
           <span className="text-neutral-400 text-[10px] font-mono ml-2">Công cụ:</span>
           <button
@@ -710,16 +920,34 @@ export const WorldIntegrationScene: React.FC = () => {
               currentTool === 'DIG' ? 'bg-amber-600 text-white font-bold' : 'bg-white/5 hover:bg-white/10 text-neutral-300'
             }`}
           >
-            ⛏️ Đào hang (Dig)
+            ⛏️ Chỉ định đào (Dig)
           </button>
           <button
             data-testid="btn-tool-fill"
             onClick={() => setCurrentTool('FILL')}
             className={`px-3 py-1.5 rounded-xl font-medium transition ${
-              currentTool === 'FILL' ? 'bg-amber-600 text-white font-bold' : 'bg-white/5 hover:bg-white/10 text-neutral-300'
+              currentTool === 'FILL' ? 'bg-emerald-600 text-white font-bold' : 'bg-white/5 hover:bg-white/10 text-neutral-300'
             }`}
           >
-            🧱 Lấp đất (Fill)
+            🧱 Chỉ định lấp (Fill)
+          </button>
+          <button
+            data-testid="btn-tool-cancel"
+            onClick={() => setCurrentTool('CANCEL')}
+            className={`px-3 py-1.5 rounded-xl font-medium transition ${
+              currentTool === 'CANCEL' ? 'bg-rose-600 text-white font-bold' : 'bg-white/5 hover:bg-white/10 text-neutral-300'
+            }`}
+          >
+            ❌ Hủy chỉ định
+          </button>
+          <button
+            data-testid="btn-toggle-dev-brush"
+            onClick={() => setIsInstantBrushDevMode((prev) => !prev)}
+            className={`px-3 py-1.5 rounded-xl font-medium transition text-[11px] ${
+              isInstantBrushDevMode ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+            }`}
+          >
+            {isInstantBrushDevMode ? '⚡ Cọ tức thì DEV' : '🐜 Mô phỏng 2 Lớp'}
           </button>
         </div>
 

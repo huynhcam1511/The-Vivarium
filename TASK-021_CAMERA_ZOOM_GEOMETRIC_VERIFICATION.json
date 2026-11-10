@@ -1,0 +1,127 @@
+{
+  "verified": true,
+  "zoomLevels": {
+    "zoom1x": {
+      "zoom": 1,
+      "stageScale": 1,
+      "stagePos": {
+        "x": 800,
+        "y": 680
+      },
+      "targetObject": {
+        "worldX": 0,
+        "worldY": -180,
+        "expectedSizeOnScreen": 1
+      }
+    },
+    "zoom2x": {
+      "zoom": 2,
+      "stageScale": 2,
+      "stagePos": {
+        "x": 800,
+        "y": 860
+      },
+      "targetObject": {
+        "worldX": 0,
+        "worldY": -180,
+        "expectedSizeOnScreen": 2
+      }
+    },
+    "zoom4x": {
+      "zoom": 4,
+      "stageScale": 4,
+      "stagePos": {
+        "x": 800,
+        "y": 1220
+      },
+      "targetObject": {
+        "worldX": 0,
+        "worldY": -180,
+        "expectedSizeOnScreen": 4
+      }
+    }
+  },
+  "geometricDistanceMeasurement": {
+    "P1_world": {
+      "x": -60,
+      "y": -140
+    },
+    "P2_world": {
+      "x": 80,
+      "y": -220
+    },
+    "zoom1x": {
+      "P1_screen": {
+        "x": 740,
+        "y": 540
+      },
+      "P2_screen": {
+        "x": 880,
+        "y": 460
+      },
+      "distancePx": 161.25,
+      "P1_rgb": [
+        137,
+        105,
+        73
+      ],
+      "P2_rgb": [
+        139,
+        90,
+        45
+      ]
+    },
+    "zoom2x": {
+      "P1_screen": {
+        "x": 680,
+        "y": 580
+      },
+      "P2_screen": {
+        "x": 960,
+        "y": 420
+      },
+      "distancePx": 322.49,
+      "P1_rgb": [
+        147,
+        111,
+        80
+      ],
+      "P2_rgb": [
+        132,
+        79,
+        40
+      ]
+    },
+    "zoom4x": {
+      "P1_screen": {
+        "x": 560,
+        "y": 660
+      },
+      "P2_screen": {
+        "x": 1120,
+        "y": 340
+      },
+      "distancePx": 644.98,
+      "P1_rgb": [
+        142,
+        107,
+        75
+      ],
+      "P2_rgb": [
+        118,
+        67,
+        32
+      ]
+    }
+  },
+  "geometricRatioVerification": {
+    "ratio_2x_to_1x": 2,
+    "ratio_4x_to_1x": 4
+  },
+  "visualMagnificationProof": {
+    "changedPixels1xTo2x": 903452,
+    "thresholdRequired": 500000,
+    "percentageOfCanvas": 56.47
+  },
+  "verdict": "CAMERA_ZOOM_GEOMETRIC_PASS"
+}

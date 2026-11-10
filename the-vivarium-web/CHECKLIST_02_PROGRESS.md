@@ -67,6 +67,7 @@ Mọi asset môi trường phải thỏa mãn 6 cổng nghiệm thu kỹ thuật
 - [x] **Đóng gói bằng chứng & Kiểm định kỹ thuật:** Toàn bộ 7 screenshot nghiệm thu đã được lưu tại `QA/TASK-014/` và nén vào `TASK-014_VISUAL_EVIDENCE.zip`. Build production sạch 0 lỗi (`npm run build` PASS).
 
 ### KẾT QUẢ TRIỂN KHAI TASK-015 — ORGANIC CAVE VISUAL POLISH (2026-10-20)
+- [x] **Trạng thái phê duyệt:** **TASK-015 PASS PROTOTYPE (APPROVED FOR PROTOTYPE)**.
 - [x] **Mịn hóa đường biên Marching Squares (Sub-grid 8px + Gaussian Kernel liên tục):** Loại bỏ triệt để hiện tượng bậc thang 32px; đường biên lòng hang giờ đây là các đường cong uốn lượn tự nhiên mềm mại như tranh vẽ tay sinh học (hand-painted organic 2D).
 - [x] **Khử viền đen dạng ống — Mặt cắt đất thật (Soft Cutaway Shading):** Thay đổi toàn diện bảng màu đường biên: Giảm độ tương phản viền đen thô ráp, áp dụng 3 tầng bóng tiếp xúc đất ẩm tự nhiên gồm Contact Occlusion Shadow (`#160c07`, alpha 0.45), Compact Loam Rim (`#2e1a10`, alpha 0.75), và Peat Highlight sần sùi (`#4a2d1d`, alpha 0.65). Vách hang mang diện mạo mặt cắt lát đất tự nhiên, không còn cảm giác đường ống có viền bao.
 - [x] **Quy hoạch 3 Không Gian Hang Kết Nối Liên Tục:**
@@ -75,10 +76,28 @@ Mọi asset môi trường phải thỏa mãn 6 cổng nghiệm thu kỹ thuật
   3. *Buồng kiến chúa rộng (Spacious Royal Queen Chamber):* Rộng ~220px × cao ~130px, vòm trần cao với ánh sáng hổ phách ấm áp (`#6e240c` / `#9e3810`), sàn lòng buồng phẳng uốn nhẹ để đàn kiến quần tụ.
 - [x] **Kiểm định Tỷ Lệ Sinh Học & Tư Thế Đứng (Biological Scale Probe):** Bố trí 5 cá thể kiến thợ V2 (sải 36.8px) tại các vị trí: (1) Mặt đất, (2) Hầm hẹp, (3) Buồng sinh hoạt, (4) Buồng hoàng gia, (5) Kiến thợ chăm sóc chúa. Toàn bộ chân kiến đứng vững vàng trên sàn lòng hang, không bị chìm hay đè bởi texture đất.
 - [x] **Đóng gói bằng chứng & Kiểm định kỹ thuật:** 6 screenshot chất lượng cao được lưu tại `QA/TASK-015/` và nén thành công vào `TASK-015_VISUAL_EVIDENCE.zip`. Production build sạch sẽ (`npm run build` PASS).
+- [!] **Ghi nhận 3 tồn đọng mỹ thuật chờ hoàn thiện các task sau (Backlog Art Issues - Không sửa ở TASK-016):**
+  1. *Shading ô vuông trong hang:* Vùng lòng hang vẫn còn vết bóng mờ của các khối ô lưới 32px khi vẽ nền amber/red glow.
+  2. *Viền vách đều:* Độ gồ ghề của vách đất cần thêm biến thiên hình học vi mô tự nhiên hơn ở các giai đoạn sau.
+  3. *Nội thất hang còn trống:* Cần bổ sung các chi tiết sinh thái buồng tổ (trứng, ấu trùng, rễ cây đâm xuyên trần vòm, hạt giống dự trữ) ở các đợt phát triển tiếp theo.
 
 ---
 
-### PACK-002-B: Mặt Đất, Hồ Nước, Ánh Sáng & Khí Quyển (Sản xuất đợt 2)
+### PACK-002-B1: Mặt Đất & Thảm Thực Vật Tầng Thấp (KẾT QUẢ KIỂM THỬ TÍCH HỢP PROTOTYPE QA)
+| Asset ID | Tên File Quy Chuẩn | Canvas Nguồn | Bounding Box Thực | Tọa Độ Pivot | Z-Layer | Trạng Thái QA | Đánh Giá Chi Tiết & Tồn Đọng Mỹ Thuật |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| `ENV-TERRAIN-SURFACE-GRASS` | `env_terrain_surface_grass.png` | $512 \times 96\text{ px}$ | $500 \times 90\text{ px}$ ($X: 6..505, Y: 4..93$) | `(0.50, 0.35)` | Z: 50 | **FAIL CHO PRODUCTION** / **CONDITIONAL PROTOTYPE** | **Lỗi nghiêm trọng:** 2 cạnh biên trái/phải ($X=0..5$ và $X=506..511$) rỗng hoàn toàn ($A=0$), dẫn tới khoảng hở $12\text{ px}$ trong suốt giữa các dải khi lặp ngang (không liền mạch/non-tileable). Texture đất dưới chân dải không ăn khớp với texture đất mùn `terrain_soil_dark_loam_v2`. |
+| `ENV-GRASS-TUFT-GREEN` | `env_grass_tuft_green.png` | $128 \times 128\text{ px}$ | $122 \times 105\text{ px}$ ($X: 3..124, Y: 21..125$) | `(0.50, 0.95)` | Z: 52 | **CONDITIONAL PASS PROTOTYPE** | Tỷ lệ hòa hợp ($64\times 64\text{ px}$ logic), viền alpha sạch không lộ caro. Tồn đọng: Bụi cỏ bị cắt phẳng ngang mép dưới ($Y=125$), cần cắm sâu xuống mặt đất $3\text{ px}$ để giấu vết cắt. |
+| `ENV-FLOWER-CLOVER-WHITE` | `env_flower_clover_white.png` | $128 \times 128\text{ px}$ | $122 \times 91\text{ px}$ ($X: 3..124, Y: 35..125$) | `(0.50, 0.95)` | Z: 55 | **CONDITIONAL PASS PROTOTYPE** | Cánh hoa trắng giữ chi tiết khá, không bị chroma key ăn lẹm nặng. Tồn đọng: Viền quanh chùm hoa có viền sáng nhẹ (faint halo) do trích xuất từ composite presentation, cuống hoa bị cắt cụt ở đáy. |
+| `ENV-FLOWER-DAISY-GOLDEN` | `env_flower_daisy_golden.png` | $128 \times 128\text{ px}$ | $122 \times 113\text{ px}$ ($X: 3..124, Y: 13..125$) | `(0.50, 0.95)` | Z: 55 | **CONDITIONAL PASS PROTOTYPE** | Hoa cúc vàng nổi bật, nhụy cam rực rỡ, tỷ lệ cân đối khi đặt cạnh kiến thợ V2 ($36.8\text{ px}$). Tồn đọng: Cuống hoa bị cụt ngang đáy, một số cánh hoa mảnh có viền tách nền hơi cứng. |
+
+> **KẾT LUẬN CHUNG PACK-002-B1:** **CONDITIONAL PASS CHO PROTOTYPE ONLY — KHÔNG ĐẠT CHUẨN PRODUCTION**.  
+> Cần bàn giao danh sách lỗi mỹ thuật để Game Director chỉ đạo vẽ độc lập / làm seamless dải cỏ ở đợt Polish tiếp theo.  
+> Bằng chứng nghiệm thu 7 screenshots: `QA/TASK-017/TASK-017_VISUAL_EVIDENCE.zip`.
+
+---
+
+### PACK-002-B2: Hồ Nước, Ánh Sáng & Khí Quyển (Sản xuất đợt kế tiếp)
 | Asset ID | Tên File Đề Xuất | Canvas Nguồn | Pivot | Trạng thái | Ghi chú nghiệm thu |
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | `ENV-SKY-DAY-001` | `env_sky_day_gradient.png` | $1920 \times 640$ | `(0.5, 0.0)` | PENDING | Gradient nền trời xanh dịu ban ngày |

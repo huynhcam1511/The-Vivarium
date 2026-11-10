@@ -7,43 +7,11 @@ import { GameToolbar } from './components/GameToolbar';
 import { AssetPreviewScene } from './components/AssetPreviewScene';
 import { EnvironmentPreviewScene } from './components/EnvironmentPreviewScene';
 import { WorldIntegrationScene } from './components/WorldIntegrationScene';
-import { AquaticShowcaseScene } from './aquatic/AquaticShowcaseScene';
-import { WeatherShowcaseScene } from './weather/WeatherShowcaseScene';
 import { OakUnifiedV5QAScene } from './components/OakUnifiedV5QAScene';
+import { OakRootV4QAScene } from './components/OakRootV4QAScene';
 import type { ToolType, TimeSpeed } from './types';
 
-export const App: React.FC = () => {
-  // Check URL parameters for standalone preview modes
-  const isIntegrationMode = window.location.search.includes('mode=integration');
-  if (isIntegrationMode) {
-    return <WorldIntegrationScene />;
-  }
-
-  const isAquaticMode = window.location.search.includes('mode=aquatic');
-  if (isAquaticMode) {
-    return <AquaticShowcaseScene />;
-  }
-
-  const isWeatherMode = window.location.search.includes('mode=weather');
-  if (isWeatherMode) {
-    return <WeatherShowcaseScene />;
-  }
-
-  const isOakV5Mode = window.location.search.includes('mode=qa-oak-unified-v5');
-  if (isOakV5Mode) {
-    return <OakUnifiedV5QAScene />;
-  }
-
-  const isEnvPreviewMode = window.location.search.includes('mode=environment-preview');
-  const isPreviewMode = window.location.search.includes('mode=preview');
-
-  if (isEnvPreviewMode) {
-    return <EnvironmentPreviewScene />;
-  }
-
-  if (isPreviewMode) {
-    return <AssetPreviewScene />;
-  }
+const MainSimulationApp: React.FC = () => {
 
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<WorldRenderer | null>(null);
@@ -57,7 +25,7 @@ export const App: React.FC = () => {
   const [gameMode, setGameMode] = useState<'SANDBOX' | 'SURVIVAL'>('SANDBOX');
 
   // Background visual mode toggle: allows switching between rich master illustration background and procedural layers
-  const [bgMode, setBgMode] = useState<'MASTER_ILLUSTRATION' | 'PROCEDURAL'>('MASTER_ILLUSTRATION');
+  const [bgMode, setBgMode] = useState<'MASTER_ILLUSTRATION' | 'PROCEDURAL'>('PROCEDURAL');
 
   useEffect(() => {
     let app: Application | null = null;
@@ -263,3 +231,26 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
+export const App: React.FC = () => {
+  const search = typeof window !== 'undefined' ? window.location.search : '';
+
+  if (search.includes('mode=integration')) {
+    return <WorldIntegrationScene />;
+  }
+  if (search.includes('mode=qa-oak-unified-v5')) {
+    return <OakUnifiedV5QAScene />;
+  }
+  if (search.includes('mode=qa-oak-root-v4')) {
+    return <OakRootV4QAScene />;
+  }
+  if (search.includes('mode=environment-preview')) {
+    return <EnvironmentPreviewScene />;
+  }
+  if (search.includes('mode=preview')) {
+    return <AssetPreviewScene />;
+  }
+
+  return <MainSimulationApp />;
+};
+
