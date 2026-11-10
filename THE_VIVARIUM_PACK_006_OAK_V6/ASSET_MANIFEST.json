@@ -1,0 +1,29 @@
+{
+  "pack_id": "THE_VIVARIUM_PACK_006_OAK_V6",
+  "pack_name": "Oak Hybrid V6 (Ancient Oak Modular Multi-Layer)",
+  "version": "6.0.0",
+  "approved_concept": "Option B (Asymmetric Sun, Symmetric Tri-Root System)",
+  "resolution": "819x1024",
+  "color_depth": "32-bit RGBA",
+  "layers_count": 8,
+  "component_layers": 7,
+  "full_composite": 1,
+  "anchor_pivot": {
+    "x": 0.5,
+    "y": 0.565,
+    "note": "Root flare & ground contact interface at y = 578px"
+  },
+  "z_index_hierarchy": [
+    { "order": 0, "layer": "env_tree_oak_v6_roots_fine.png", "z_index": -15, "purpose": "Fine root web revealed via excavation" },
+    { "order": 1, "layer": "env_tree_oak_v6_roots_primary.png", "z_index": -10, "purpose": "Primary structural taproots" },
+    { "order": 2, "layer": "env_tree_oak_v6_trunk_core.png", "z_index": 0, "purpose": "Static massive ancient trunk core" },
+    { "order": 3, "layer": "env_tree_oak_v6_buttress_moss.png", "z_index": 5, "purpose": "Mossy buttress transition to ground turf" },
+    { "order": 4, "layer": "env_tree_oak_v6_canopy_top.png", "z_index": 10, "purpose": "Upper snag canopy" },
+    { "order": 5, "layer": "env_tree_oak_v6_canopy_left.png", "z_index": 15, "purpose": "Left massive bough with wind-sway shader" },
+    { "order": 6, "layer": "env_tree_oak_v6_canopy_right.png", "z_index": 16, "purpose": "Right massive bough with wind-sway shader" }
+  ],
+  "engine_integration_notes": {
+    "dual_pass_root_masking": "Pass 1: Render Primary Roots under soil tiles. Pass 2: Modulate Fine Roots alpha using dynamic digging buffer in Dig/Fill Job Queue.",
+    "wind_sway_vertex_shader": "Apply meadow_sway or custom foliage shader on Canopy Left and Canopy Right with anchor locked at trunk connection (y ~ 400px)."
+  }
+}

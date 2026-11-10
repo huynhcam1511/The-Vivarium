@@ -1,0 +1,12 @@
+{
+  "test": "TASK-021 Root Masking Dual-Pass Dynamic Verification",
+  "totalChangedPixels": 27904,
+  "rootZoneChangedPixels": 8114,
+  "rootZoneBoundingBox": {
+    "minX": 650,
+    "maxX": 950,
+    "minY": 500,
+    "maxY": 750
+  },
+  "verificationVerdict": "PASS_DYNAMIC_ROOT_UNVEILED"
+}

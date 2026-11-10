@@ -1,0 +1,309 @@
+diff --git a/the-vivarium-web/src/aquatic/AquaticRenderer.ts b/the-vivarium-web/src/aquatic/AquaticRenderer.ts
+index 55b6308..fdb2732 100644
+--- a/the-vivarium-web/src/aquatic/AquaticRenderer.ts
++++ b/the-vivarium-web/src/aquatic/AquaticRenderer.ts
+@@ -34,6 +34,12 @@ export class AquaticRenderer {
+ 
+   private sim: AquaticSystem;
+   private lakeBasinRendered: boolean = false;
++  private cachedBasinHash: string = '';
++
++  public invalidateLakeBasin(): void {
++    this.lakeBasinRendered = false;
++    this.cachedBasinHash = '';
++  }
+ 
+   constructor(sim: AquaticSystem) {
+     this.sim = sim;
+@@ -148,9 +154,11 @@ export class AquaticRenderer {
+ 
+   update(dt: number): void {
+     this.renderWaterfall(dt);
+-    if (!this.lakeBasinRendered) {
++    const currentBasinHash = `${this.sim.config.basinMinX}_${this.sim.config.basinMaxX}_${this.sim.config.surfaceBaseY}_${this.sim.config.maxDepth}`;
++    if (!this.lakeBasinRendered || this.cachedBasinHash !== currentBasinHash) {
+       this.renderLakeBasinAndSediment();
+       this.lakeBasinRendered = true;
++      this.cachedBasinHash = currentBasinHash;
+     }
+     this.renderSubmergedFlora();
+     this.renderWaterColumns();
+diff --git a/the-vivarium-web/src/components/WorldIntegrationScene.tsx b/the-vivarium-web/src/components/WorldIntegrationScene.tsx
+index 1b15dc0..587a37f 100644
+--- a/the-vivarium-web/src/components/WorldIntegrationScene.tsx
++++ b/the-vivarium-web/src/components/WorldIntegrationScene.tsx
+@@ -30,6 +30,8 @@ export const WorldIntegrationScene: React.FC = () => {
+   const terrainDataRef = useRef<OrganicTerrainData>(new OrganicTerrainData());
+   const terrainRendererRef = useRef<OrganicTerrainRenderer | null>(null);
+   const cameraRef = useRef<CameraController | null>(null);
++  const aquaticRendererRef = useRef<AquaticRenderer | null>(null);
++  const weatherRendererRef = useRef<WeatherRenderer | null>(null);
+ 
+   // Interactive Tools & Camera Preset State
+   const [currentTool, setCurrentTool] = useState<'SELECT' | 'DIG' | 'FILL'>('SELECT');
+@@ -79,6 +81,7 @@ export const WorldIntegrationScene: React.FC = () => {
+     let lastTime = performance.now();
+     let frameCount = 0;
+     let fpsTimer = 0;
++    let cleanupListeners: (() => void) | null = null;
+ 
+     const init = async () => {
+       if (!containerRef.current) return;
+@@ -118,6 +121,7 @@ export const WorldIntegrationScene: React.FC = () => {
+       // 1. SKY & DISTANT HORIZON LAYER (Behind everything)
+       const weatherSystem = weatherSystemRef.current;
+       const weatherRenderer = new WeatherRenderer(weatherSystem, 3200, 1600);
++      weatherRendererRef.current = weatherRenderer;
+       weatherRenderer.container.position.set(-1600, -900);
+       worldStage.addChild(weatherRenderer.container);
+ 
+@@ -140,6 +144,7 @@ export const WorldIntegrationScene: React.FC = () => {
+       } catch (e) {
+         console.warn('Weather textures load fallback:', e);
+       }
++      if (!active) return;
+ 
+       // 2. SUBTERRANEAN ORGANIC TERRAIN & CAVE CAVITIES
+       const terrainData = terrainDataRef.current;
+@@ -164,16 +169,17 @@ export const WorldIntegrationScene: React.FC = () => {
+       } catch (e) {
+         console.warn('Soil texture fallback:', e);
+       }
++      if (!active) return;
+       terrainRenderer.rebuildTerrainMesh(false);
+ 
+       // 3. ANCIENT OAK DUAL-PASS SANDWICH ASSEMBLY (V5 & V2)
+-      // Pass 1: Roots placed BEHIND solid soil, inside the excavated cavity group
++      // Pass 1: Roots placed BEHIND solid soil, inside the subterranean group (above cavity background)
+       // Pass 2: Trunk Buttress placed IN FRONT of solid soil
+       const trunkGroundY = terrainData.getSurfaceY(0);
+ 
+-      // Root layer group placed right behind terrain mask
++      // Root layer group placed inside terrain container between cavity background and soil
+       const rootBackGroup = new Container();
+-      worldStage.addChildAt(rootBackGroup, worldStage.getChildIndex(terrainRenderer.container));
++      terrainRenderer.addSubterraneanLayer(rootBackGroup);
+ 
+       // Trunk & Foliage front group placed in front of terrain
+       const trunkFrontGroup = new Container();
+@@ -315,6 +321,7 @@ export const WorldIntegrationScene: React.FC = () => {
+       // 5. AQUATIC BASIN & WATERFALL SUBSYSTEM
+       const aquaticSystem = aquaticSystemRef.current;
+       const aquaticRenderer = new AquaticRenderer(aquaticSystem);
++      aquaticRendererRef.current = aquaticRenderer;
+       worldStage.addChild(aquaticRenderer.container);
+ 
+       // Load PACK-004 Real Aquatic Textures
+@@ -336,6 +343,7 @@ export const WorldIntegrationScene: React.FC = () => {
+       } catch (e) {
+         console.warn('Aquatic textures load fallback:', e);
+       }
++      if (!active) return;
+ 
+       // Interactive Dig/Fill cursor preview indicator
+       const previewIndicator = new Graphics();
+@@ -434,16 +442,48 @@ export const WorldIntegrationScene: React.FC = () => {
+         container.addEventListener('pointerleave', handlePointerLeave);
+         container.addEventListener('wheel', handleWheel, { passive: false });
+         container.addEventListener('contextmenu', (e) => e.preventDefault());
++
++        cleanupListeners = () => {
++          container.removeEventListener('pointerdown', handlePointerDown);
++          window.removeEventListener('pointermove', handlePointerMove);
++          window.removeEventListener('pointerup', handlePointerUp);
++          container.removeEventListener('pointerleave', handlePointerLeave);
++          container.removeEventListener('wheel', handleWheel);
++        };
+       }
+ 
+-      // Expose debug handles on window for automated QA and profiling
+-      (window as unknown as Record<string, unknown>).__TERRAIN_RENDERER__ = terrainRenderer;
+-      (window as unknown as Record<string, unknown>).__TERRAIN_DATA__ = terrainData;
+-      (window as unknown as Record<string, unknown>).__CAMERA__ = camera;
+-      (window as unknown as Record<string, unknown>).__AQUATIC_RENDERER__ = aquaticRenderer;
+-      (window as unknown as Record<string, unknown>).__AQUATIC_SYSTEM__ = aquaticSystem;
+-      (window as unknown as Record<string, unknown>).__WEATHER_RENDERER__ = weatherRenderer;
+-      (window as unknown as Record<string, unknown>).__WEATHER_SYSTEM__ = weatherSystem;
++      // Expose debug handles as dynamic getters on window for automated QA and profiling
++      const isQaMode = import.meta.env.DEV || window.location.search.includes('mode=integration');
++      if (isQaMode) {
++        Object.defineProperty(window, '__CAMERA__', {
++          get: () => cameraRef.current,
++          configurable: true,
++        });
++        Object.defineProperty(window, '__TERRAIN_RENDERER__', {
++          get: () => terrainRendererRef.current,
++          configurable: true,
++        });
++        Object.defineProperty(window, '__TERRAIN_DATA__', {
++          get: () => terrainDataRef.current,
++          configurable: true,
++        });
++        Object.defineProperty(window, '__AQUATIC_RENDERER__', {
++          get: () => aquaticRendererRef.current,
++          configurable: true,
++        });
++        Object.defineProperty(window, '__AQUATIC_SYSTEM__', {
++          get: () => aquaticSystemRef.current,
++          configurable: true,
++        });
++        Object.defineProperty(window, '__WEATHER_RENDERER__', {
++          get: () => weatherRendererRef.current,
++          configurable: true,
++        });
++        Object.defineProperty(window, '__WEATHER_SYSTEM__', {
++          get: () => weatherSystemRef.current,
++          configurable: true,
++        });
++      }
+ 
+       // Main Loop
+       const loop = (currentTime: number) => {
+@@ -516,14 +556,25 @@ export const WorldIntegrationScene: React.FC = () => {
+     init();
+ 
+     return () => {
++      active = false;
+       cancelAnimationFrame(animId);
++      if (cleanupListeners) {
++        cleanupListeners();
++      }
+       if (pixiApp) {
+         try {
+-          pixiApp.destroy(true);
++          pixiApp.destroy(true, { children: true });
+         } catch (e) {
+           console.warn('Pixi destroy cleanup:', e);
+         }
+       }
++      delete (window as unknown as Record<string, unknown>).__CAMERA__;
++      delete (window as unknown as Record<string, unknown>).__TERRAIN_RENDERER__;
++      delete (window as unknown as Record<string, unknown>).__TERRAIN_DATA__;
++      delete (window as unknown as Record<string, unknown>).__AQUATIC_RENDERER__;
++      delete (window as unknown as Record<string, unknown>).__AQUATIC_SYSTEM__;
++      delete (window as unknown as Record<string, unknown>).__WEATHER_RENDERER__;
++      delete (window as unknown as Record<string, unknown>).__WEATHER_SYSTEM__;
+     };
+   }, []);
+ 
+@@ -718,6 +769,7 @@ export const WorldIntegrationScene: React.FC = () => {
+           {[0, 1, 2, 5].map((s) => (
+             <button
+               key={s}
++              data-testid={`btn-speed-${s}`}
+               onClick={() => setTimeSpeed(s)}
+               className={`px-2 py-1 rounded-lg font-mono text-[11px] transition ${
+                 timeSpeed === s ? 'bg-amber-500 text-neutral-950 font-bold' : 'bg-white/5 hover:bg-white/10 text-neutral-300'
+diff --git a/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts b/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts
+index e8a6af1..dc70339 100644
+--- a/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts
++++ b/the-vivarium-web/src/engine/OrganicTerrainRenderer.ts
+@@ -6,6 +6,8 @@ export class OrganicTerrainRenderer {
+   readonly terrainData: OrganicTerrainData;
+ 
+   // Visual layers inside terrain container
++  private cavityBackgroundGraphics: Graphics;
++  private subterraneanObjectContainer: Container;
+   private soilContainer: Container;
+   private soilTilingLayer: TilingSprite | null = null;
+   private soilTilingLayer2: TilingSprite | null = null;
+@@ -14,7 +16,6 @@ export class OrganicTerrainRenderer {
+   private pebbleTilingLayer: TilingSprite | null = null;
+ 
+   private maskGraphics: Graphics;
+-  private cavityBackgroundGraphics: Graphics;
+   private rimContourGraphics: Graphics;
+   private surfaceGrassRimGraphics: Graphics;
+   private debugGridGraphics: Graphics;
+@@ -23,6 +24,12 @@ export class OrganicTerrainRenderer {
+   private cachedDensity: Float32Array | null = null;
+   private isDensityInitialized: boolean = false;
+ 
++  // Telemetry tracking for QA & Benchmark
++  public rebuildCount: number = 0;
++  public totalRebuildTimeMs: number = 0;
++  public lastRebuildDurationMs: number = 0;
++  public rebuildDurations: number[] = [];
++
+   constructor(terrainData: OrganicTerrainData) {
+     this.terrainData = terrainData;
+     this.container = new Container();
+@@ -31,7 +38,11 @@ export class OrganicTerrainRenderer {
+     this.cavityBackgroundGraphics = new Graphics();
+     this.container.addChild(this.cavityBackgroundGraphics);
+ 
+-    // 2. Soil Texture Tiling Group (Masked by organic terrain mask)
++    // 2. Subterranean Objects & Roots (Index 1: In front of cavity, behind soil)
++    this.subterraneanObjectContainer = new Container();
++    this.container.addChild(this.subterraneanObjectContainer);
++
++    // 3. Soil Texture Tiling Group (Masked by organic terrain mask)
+     this.soilContainer = new Container();
+     this.container.addChild(this.soilContainer);
+ 
+@@ -39,19 +50,42 @@ export class OrganicTerrainRenderer {
+     this.soilContainer.mask = this.maskGraphics;
+     this.soilContainer.addChild(this.maskGraphics);
+ 
+-    // 3. Earthen Rim & Contact Shadows (Soft natural cutaway shading & loam border)
++    // 4. Earthen Rim & Contact Shadows (Soft natural cutaway shading & loam border)
+     this.rimContourGraphics = new Graphics();
+     this.container.addChild(this.rimContourGraphics);
+ 
+-    // 4. Surface Grass Rim (Lush grass line on undulating horizon)
++    // 5. Surface Grass Rim (Lush grass line on undulating horizon)
+     this.surfaceGrassRimGraphics = new Graphics();
+     this.container.addChild(this.surfaceGrassRimGraphics);
+ 
+-    // 5. Debug Grid Layer (Optional toggle)
++    // 6. Debug Grid Layer (Optional toggle)
+     this.debugGridGraphics = new Graphics();
+     this.container.addChild(this.debugGridGraphics);
+   }
+ 
++  addSubterraneanLayer(layer: Container): void {
++    this.subterraneanObjectContainer.addChild(layer);
++  }
++
++  get avgRebuildDurationMs(): number {
++    return this.rebuildCount > 0 ? this.totalRebuildTimeMs / this.rebuildCount : 0;
++  }
++
++  get maxRebuildDurationMs(): number {
++    return this.rebuildDurations.length > 0 ? Math.max(...this.rebuildDurations) : 0;
++  }
++
++  get totalRebuildCpuTimeMs(): number {
++    return this.totalRebuildTimeMs;
++  }
++
++  resetRebuildMetrics(): void {
++    this.rebuildCount = 0;
++    this.totalRebuildTimeMs = 0;
++    this.lastRebuildDurationMs = 0;
++    this.rebuildDurations = [];
++  }
++
+   setSoilTexture(tex: Texture): void {
+     if (!this.soilTilingLayer) {
+       this.soilTilingLayer = new TilingSprite({
+@@ -135,6 +169,7 @@ export class OrganicTerrainRenderer {
+   }
+ 
+   rebuildTerrainMesh(showDebugGrid: boolean = false, dirtyBox?: { minX: number; maxX: number; minY: number; maxY: number }): void {
++    const t0 = performance.now();
+     const data = this.terrainData;
+     const originX = data.originX;
+     const originY = data.originY;
+@@ -466,5 +501,11 @@ export class OrganicTerrainRenderer {
+       }
+       this.debugGridGraphics.stroke({ color: 0xf97316, width: 2.0, alpha: 0.95 });
+     }
++
++    const dt = performance.now() - t0;
++    this.rebuildCount++;
++    this.lastRebuildDurationMs = dt;
++    this.totalRebuildTimeMs += dt;
++    this.rebuildDurations.push(dt);
+   }
+ }

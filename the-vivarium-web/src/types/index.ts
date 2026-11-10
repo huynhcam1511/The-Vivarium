@@ -32,7 +32,18 @@ export interface EcoEnvironment {
   biome: string;
 }
 
-export type AntState = 'IDLE' | 'WANDERING' | 'MOVING_TO_DIG' | 'DIGGING' | 'CARRYING_MUD' | 'ATTENDING_QUEEN';
+export type AntState =
+  | 'IDLE'
+  | 'WANDERING'
+  | 'MOVING_TO_JOB'
+  | 'DIGGING'
+  | 'MOVING_TO_STOCKPILE'
+  | 'RETRIEVING_MUD'
+  | 'HAULING_MUD'
+  | 'BACKFILLING'
+  | 'MOVING_TO_DIG'
+  | 'CARRYING_MUD'
+  | 'ATTENDING_QUEEN';
 
 export interface AntEntity {
   id: string;
@@ -47,6 +58,11 @@ export interface AntEntity {
   energy: number;
   carriedResource: 'MUD' | 'SEED' | null;
   walkCycle: number;
+  currentJobId?: number | string | null;
+  jobTimer?: number;
+  jobDuration?: number;
+  targetJobCell?: GridCoord | null;
+  mudPayload?: number;
 }
 
 export type BeeState = 'IN_HIVE' | 'LEAVING_HIVE' | 'FLYING_TO_FLOWER' | 'HARVESTING_NECTAR' | 'RETURNING_TO_HIVE' | 'UNLOADING_HONEY';

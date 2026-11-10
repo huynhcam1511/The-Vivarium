@@ -1,0 +1,110 @@
+{
+  "01_WORLD_OVERVIEW": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.2°C",
+    "soil": "45%",
+    "water": "70.0px (-10.0)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "02_OAK_V5_COVERED_ROOTS": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.5°C",
+    "soil": "45%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "03_OAK_V5_ROOTS_EXPOSED_AFTER_DIG": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.5°C",
+    "soil": "44%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "04_STRATIFIED_CAVE_CLAY_PEAT": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.5°C",
+    "soil": "44%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "05_AQUATIC_LAKE_WATERFALL_INTEGRATION": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.5°C",
+    "soil": "44%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "06A_WEATHER_CLEAR_SUNNY": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.5°C",
+    "soil": "43%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "06B_WEATHER_STORMY_RAIN": {
+    "weather": "STORMY_TEMPEST",
+    "temp": "21.5°C",
+    "soil": "45%",
+    "water": "35.0px (+25.0)",
+    "wind": "9.8 m/s",
+    "fps": "60"
+  },
+  "06C_WEATHER_FOGGY_MIST": {
+    "weather": "FOGGY_MIST",
+    "temp": "20.5°C",
+    "soil": "48%",
+    "water": "35.0px (+25.0)",
+    "wind": "0.8 m/s",
+    "fps": "60"
+  },
+  "07A_CAMERA_ZOOM_1X": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "31.8°C",
+    "soil": "48%",
+    "water": "39.8px (+20.2)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "07B_CAMERA_ZOOM_2X": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.4°C",
+    "soil": "47%",
+    "water": "58.9px (+1.1)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "07C_CAMERA_ZOOM_4X": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.5°C",
+    "soil": "47%",
+    "water": "79.2px (-19.2)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "08_PERFORMANCE_BENCHMARK": {
+    "beforeDig": {
+      "weather": "CLEAR_SUNNY",
+      "temp": "32.5°C",
+      "soil": "47%",
+      "water": "80.0px (-20.0)",
+      "wind": "1.5 m/s",
+      "fps": "60"
+    },
+    "afterDig": {
+      "weather": "CLEAR_SUNNY",
+      "temp": "32.5°C",
+      "soil": "46%",
+      "water": "80.0px (-20.0)",
+      "wind": "1.5 m/s",
+      "fps": "47"
+    },
+    "sustainedFps": "47",
+    "status": "PERFORMANCE_ACCEPTABLE"
+  }
+}

@@ -15,6 +15,13 @@ export const EnvironmentPreviewScene: React.FC = () => {
   const [enableParallax, setEnableParallax] = useState<boolean>(true);
   const [showWireframe, setShowWireframe] = useState<boolean>(false);
   const [activeBrush, setActiveBrush] = useState<'NONE' | 'DIG' | 'FILL'>('NONE');
+  const [treeVersion, setTreeVersion] = useState<'V5' | 'V2'>('V5');
+  const treeVersionRef = useRef<'V5' | 'V2'>('V5');
+  treeVersionRef.current = treeVersion;
+  const rootBackGroupRef = useRef<Container | null>(null);
+  const trunkFrontGroupRef = useRef<Container | null>(null);
+  const texturesRef = useRef<any>({});
+  const updateTreeRef = useRef<((v: 'V5' | 'V2') => void) | null>(null);
 
   // Organic terrain instances
   const terrainDataRef = useRef<OrganicTerrainData>(new OrganicTerrainData());
@@ -51,6 +58,12 @@ export const EnvironmentPreviewScene: React.FC = () => {
   const isMouseDownRef = useRef(false);
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0, camStartX: 0, camStartY: 0 });
+
+  useEffect(() => {
+    if (updateTreeRef.current) {
+      updateTreeRef.current(treeVersion);
+    }
+  }, [treeVersion]);
 
   useEffect(() => {
     let active = true;
@@ -149,6 +162,7 @@ export const EnvironmentPreviewScene: React.FC = () => {
       worldContainerRef.current = worldContainer;
 
       // Load Assets
+      const unifiedV5Path = '/assets/qa_temp_v5/env_tree_ancient_unified_v5.png';
       const trunkPath = '/assets/source/env_tree_ancient_trunk_base_v2.png';
       const boughPath = '/assets/source/env_tree_bough_main_moss_v2.png';
       const foliagePath = '/assets/source/env_foliage_canopy_clump_01_v2.png';
@@ -162,6 +176,7 @@ export const EnvironmentPreviewScene: React.FC = () => {
       const cloverPath = '/assets/environment/vegetation/env_flower_clover_white.png';
       const daisyPath = '/assets/environment/vegetation/env_flower_daisy_golden.png';
 
+      let texUnifiedV5: any = null;
       let texTrunk: any = null;
       let texBough: any = null;
       let texFoliage: any = null;
@@ -174,6 +189,7 @@ export const EnvironmentPreviewScene: React.FC = () => {
       let texDaisy: any = null;
 
       try {
+        texUnifiedV5 = await Assets.load(unifiedV5Path).catch(() => null);
         texTrunk = await Assets.load(trunkPath);
         texBough = await Assets.load(boughPath);
         texFoliage = await Assets.load(foliagePath);
@@ -202,63 +218,140 @@ export const EnvironmentPreviewScene: React.FC = () => {
       terrainRenderer.rebuildTerrainMesh(false);
 
       // ====================================================================
-      // 4. ANCIENT OAK 4-LAYER ASSEMBLY (Z: 35 Roots, Z: 40 Trunk, Z: 45 Bough, Z: 70 Foliage)
-      // Ground elevation at trunk center (X = 0)
+      // 4. ANCIENT OAK ASSEMBLY (Oak V5 Dual-Pass Sandwich or V2 4-Layer Fallback)
       // ====================================================================
+      texturesRef.current = {
+        texUnifiedV5,
+        texTrunk,
+        texBough,
+        texFoliage,
+        texRoots,
+      };
+
+      const rootBackGroup = new Container();
+      // Insert roots behind terrain mesh (Z: 30)
+      const terrainIndex = worldContainer.children.indexOf(terrainRenderer.container);
+      worldContainer.addChildAt(rootBackGroup, Math.max(0, terrainIndex));
+      rootBackGroupRef.current = rootBackGroup;
+
+      const trunkFrontGroup = new Container();
+      // Insert trunk on front of terrain mesh (Z: 45)
+      worldContainer.addChild(trunkFrontGroup);
+      trunkFrontGroupRef.current = trunkFrontGroup;
+
       const trunkGroundY = terrainData.getSurfaceY(0);
 
-      // A. Roots (Z: 35) - Placed under ground, flush with bottom of trunk
-      if (texRoots) {
-        const rootsSprite = new Sprite(texRoots);
-        rootsSprite.anchor.set(0.50, 0.00);
-        rootsSprite.scale.set(0.5); // Strictly uniform 0.5
-        rootsSprite.position.set(0, trunkGroundY - 4);
-        worldContainer.addChild(rootsSprite);
-        rootsSpriteRef.current = rootsSprite;
-      }
+      const updateTreeAssembly = (v: 'V5' | 'V2') => {
+        rootBackGroup.removeChildren();
+        trunkFrontGroup.removeChildren();
 
-      // B. Trunk Base (Z: 40) - Planted on undulating surface at X = 0
-      if (texTrunk) {
-        const trunkSprite = new Sprite(texTrunk);
-        trunkSprite.anchor.set(0.50, 1.00);
-        trunkSprite.scale.set(0.5);
-        trunkSprite.position.set(0, trunkGroundY);
-        worldContainer.addChild(trunkSprite);
-        trunkSpriteRef.current = trunkSprite;
-      }
+        const { texUnifiedV5, texTrunk, texBough, texFoliage, texRoots } = texturesRef.current;
 
-      // C. Bough (Z: 45) - Mounted on trunk crotch
-      if (texBough) {
-        const boughSprite = new Sprite(texBough);
-        boughSprite.anchor.set(0.15, 0.65);
-        boughSprite.scale.set(0.5);
-        boughSprite.position.set(-10, trunkGroundY - 285);
-        worldContainer.addChild(boughSprite);
-        boughSpriteRef.current = boughSprite;
-      }
+        if (v === 'V5' && texUnifiedV5) {
+          // === PASS 1: ROOT SYSTEM (Z: 30) ===
+          // Placed behind Solid Soil; exposed only when excavated!
+          const rootSpr = new Sprite(texUnifiedV5);
+          rootSpr.anchor.set(0.5, 0.55);
+          rootSpr.scale.set(0.5);
+          rootSpr.position.set(0, trunkGroundY);
 
-      // D. Canopy Clump (Z: 70) - Swaying
-      if (texFoliage) {
-        const canopyContainer = new Container();
-        canopyContainer.position.set(80, trunkGroundY - 410);
-        worldContainer.addChild(canopyContainer);
-        canopyContainerRef.current = canopyContainer;
+          // Mask: Only show below undulating ground surface contour
+          const rootMask = new Graphics();
+          const rootMaskPts: { x: number; y: number }[] = [];
+          rootMaskPts.push({ x: -600, y: trunkGroundY + 1200 });
+          for (let mx = -600; mx <= 600; mx += 16) {
+            rootMaskPts.push({ x: mx, y: terrainData.getSurfaceY(mx) - 6 });
+          }
+          rootMaskPts.push({ x: 600, y: trunkGroundY + 1200 });
+          rootMask.poly(rootMaskPts).fill({ color: 0xffffff });
+          rootSpr.mask = rootMask;
+          rootSpr.addChild(rootMask);
+          rootBackGroup.addChild(rootSpr);
+          rootsSpriteRef.current = rootSpr;
 
-        const foliageSprite = new Sprite(texFoliage);
-        foliageSprite.anchor.set(0.50, 0.50);
-        foliageSprite.scale.set(0.5);
-        foliageSprite.position.set(0, 0);
-        canopyContainer.addChild(foliageSprite);
+          // === PASS 2: TRUNK & BUTTRESS FLARE (Z: 45) ===
+          // Placed in front of Solid Soil; anchored naturally into groundline
+          const trunkSpr = new Sprite(texUnifiedV5);
+          trunkSpr.anchor.set(0.5, 0.55);
+          trunkSpr.scale.set(0.5);
+          trunkSpr.position.set(0, trunkGroundY);
 
-        const foliageSprite2 = new Sprite(texFoliage);
-        foliageSprite2.anchor.set(0.50, 0.50);
-        foliageSprite2.scale.set(0.42);
-        foliageSprite2.position.set(-160, 40);
-        foliageSprite2.alpha = 0.90;
-        canopyContainer.addChild(foliageSprite2);
-      }
+          const trunkMask = new Graphics();
+          const trunkMaskPts: { x: number; y: number }[] = [];
+          trunkMaskPts.push({ x: -600, y: trunkGroundY - 1200 });
+          trunkMaskPts.push({ x: 600, y: trunkGroundY - 1200 });
+          for (let mx = 600; mx >= -600; mx -= 16) {
+            trunkMaskPts.push({ x: mx, y: terrainData.getSurfaceY(mx) + 12 });
+          }
+          trunkMask.poly(trunkMaskPts).fill({ color: 0xffffff });
+          trunkSpr.mask = trunkMask;
+          trunkSpr.addChild(trunkMask);
+          trunkFrontGroup.addChild(trunkSpr);
+          trunkSpriteRef.current = trunkSpr;
 
-      // ====================================================================
+          // === PASS 3: LUSH CANOPY FOLIAGE ===
+          if (texFoliage) {
+            const canopyContainer = new Container();
+            canopyContainer.position.set(40, trunkGroundY - 340);
+            trunkFrontGroup.addChild(canopyContainer);
+            canopyContainerRef.current = canopyContainer;
+
+            const foliage1 = new Sprite(texFoliage);
+            foliage1.anchor.set(0.5, 0.5);
+            foliage1.scale.set(0.48);
+            canopyContainer.addChild(foliage1);
+
+            const foliage2 = new Sprite(texFoliage);
+            foliage2.anchor.set(0.5, 0.5);
+            foliage2.scale.set(0.42);
+            foliage2.position.set(-140, 30);
+            foliage2.alpha = 0.92;
+            canopyContainer.addChild(foliage2);
+          }
+        } else {
+          // === V2 FALLBACK (Old Assembly) ===
+          if (texRoots) {
+            const rootsSprite = new Sprite(texRoots);
+            rootsSprite.anchor.set(0.5, 0.0);
+            rootsSprite.scale.set(0.5);
+            rootsSprite.position.set(0, trunkGroundY - 4);
+            rootBackGroup.addChild(rootsSprite);
+            rootsSpriteRef.current = rootsSprite;
+          }
+          if (texTrunk) {
+            const trunkSprite = new Sprite(texTrunk);
+            trunkSprite.anchor.set(0.5, 1.0);
+            trunkSprite.scale.set(0.5);
+            trunkSprite.position.set(0, trunkGroundY);
+            trunkFrontGroup.addChild(trunkSprite);
+            trunkSpriteRef.current = trunkSprite;
+          }
+          if (texBough) {
+            const boughSprite = new Sprite(texBough);
+            boughSprite.anchor.set(0.15, 0.65);
+            boughSprite.scale.set(0.5);
+            boughSprite.position.set(-10, trunkGroundY - 285);
+            trunkFrontGroup.addChild(boughSprite);
+            boughSpriteRef.current = boughSprite;
+          }
+          if (texFoliage) {
+            const canopyContainer = new Container();
+            canopyContainer.position.set(80, trunkGroundY - 410);
+            trunkFrontGroup.addChild(canopyContainer);
+            canopyContainerRef.current = canopyContainer;
+
+            const foliageSprite = new Sprite(texFoliage);
+            foliageSprite.anchor.set(0.5, 0.5);
+            foliageSprite.scale.set(0.5);
+            canopyContainer.addChild(foliageSprite);
+          }
+        }
+      };
+
+      updateTreeRef.current = updateTreeAssembly;
+      updateTreeAssembly(treeVersionRef.current);
+
+            // ====================================================================
       // 4E. PACK-002-B1: GROUND SURFACE & VEGETATION (Z: 50 Grass Strip, Z: 52 Tuft, Z: 55 Flowers)
       // ====================================================================
       const vegetationContainer = new Container();
@@ -547,10 +640,10 @@ export const EnvironmentPreviewScene: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xs font-black tracking-widest text-amber-100 uppercase">
-              The Vivarium — Organic Terrain Foundation (Task-013)
+              The Vivarium — Environment Preview (Tích Hợp Cổ Thụ Sồi V5)
             </h1>
             <p className="text-[10px] text-amber-400 font-medium">
-              Địa Hình Hữu Cơ Uốn Lượn + Hầm Hang Cong + Bút Đào/Lấp Thử Nghiệm
+              Cây Sồi V5 Thống Nhất Liền Khối + Rễ Ẩn Ngầm Tự Nhiên + Hầm Hang Cong
             </p>
           </div>
         </div>
@@ -645,6 +738,31 @@ export const EnvironmentPreviewScene: React.FC = () => {
 
       {/* Bottom Floating Control Bar */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-neutral-900/95 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10 shadow-2xl">
+        {/* Cây Sồi V5 / V2 Version Switcher */}
+        <div className="flex items-center gap-1.5 border-r border-white/10 pr-3 text-xs font-mono">
+          <span className="text-[11px] text-amber-400 font-bold mr-1">CÂY SỒI:</span>
+          <button
+            onClick={() => setTreeVersion('V5')}
+            className={`px-3 py-1 rounded-lg font-bold transition-all ${
+              treeVersion === 'V5'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-1 ring-emerald-400'
+                : 'bg-neutral-800 text-neutral-400 hover:text-white'
+            }`}
+          >
+            🌳 Oak V5 (Liền Khối Mới)
+          </button>
+          <button
+            onClick={() => setTreeVersion('V2')}
+            className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+              treeVersion === 'V2'
+                ? 'bg-amber-700 text-white shadow-md'
+                : 'bg-neutral-800 text-neutral-400 hover:text-white'
+            }`}
+          >
+            🪵 Oak V2 (Bản Cũ Đứt Đoạn)
+          </button>
+        </div>
+
         {/* Interactive Dig / Fill Brushes */}
         <div className="flex items-center gap-1.5 border-r border-white/10 pr-3 text-xs font-mono">
           <span className="text-[11px] text-neutral-400 font-bold mr-1">THAO TÁC:</span>

@@ -1,0 +1,42 @@
+{
+  "BEFORE_INITIAL": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.5°C",
+    "soil": "44%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.5 m/s",
+    "fps": "60"
+  },
+  "AFTER_RAIN_INFLOW": {
+    "weather": "STORMY_TEMPEST",
+    "temp": "21.0°C",
+    "soil": "50%",
+    "water": "35.0px (+25.0)",
+    "wind": "9.8 m/s",
+    "fps": "60"
+  },
+  "AFTER_HEATWAVE_EVAP": {
+    "weather": "HEATWAVE",
+    "temp": "40.5°C",
+    "soil": "49%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.0 m/s",
+    "fps": "60"
+  },
+  "AFTER_DIG_EXCAVATION": {
+    "weather": "HEATWAVE",
+    "temp": "40.5°C",
+    "soil": "46%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.0 m/s",
+    "fps": "41"
+  },
+  "FINAL_RESTORED": {
+    "weather": "CLEAR_SUNNY",
+    "temp": "32.7°C",
+    "soil": "45%",
+    "water": "80.0px (-20.0)",
+    "wind": "1.5 m/s",
+    "fps": "39"
+  }
+}
