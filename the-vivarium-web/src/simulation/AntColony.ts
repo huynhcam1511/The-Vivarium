@@ -251,7 +251,7 @@ export class AntColony {
 
     if (ant.state === 'BACKFILLING') {
       ant.jobTimer = (ant.jobTimer ?? 0) + delta;
-      const duration = ant.jobDuration ?? 2.0;
+      const duration = ant.jobDuration ?? 3.5;
 
       if (ant.jobTimer >= duration) {
         // Complete Backfill!
@@ -335,8 +335,8 @@ export class AntColony {
         }
       }
 
-      // If idle and no jobs, occasionally wander
-      if (ant.state === 'IDLE' && Math.random() < 0.02) {
+      // If idle and queue has NO pending jobs, occasionally wander
+      if (ant.state === 'IDLE' && this.jobQueue.getPendingCount() === 0 && Math.random() < 0.02) {
         const destinations = [this.livingCell, this.nurseryCell, this.stockpileCell, this.surfaceCell];
         const chosen = destinations[Math.floor(Math.random() * destinations.length)];
         const path = this.pathfinder.findPath(antCell, chosen);

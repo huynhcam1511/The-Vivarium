@@ -39,12 +39,12 @@ export class JobQueue {
         existing.status = 'PENDING';
         existing.assignedWorkerId = null;
         existing.progress = 0;
-        existing.workDuration = workDuration ?? (type === 'DIG' ? this.calculateDigDuration(cell.cy) : 2.0);
+        existing.workDuration = workDuration ?? (type === 'DIG' ? this.calculateDigDuration(cell.cy) : 3.5);
       }
       return existing;
     }
 
-    const duration = workDuration ?? (type === 'DIG' ? this.calculateDigDuration(cell.cy) : 2.0);
+    const duration = workDuration ?? (type === 'DIG' ? this.calculateDigDuration(cell.cy) : 3.5);
     const id = this.nextId++;
     const job: Job = {
       id,

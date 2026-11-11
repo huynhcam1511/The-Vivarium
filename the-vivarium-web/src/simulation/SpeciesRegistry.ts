@@ -29,7 +29,7 @@ export const COMMON_FOREST_ANT: SpeciesStats = {
   scientificName: 'Formica rufa',
   moveSpeedPx: 48,
   digDurationSec: 3.5,
-  fillDurationSec: 2.0,
+  fillDurationSec: 3.5,
   maxEnergy: 100,
   energyPerDig: 15,
   energyPerMovePerSec: 1.5,

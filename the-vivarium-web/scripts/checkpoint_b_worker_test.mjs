@@ -6,7 +6,7 @@
 // 2. Real Dig workflow: Nav -> Dig (3.5s) -> Solid becomes Void -> Mud carried -> Return to Stockpile -> Deposit
 // 3. Material Conservation invariant (Stockpile count does NOT increment until arrival/deposit)
 // 4. Stratum-aware yield (Clay stratum yields Mud; Loam stratum yields 0 mud)
-// 5. Real Fill workflow: Reserve -> Nav to Stockpile -> Withdraw Mud -> Nav to Void -> Fill (2.0s) -> Void becomes Solid
+// 5. Real Fill workflow: Reserve -> Nav to Stockpile -> Withdraw Mud -> Nav to Void -> Fill (3.5s) -> Void becomes Solid
 // 6. Starved stockpile blocks Fill job
 // 7. Unreachable cell or job cancellation handling
 // ============================================================================
@@ -190,7 +190,7 @@ describe('Checkpoint B — Single Worker Ant Dig/Fill MVP Verification', () => {
       scientificName: 'Formica rufa',
       moveSpeedPx: 48,
       digDurationSec: 3.5,
-      fillDurationSec: 2.0,
+      fillDurationSec: 3.5,
       maxEnergy: 100,
       carryCapacityMud: 1
     };
@@ -240,7 +240,7 @@ describe('Checkpoint B — Single Worker Ant Dig/Fill MVP Verification', () => {
     worker.jobTimer = 0;
 
     // Simulate 2.0 seconds elapsed (less than 3.5s duration)
-    worker.jobTimer += 2.0;
+    worker.jobTimer += 3.5;
     assert.strictEqual(terrain.isSolid(46, 8), true, 'Cell must remain SOLID when t < 3.5s');
     assert.strictEqual(worker.mudPayload, 0, 'Worker must NOT have mud payload yet');
     assert.strictEqual(stockpile.getAvailableCount(), 16, 'Stockpile must NOT increase yet');
@@ -305,7 +305,7 @@ describe('Checkpoint B — Single Worker Ant Dig/Fill MVP Verification', () => {
     };
 
     // 1. Player designates FILL at (46, 8)
-    queue.pushJob('FILL', { cx: 46, cy: 8 }, 2.0);
+    queue.pushJob('FILL', { cx: 46, cy: 8 }, 3.5);
 
     // 2. Claim job and reserve mud
     const claimed = queue.claimNearestJob(worker.position, worker.id, stockpile.getAvailableCount() > 0);
@@ -331,7 +331,7 @@ describe('Checkpoint B — Single Worker Ant Dig/Fill MVP Verification', () => {
     worker.state = 'BACKFILLING';
     worker.jobTimer = 0;
 
-    // Fill execution: 2.0s
+    // Fill execution: 3.5s
     worker.jobTimer += 2.0;
     terrain.setSolid(46, 8, true); // Restores solid
     queue.completeJob(worker.currentJobId);
@@ -346,7 +346,7 @@ describe('Checkpoint B — Single Worker Ant Dig/Fill MVP Verification', () => {
   it('B-05: Material shortage — Starved stockpile strictly blocks Fill claiming', () => {
     const stockpile = new MockStockpile(64, 0); // 0 available mud
     const queue = new MockJobQueue();
-    queue.pushJob('FILL', { cx: 10, cy: 10 }, 2.0);
+    queue.pushJob('FILL', { cx: 10, cy: 10 }, 3.5);
 
     const claimed = queue.claimNearestJob({ cx: 5, cy: 5 }, 'worker-1', stockpile.getAvailableCount() > 0);
     assert.strictEqual(claimed, null, 'Worker must NOT claim FILL job when stockpile has 0 available mud');
