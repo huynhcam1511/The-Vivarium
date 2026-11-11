@@ -6,6 +6,8 @@ export interface TerrainPoint {
   y: number;
 }
 
+export type SoilStrataType = 'LOAM' | 'CLAY' | 'PEAT' | 'BEDROCK';
+
 export class OrganicTerrainData {
   readonly cols: number;
   readonly rows: number;
@@ -87,6 +89,25 @@ export class OrganicTerrainData {
     const t = colFloat - c0;
     const h = (1 - t) * this.surfaceHeightMap[c0] + t * this.surfaceHeightMap[c1];
     return this.originY + h;
+  }
+
+  // Get physical soil geological stratum at cell coordinates
+  getSoilStrata(cx: number, cy: number): SoilStrataType {
+    if (cx < 0 || cx >= this.cols || cy < 0 || cy >= this.rows) return 'BEDROCK';
+    const cellCenterWy = this.originY + cy * this.cellSize + this.cellSize * 0.5;
+    const cellCenterWx = this.originX + cx * this.cellSize + this.cellSize * 0.5;
+    const surfY = this.getSurfaceY(cellCenterWx);
+    const depthBelowSurface = cellCenterWy - surfY;
+
+    if (depthBelowSurface < 160) {
+      return 'LOAM'; // Topsoil / Humus / Loam (0 - 160px depth)
+    } else if (depthBelowSurface < 440) {
+      return 'CLAY'; // Dense Subterranean Clay (160 - 440px depth) - Yields Clay Mud
+    } else if (depthBelowSurface < 760) {
+      return 'PEAT'; // Deep Peat & Mineral Strata (440 - 760px depth)
+    } else {
+      return 'BEDROCK'; // Deep Subterranean Bedrock
+    }
   }
 
   // Dig brush: carves out solid cells in circular/organic radius

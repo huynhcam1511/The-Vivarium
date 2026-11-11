@@ -12,6 +12,7 @@ import { TerrainPathfinder } from './TerrainPathfinder';
 import { JobQueue } from './JobQueue';
 import { ClayMudStockpile } from './ClayMudStockpile';
 import { DesignationManager } from './DesignationManager';
+import { COMMON_FOREST_ANT, type SpeciesStats } from './SpeciesRegistry';
 
 export class AntColony {
   ants: AntEntity[] = [];
@@ -20,6 +21,7 @@ export class AntColony {
   jobQueue: JobQueue;
   stockpile: ClayMudStockpile;
   designationManager: DesignationManager;
+  speciesStats: SpeciesStats = COMMON_FOREST_ANT;
 
   // Key Subterranean Chamber Waypoints (in canonical coordinates)
   queenCell: GridCoord = { cx: 57, cy: 14 };      // Royal Chamber (X: 640, Y: 460)
@@ -128,7 +130,7 @@ export class AntColony {
         position: pos,
         targetPos: null,
         angle: Math.random() * Math.PI * 2,
-        speed: 65 + Math.random() * 20,
+        speed: this.speciesStats.moveSpeedPx,
         state: 'IDLE',
         path: [],
         pathIndex: 0,
@@ -137,7 +139,7 @@ export class AntColony {
         walkCycle: Math.random() * 10,
         currentJobId: null,
         jobTimer: 0,
-        jobDuration: 3.5,
+        jobDuration: this.speciesStats.digDurationSec,
         targetJobCell: null,
         mudPayload: 0,
       });
@@ -221,9 +223,15 @@ export class AntColony {
           this.designationManager.removeDesignation(target.cx, target.cy);
         }
 
-        // Pick up mud lump and transition to HAULING_MUD
-        ant.carriedResource = 'MUD';
-        ant.mudPayload = 1;
+        // Stratum-aware yield: CLAY yields Clay Mud; other strata (Loam, Peat) do not add clay mud
+        const strata = target && this.terrainData.getSoilStrata ? this.terrainData.getSoilStrata(target.cx, target.cy) : 'CLAY';
+        if (strata === 'CLAY') {
+          ant.carriedResource = 'MUD';
+          ant.mudPayload = 1;
+        } else {
+          ant.carriedResource = null;
+          ant.mudPayload = 0;
+        }
         ant.currentJobId = null;
         ant.targetJobCell = null;
         ant.state = 'HAULING_MUD';
