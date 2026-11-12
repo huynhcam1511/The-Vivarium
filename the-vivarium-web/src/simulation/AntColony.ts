@@ -314,16 +314,21 @@ export class AntColony {
         } else if (job.type === 'FILL') {
           // Atomically reserve mud in stockpile
           if (this.stockpile.reserve(1)) {
-            const path = this.pathfinder.findPath(antCell, this.stockpile.pickupWaypoint);
-            if (path) {
+            const isAtWaypoint = (antCell.cx === this.stockpile.pickupWaypoint.cx && antCell.cy === this.stockpile.pickupWaypoint.cy);
+            const path = isAtWaypoint ? [] : this.pathfinder.findPath(antCell, this.stockpile.pickupWaypoint);
+            if (path !== null) {
               ant.currentJobId = job.id;
               ant.targetJobCell = job.cell;
               ant.jobDuration = job.workDuration;
               ant.jobTimer = 0;
               ant.state = 'MOVING_TO_STOCKPILE';
-              ant.path = path;
-              ant.pathIndex = 0;
               this.designationManager.assignWorker(job.cell.cx, job.cell.cy, ant.id);
+              if (isAtWaypoint) {
+                this.handlePathDestinationReached(ant, onTerrainModified);
+              } else {
+                ant.path = path;
+                ant.pathIndex = 0;
+              }
               return;
             } else {
               // Path to stockpile blocked; unreserve
