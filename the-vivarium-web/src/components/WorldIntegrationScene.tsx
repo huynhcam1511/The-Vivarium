@@ -13,6 +13,8 @@ import { JobQueue } from '../simulation/JobQueue';
 import { ClayMudStockpile } from '../simulation/ClayMudStockpile';
 import { TerrainPathfinder } from '../simulation/TerrainPathfinder';
 import { AntColony } from '../simulation/AntColony';
+import { HoneydewSource } from '../simulation/HoneydewSource';
+import { GameStateManager } from '../simulation/GameStateManager';
 import { ClayMudStockpileView } from '../rendering/ClayMudStockpileView';
 import { AntPlaceholderView } from '../rendering/AntPlaceholderView';
 
@@ -99,6 +101,7 @@ export const WorldIntegrationScene: React.FC = () => {
   const designationManagerRef = useRef<DesignationManager>(new DesignationManager());
   const jobQueueRef = useRef<JobQueue>(new JobQueue());
   const stockpileRef = useRef<ClayMudStockpile>(new ClayMudStockpile(64, 16, { cx: 48, cy: 7 }));
+  const honeydewSourceRef = useRef<HoneydewSource>(new HoneydewSource(50, 30, { cx: 50, cy: 9 }));
   const antColonyRef = useRef<AntColony | null>(null);
   const stockpileViewRef = useRef<ClayMudStockpileView | null>(null);
   const antViewRef = useRef<AntPlaceholderView | null>(null);
@@ -106,6 +109,10 @@ export const WorldIntegrationScene: React.FC = () => {
   // Interactive Tools & Mode State
   const [currentTool, setCurrentTool] = useState<'SELECT' | 'DIG' | 'FILL' | 'CANCEL'>('SELECT');
   const [timeSpeed, setTimeSpeed] = useState<number>(1);
+  const [workerEnergy, setWorkerEnergy] = useState<number>(100);
+  const [honeydewCount, setHoneydewCount] = useState<number>(30);
+  const [saveStatusMsg, setSaveStatusMsg] = useState<string>('');
+
   const [selectedWeather, setSelectedWeather] = useState<WeatherType>('CLEAR_SUNNY');
 
   // DEV mode instant brush confinement: strictly confined to DEV/QA mode
@@ -441,7 +448,8 @@ export const WorldIntegrationScene: React.FC = () => {
       const stockpile = stockpileRef.current;
       const pathfinder = new TerrainPathfinder(terrainData);
 
-      const antColony = new AntColony(terrainData, pathfinder, jobQueue, stockpile, designationManager, 12);
+      const honeydewSource = honeydewSourceRef.current;
+      const antColony = new AntColony(terrainData, pathfinder, jobQueue, stockpile, designationManager, honeydewSource, 12);
       antColonyRef.current = antColony;
 
       // Physical Clay Mud Stockpile View (placed inside subterranean layer behind solid soil)
@@ -655,6 +663,14 @@ export const WorldIntegrationScene: React.FC = () => {
           get: () => stockpileRef.current,
           configurable: true,
         });
+        Object.defineProperty(window, '__HONEYDEW_SOURCE__', {
+          get: () => honeydewSourceRef.current,
+          configurable: true,
+        });
+        Object.defineProperty(window, '__GAME_STATE_MANAGER__', {
+          get: () => GameStateManager,
+          configurable: true,
+        });
         Object.defineProperty(window, '__ANT_COLONY__', {
           get: () => antColonyRef.current,
           configurable: true,
@@ -730,7 +746,14 @@ export const WorldIntegrationScene: React.FC = () => {
         if (fpsTimer >= 0.8) {
           const st = weatherSystem.getWeatherState();
           const measuredFps = Math.min(60, Math.round(frameCount / fpsTimer));
-          setTelemetry({
+          
+        const workerAnt = antColony.ants.find((a) => a.type === 'WORKER');
+        if (workerAnt) {
+          setWorkerEnergy(Math.round(workerAnt.energy));
+        }
+        setHoneydewCount(honeydewSource.getAvailableCount());
+
+        setTelemetry({
             weather: st.currentWeather,
             temperature: st.temperature,
             humidity: st.humidity,
@@ -845,6 +868,15 @@ export const WorldIntegrationScene: React.FC = () => {
             <span className="text-neutral-400 mr-1">FPS:</span>
             <span className="font-bold text-emerald-400" data-testid="telemetry-fps">{telemetry.fps}</span>
           </div>
+          <div>
+            <span className="text-neutral-400 mr-1">Năng Lượng:</span>
+            <span className="font-bold text-yellow-300" data-testid="telemetry-worker-energy">{workerEnergy}</span>
+          </div>
+          <div>
+            <span className="text-neutral-400 mr-1">Honeydew:</span>
+            <span className="font-bold text-amber-400" data-testid="telemetry-honeydew">{honeydewCount}</span>
+          </div>
+
         </div>
       </div>
 
@@ -949,6 +981,53 @@ export const WorldIntegrationScene: React.FC = () => {
           >
             {isInstantBrushDevMode ? '⚡ Cọ tức thì DEV' : '🐜 Mô phỏng 2 Lớp'}
           </button>
+        </div>
+
+        
+        {/* Save & Load Game Controls */}
+        <div className="flex items-center gap-1.5 border-l border-white/10 pl-2">
+          <button
+            data-testid="btn-action-save"
+            onClick={() => {
+              const ok = GameStateManager.saveGame(
+                terrainDataRef.current,
+                antColonyRef.current!,
+                stockpileRef.current,
+                honeydewSourceRef.current,
+                jobQueueRef.current,
+                designationManagerRef.current
+              );
+              setSaveStatusMsg(ok ? 'Lưu thành công!' : 'Lưu thất bại!');
+              setTimeout(() => setSaveStatusMsg(''), 2500);
+            }}
+            className="px-2.5 py-1.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 font-medium text-[11px] transition"
+          >
+            💾 Lưu Game
+          </button>
+          <button
+            data-testid="btn-action-load"
+            onClick={() => {
+              const ok = GameStateManager.loadGame(
+                terrainDataRef.current,
+                antColonyRef.current!,
+                stockpileRef.current,
+                honeydewSourceRef.current,
+                jobQueueRef.current,
+                designationManagerRef.current,
+                (box) => terrainRendererRef.current?.rebuildTerrainMesh(false, box)
+              );
+              setSaveStatusMsg(ok ? 'Tải thành công!' : 'Chưa có file lưu!');
+              setTimeout(() => setSaveStatusMsg(''), 2500);
+            }}
+            className="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-medium text-[11px] transition"
+          >
+            📂 Tải Game
+          </button>
+          {saveStatusMsg && (
+            <span className="text-[10px] text-amber-300 font-bold ml-1 animate-pulse" data-testid="save-status-msg">
+              {saveStatusMsg}
+            </span>
+          )}
         </div>
 
         {/* Camera Presets */}

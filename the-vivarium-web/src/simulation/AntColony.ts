@@ -13,6 +13,7 @@ import { JobQueue } from './JobQueue';
 import { ClayMudStockpile } from './ClayMudStockpile';
 import { DesignationManager } from './DesignationManager';
 import { COMMON_FOREST_ANT, type SpeciesStats } from './SpeciesRegistry';
+import { HoneydewSource } from './HoneydewSource';
 
 export class AntColony {
   ants: AntEntity[] = [];
@@ -22,6 +23,7 @@ export class AntColony {
   stockpile: ClayMudStockpile;
   designationManager: DesignationManager;
   speciesStats: SpeciesStats = COMMON_FOREST_ANT;
+  honeydewSource: HoneydewSource;
 
   // Key Subterranean Chamber Waypoints (in canonical coordinates)
   queenCell: GridCoord = { cx: 57, cy: 14 };      // Royal Chamber (X: 640, Y: 460)
@@ -36,6 +38,7 @@ export class AntColony {
     jobQueue?: JobQueue,
     stockpile?: ClayMudStockpile,
     designationManager?: DesignationManager,
+    honeydewSource?: HoneydewSource,
     workerCount: number = 12
   ) {
     if (terrainOrGrid instanceof OrganicTerrainData) {
@@ -55,6 +58,7 @@ export class AntColony {
     this.jobQueue = jobQueue ?? new JobQueue();
     this.stockpile = stockpile ?? new ClayMudStockpile();
     this.designationManager = designationManager ?? new DesignationManager();
+    this.honeydewSource = honeydewSource ?? new HoneydewSource();
 
     const count = typeof pathfinderOrCount === 'number' ? pathfinderOrCount : workerCount;
     this.initColony(count);
@@ -192,6 +196,7 @@ export class AntColony {
         ant.position.x += Math.cos(moveAngle) * step;
         ant.position.y += Math.sin(moveAngle) * step;
         ant.angle = moveAngle;
+        ant.energy = Math.max(0, ant.energy - delta * this.speciesStats.energyPerMovePerSec);
       }
       return;
     }
@@ -199,8 +204,24 @@ export class AntColony {
     // ------------------------------------------------------------------------
     // WORK / ACTION TIMERS PHASE
     // ------------------------------------------------------------------------
+    
+    if (ant.state === 'EATING') {
+      ant.jobTimer = (ant.jobTimer ?? 0) + delta;
+      if (ant.jobTimer >= 1.5) {
+        // Finished eating: consume honeydew & restore energy
+        const consumed = this.honeydewSource.consume(1);
+        if (consumed > 0) {
+          ant.energy = Math.min(this.speciesStats.maxEnergy, ant.energy + this.honeydewSource.energyPerFeed);
+        }
+        ant.state = 'IDLE';
+        ant.jobTimer = 0;
+      }
+      return;
+    }
+
     if (ant.state === 'DIGGING') {
       ant.jobTimer = (ant.jobTimer ?? 0) + delta;
+      ant.energy = Math.max(0, ant.energy - delta * (this.speciesStats.energyPerDig / (ant.jobDuration ?? 3.5)));
       const duration = ant.jobDuration ?? 3.5;
 
       if (ant.jobTimer >= duration) {
@@ -251,6 +272,7 @@ export class AntColony {
 
     if (ant.state === 'BACKFILLING') {
       ant.jobTimer = (ant.jobTimer ?? 0) + delta;
+      ant.energy = Math.max(0, ant.energy - delta * (this.speciesStats.energyPerDig / (ant.jobDuration ?? 3.5)));
       const duration = ant.jobDuration ?? 3.5;
 
       if (ant.jobTimer >= duration) {
@@ -286,6 +308,28 @@ export class AntColony {
     // ------------------------------------------------------------------------
     // JOB CLAIMING PHASE (When IDLE or WANDERING without active payload)
     // ------------------------------------------------------------------------
+    
+    // LOW ENERGY FORAGING CHECK (Triggers feeding if energy <= threshold and not holding payload)
+    if ((ant.state === 'IDLE' || ant.state === 'WANDERING') && ant.energy <= this.speciesStats.energyRestockThreshold && !ant.carriedResource) {
+      if (!this.honeydewSource.isEmpty()) {
+        const antCell = this.worldToCell(ant.position);
+        const foodCell = this.honeydewSource.cell;
+        const isAtFood = (antCell.cx === foodCell.cx && antCell.cy === foodCell.cy);
+        const path = isAtFood ? [] : this.pathfinder.findPath(antCell, foodCell);
+        if (path !== null) {
+          ant.state = 'SEEKING_FOOD';
+          if (isAtFood) {
+            ant.state = 'EATING';
+            ant.jobTimer = 0;
+          } else {
+            ant.path = path;
+            ant.pathIndex = 0;
+          }
+          return;
+        }
+      }
+    }
+
     if (ant.state === 'IDLE' || ant.state === 'WANDERING') {
       const antCell = this.worldToCell(ant.position);
       const isFillAllowed = this.stockpile.getAvailableCount() > 0;

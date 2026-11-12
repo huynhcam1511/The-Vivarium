@@ -43,7 +43,9 @@ export type AntState =
   | 'BACKFILLING'
   | 'MOVING_TO_DIG'
   | 'CARRYING_MUD'
-  | 'ATTENDING_QUEEN';
+  | 'ATTENDING_QUEEN'
+  | 'SEEKING_FOOD'
+  | 'EATING';
 
 export interface AntEntity {
   id: string;
