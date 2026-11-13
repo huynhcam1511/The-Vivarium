@@ -1,157 +1,129 @@
 {
-  "checkpoint": "C",
-  "timestamp": "2026-11-12T18:37:57.558Z",
+  "checkpoint": "C_FINAL_CLOSEOUT",
+  "timestamp": "2026-11-13T14:04:52.505Z",
   "browser": "Chromium Headless",
   "viewport": "1600x1000",
-  "initialState": {
-    "workerId": "ant-worker-0",
-    "workerPos": {
-      "x": 352,
-      "y": 256
+  "phase1_natural_hunger_and_feeding": {
+    "initialState": {
+      "workerId": "ant-worker-0",
+      "workerPos": {
+        "x": 352,
+        "y": 256
+      },
+      "workerState": "IDLE",
+      "energy": 24.5,
+      "stockpileAvailable": 16,
+      "honeydewAmount": 30,
+      "timestamp": "2026-11-13T14:04:36.618Z"
     },
-    "workerState": "IDLE",
-    "energy": 100,
-    "stockpileAvailable": 16,
-    "honeydewAmount": 30
+    "seekingFoodReflex": {
+      "state": "SEEKING_FOOD",
+      "energy": 23.5253,
+      "pos": {
+        "x": 367.9935999999999,
+        "y": 272
+      },
+      "pathLen": 4,
+      "pathIndex": 1,
+      "timestamp": "2026-11-13T14:04:37.290Z"
+    },
+    "eatingState": {
+      "state": "EATING",
+      "energy": 21.050300000000014,
+      "jobTimer": 0,
+      "honeydewAmount": 30,
+      "pos": {
+        "x": 416,
+        "y": 304
+      },
+      "timestamp": "2026-11-13T14:04:39.006Z"
+    },
+    "feedingCompleted": {
+      "state": "IDLE",
+      "energy": 66.05030000000002,
+      "honeydewAmount": 29,
+      "pos": {
+        "x": 416,
+        "y": 304
+      },
+      "timestamp": "2026-11-13T14:04:40.509Z"
+    },
+    "energyRestoredDelta": 41.55030000000002
   },
-  "hungerReflex": {
-    "workerState": "WANDERING",
-    "energy": 17.800250000000016,
-    "position": {
-      "x": 288,
-      "y": 226.40160000000006
+  "phase2_save_reload_continue": {
+    "preSaveSnapshot": {
+      "workerId": "ant-worker-0",
+      "state": "HAULING_MUD",
+      "mudPayload": 1,
+      "carriedResource": "MUD",
+      "energy": 60,
+      "pos": {
+        "x": 300,
+        "y": 256
+      },
+      "stockpileAvailable": 16,
+      "stockpileReserved": 0,
+      "totalMud": 16,
+      "honeydewAmount": 29,
+      "timestamp": "2026-11-13T14:04:41.146Z"
     },
-    "path": [
-      {
-        "cx": 48,
-        "cy": 8
+    "saveJsonLength": 936,
+    "immediatePostLoadSnapshot": {
+      "workerId": "ant-worker-0",
+      "state": "HAULING_MUD",
+      "mudPayload": 1,
+      "carriedResource": "MUD",
+      "energy": 58.725,
+      "pos": {
+        "x": 308.80320000000006,
+        "y": 272
       },
-      {
-        "cx": 47,
-        "cy": 8
-      },
-      {
-        "cx": 47,
-        "cy": 7
-      },
-      {
-        "cx": 46,
-        "cy": 7
-      },
-      {
-        "cx": 46,
-        "cy": 6
-      },
-      {
-        "cx": 45,
-        "cy": 6
-      },
-      {
-        "cx": 45,
-        "cy": 5
-      },
-      {
-        "cx": 45,
-        "cy": 4
-      },
-      {
-        "cx": 45,
-        "cy": 3
-      },
-      {
-        "cx": 45,
-        "cy": 2
-      },
-      {
-        "cx": 45,
-        "cy": 1
-      },
-      {
-        "cx": 46,
-        "cy": 1
-      }
-    ]
-  },
-  "feedingTelemetry": {
-    "workerState": "EATING",
-    "energy": 60.12530000000003,
-    "honeydewRemaining": 29,
-    "consumed": true
-  },
-  "savedDataSample": {
-    "version": "0.1.0",
-    "timestamp": 1794508671372,
-    "biomeId": "ancient_forest",
-    "terrain": {
-      "cols": 75,
-      "rows": 32,
-      "solidCellsRLE": "1:31,0:1,1:14,0:1,1:59,0:1,1:13,0:2,1:58,0:2,1:13,0:1,1:58,0:2,1:14,0:1,1:58,0:1,1:15,0:1,1:57,0:1,1:16,0:1,1:56,0:2,1:16,0:2,1:53,0:3,1:18,0:2,1:51,0:4,1:18,0:6,1:47,0:4,1:21,0:4,1:71,0:4,1:72,0:4,1:3,0:1,1:70,0:8,1:68,0:7,1:68,0:8,1:67,0:7,1:68,0:3,1:1,0:2,1:1140"
+      "pathLen": 3,
+      "pathIndex": 1,
+      "stockpileAvailable": 16,
+      "stockpileReserved": 0,
+      "totalMud": 16,
+      "honeydewAmount": 29,
+      "timestamp": "2026-11-13T14:04:46.689Z"
     },
-    "resources": {
-      "clayMudAvailable": 16,
-      "clayMudReserved": 0,
-      "foodHoneydewAvailable": 29
+    "deliveryCompletedPostLoad": {
+      "state": "IDLE",
+      "mudPayload": 0,
+      "carriedResource": null,
+      "energy": 57.37529999999997,
+      "stockpileAvailable": 17,
+      "totalMud": 17,
+      "pos": {
+        "x": 352,
+        "y": 272
+      },
+      "timestamp": "2026-11-13T14:04:47.684Z"
     },
-    "colony": {
-      "speciesId": "SPECIES_COMMON_FOREST_ANT",
-      "ants": [
-        {
-          "id": "queen-ant-0",
-          "type": "QUEEN",
-          "x": 640,
-          "y": 464,
-          "angle": 2.139343062153452,
-          "state": "IDLE",
-          "energy": 100,
-          "mudPayload": 0,
-          "carriedResource": null
-        },
-        {
-          "id": "ant-worker-0",
-          "type": "WORKER",
-          "x": 278.33340809968865,
-          "y": 222.48653498358192,
-          "angle": -2.5661680030545053,
-          "state": "HAULING_MUD",
-          "energy": 56.40065000000001,
-          "mudPayload": 1,
-          "carriedResource": "CLAY_MUD",
-          "currentJobId": null,
-          "targetJobCell": null,
-          "jobTimer": 0,
-          "jobDuration": 3.5
-        }
-      ]
-    },
-    "jobs": {
-      "pendingDesignations": [
-        {
-          "type": "DIG",
-          "cx": 46,
-          "cy": 8
-        }
-      ]
+    "secondReloadIdempotency": {
+      "stockpileAvailable": 17,
+      "totalMud": 17,
+      "pendingJobs": 0,
+      "workerPayload": 0,
+      "workerState": "IDLE"
     }
   },
-  "restoredState": {
-    "workerId": "ant-worker-0",
-    "workerPos": {
-      "x": 278.33340809968865,
-      "y": 222.48653498358192
-    },
-    "workerState": "HAULING_MUD",
-    "workerEnergy": 56.40065000000001,
-    "mudPayload": 1,
-    "stockpileAvailable": 16,
-    "honeydewAmount": 29,
-    "targetCellSolid": false
+  "resourceLedger": {
+    "initialMudStockpile": 16,
+    "workerInTransitPayload": 1,
+    "expectedTotalConserved": 17,
+    "actualStockpilePostDelivery": 17,
+    "honeydewPreFeeding": 30,
+    "honeydewPostFeeding": 29
   },
   "verification": {
-    "energyDepletedAndReflexTriggered": true,
-    "honeydewConsumed": true,
-    "energyRestored": false,
+    "hungerReflexTriggeredNaturally": true,
+    "honeydewConsumedExactlyOne": true,
+    "energyRestoredAboveThreshold": true,
     "saveGameSucceeded": true,
-    "loadGameRestoredCorrectly": false
+    "loadGameRestoredCorrectly": true,
+    "pathReconstructedUponLoad": true,
+    "continueAfterLoadDeliveredMud": true,
+    "idempotencyVerifiedNoDuplication": true
   },
   "errors": []
 }
