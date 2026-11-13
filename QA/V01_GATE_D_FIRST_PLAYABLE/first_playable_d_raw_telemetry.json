@@ -1,0 +1,101 @@
+{
+  "checkpoint": "D_FIRST_PLAYABLE_GATE",
+  "timestamp": "2026-11-13T18:01:25.592Z",
+  "browser": "Chromium Headless",
+  "viewport": "1600x1000",
+  "loopExecution": {
+    "step1_initial": {
+      "workerId": "ant-worker-0",
+      "workerPos": {
+        "x": 352,
+        "y": 256
+      },
+      "workerState": "IDLE",
+      "energy": 100,
+      "stockpileAvailable": 16,
+      "honeydewAmount": 30,
+      "timestamp": "2026-11-13T18:01:07.358Z"
+    },
+    "step3_digDesignationPlaced": true,
+    "step4_diggingInProgress": {
+      "state": "DIGGING",
+      "jobTimer": 0,
+      "energy": 98.52475000000007,
+      "pos": {
+        "x": 320,
+        "y": 272
+      }
+    },
+    "step6_mudDepositedStockpile17": {
+      "state": "IDLE",
+      "mudPayload": 0,
+      "carriedResource": null,
+      "stockpileAvailable": 17,
+      "isCellSolid": false,
+      "energy": 82.45471428571393,
+      "pos": {
+        "x": 352,
+        "y": 272
+      }
+    },
+    "step8_fillDesignationPlaced": true,
+    "step9_backfillCompleteSolidRestored": {
+      "state": "IDLE",
+      "mudPayload": 0,
+      "stockpileAvailable": 16,
+      "isCellSolid": true,
+      "energy": 66.41060714285702,
+      "pos": {
+        "x": 320,
+        "y": 272
+      }
+    },
+    "step10_hungerAndFeeding": {
+      "seeking": "SEEKING_FOOD",
+      "consumed": 1,
+      "finalEnergy": 64.95009999999989,
+      "remainingHoneydew": 29
+    },
+    "step11_saveGamePayloadLength": 957,
+    "step13_coldLoadRestoredState": {
+      "workerId": "ant-worker-0",
+      "workerPos": {
+        "x": 412.8047999999998,
+        "y": 272
+      },
+      "workerState": "WANDERING",
+      "workerEnergy": 64.12509999999982,
+      "mudPayload": 0,
+      "stockpileAvailable": 16,
+      "stockpileReserved": 0,
+      "totalMud": 16,
+      "honeydewAmount": 29,
+      "isTargetCellSolid": true
+    }
+  },
+  "resourceLedger": {
+    "initialStockpile": 16,
+    "afterDigExcavationDeposit": 17,
+    "afterBackfillWithdrawal": 16,
+    "finalRestoredStockpile": 16,
+    "honeydewInitial": 30,
+    "honeydewPostFeeding": 29,
+    "conservationInvariantMet": true
+  },
+  "performance": {
+    "fps": 60,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "canvasWidth": 1600,
+    "canvasHeight": 1000
+  },
+  "verificationMatrix": {
+    "gameplayLoopExecutedStartToEnd": true,
+    "pointerInteractionSucceeded": true,
+    "digging3_5sComplete": true,
+    "mudConservedExact16_17_16": true,
+    "feedingRestoredEnergy": false,
+    "saveLoadColdPersistenceConfirmed": true,
+    "zeroRegressions": true
+  },
+  "errors": []
+}
