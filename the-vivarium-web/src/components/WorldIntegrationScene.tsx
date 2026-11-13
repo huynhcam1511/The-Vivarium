@@ -16,6 +16,7 @@ import { AntColony } from '../simulation/AntColony';
 import { HoneydewSource } from '../simulation/HoneydewSource';
 import { GameStateManager } from '../simulation/GameStateManager';
 import { ClayMudStockpileView } from '../rendering/ClayMudStockpileView';
+import { HoneydewSourceView } from '../rendering/HoneydewSourceView';
 import { AntPlaceholderView } from '../rendering/AntPlaceholderView';
 
 function drawDashedRect(
@@ -457,6 +458,10 @@ export const WorldIntegrationScene: React.FC = () => {
       stockpileViewRef.current = stockpileView;
       terrainRenderer.addSubterraneanLayer(stockpileView.container);
 
+      // Physical Subterranean Aphid Honeydew Cache View
+      const honeydewView = new HoneydewSourceView(honeydewSource);
+      terrainRenderer.addSubterraneanLayer(honeydewView.container);
+
       // Ant Placeholder View (ants crawl inside subterranean caverns)
       const antPlaceholderView = new AntPlaceholderView();
       antViewRef.current = antPlaceholderView;
@@ -829,7 +834,7 @@ export const WorldIntegrationScene: React.FC = () => {
         <div className="flex items-center gap-3">
           <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
           <h1 className="font-bold tracking-wide uppercase text-amber-300 text-sm">
-            THE VIVARIUM — WORLD INTEGRATION SUITE (TASK-021 / GATE A.2)
+            THE VIVARIUM — V0.1 FIRST PLAYABLE (ANCIENT FOREST)
           </h1>
           <span className="bg-emerald-950/80 text-emerald-300 px-2 py-0.5 rounded border border-emerald-700/50 font-mono text-[10px]">
             CANDIDATE BUILD ACTIVE
@@ -873,7 +878,11 @@ export const WorldIntegrationScene: React.FC = () => {
             <span className="font-bold text-yellow-300" data-testid="telemetry-worker-energy">{workerEnergy}</span>
           </div>
           <div>
-            <span className="text-neutral-400 mr-1">Honeydew:</span>
+            <span className="text-neutral-400 mr-1">Bùn Đất Sét:</span>
+            <span className="font-bold text-amber-500" data-testid="telemetry-clay-mud">{stockpileRef.current?.getAvailableCount() ?? 16}</span>
+          </div>
+          <div>
+            <span className="text-neutral-400 mr-1">Mật Rệp (Food):</span>
             <span className="font-bold text-amber-400" data-testid="telemetry-honeydew">{honeydewCount}</span>
           </div>
 
@@ -1028,6 +1037,11 @@ export const WorldIntegrationScene: React.FC = () => {
               {saveStatusMsg}
             </span>
           )}
+        </div>
+
+        {/* Quick Guidance Overlay */}
+        <div className="hidden lg:flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] text-neutral-300">
+          <span>💡 <b>Hướng dẫn:</b> 1. Chọn ⛏️ <b>Đào</b> click vào đất ngầm &rarr; 2. Kiến đào 3.5s mang bùn về kho &rarr; 3. Chọn 🧱 <b>Lấp</b> click ô trống &rarr; 4. Bấm 💾 <b>Lưu Game</b></span>
         </div>
 
         {/* Camera Presets */}
