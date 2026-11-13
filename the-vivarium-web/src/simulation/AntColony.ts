@@ -448,6 +448,10 @@ export class AntColony {
         ant.mudPayload = 0;
         ant.state = 'IDLE';
       }
+    } else if (ant.state === 'SEEKING_FOOD') {
+      // Arrived at honeydew cache -> Start eating
+      ant.state = 'EATING';
+      ant.jobTimer = 0;
     } else {
       ant.state = 'IDLE';
     }

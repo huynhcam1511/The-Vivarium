@@ -249,7 +249,7 @@ export class GameStateManager {
       // 4. Restore ants safely
       colony.ants = [];
       for (const a of parsed.colony.ants) {
-        colony.ants.push({
+        const restoredAnt: any = {
           id: a.id,
           type: a.type,
           position: { x: a.x, y: a.y },
@@ -267,7 +267,53 @@ export class GameStateManager {
           jobDuration: a.jobDuration,
           targetJobCell: a.targetJobCell,
           mudPayload: a.mudPayload,
-        });
+        };
+
+        // Resume in-flight navigation if path was interrupted
+        const antCell = colony.worldToCell(restoredAnt.position);
+        if (restoredAnt.state === 'HAULING_MUD') {
+          if (restoredAnt.targetJobCell && restoredAnt.currentJobId) {
+            // Hauling mud to backfill site
+            const adj = colony.pathfinder.findWalkableAdjacent(restoredAnt.targetJobCell, antCell);
+            if (adj) {
+              const path = colony.pathfinder.findPath(antCell, adj);
+              if (path) {
+                restoredAnt.path = path;
+                restoredAnt.pathIndex = 0;
+              }
+            }
+          } else {
+            // Hauling excavated mud back to stockpile
+            const returnPath = colony.pathfinder.findPath(antCell, stockpile.pickupWaypoint);
+            if (returnPath) {
+              restoredAnt.path = returnPath;
+              restoredAnt.pathIndex = 0;
+            }
+          }
+        } else if (restoredAnt.state === 'MOVING_TO_JOB' && restoredAnt.targetJobCell) {
+          const adj = colony.pathfinder.findWalkableAdjacent(restoredAnt.targetJobCell, antCell);
+          if (adj) {
+            const path = colony.pathfinder.findPath(antCell, adj);
+            if (path) {
+              restoredAnt.path = path;
+              restoredAnt.pathIndex = 0;
+            }
+          }
+        } else if (restoredAnt.state === 'MOVING_TO_STOCKPILE') {
+          const path = colony.pathfinder.findPath(antCell, stockpile.pickupWaypoint);
+          if (path) {
+            restoredAnt.path = path;
+            restoredAnt.pathIndex = 0;
+          }
+        } else if (restoredAnt.state === 'SEEKING_FOOD') {
+          const path = colony.pathfinder.findPath(antCell, honeydewSource.cell);
+          if (path) {
+            restoredAnt.path = path;
+            restoredAnt.pathIndex = 0;
+          }
+        }
+
+        colony.ants.push(restoredAnt);
       }
 
       // Rebuild terrain mesh
